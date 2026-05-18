@@ -10,7 +10,7 @@
 
 ## ✨ 核心特性
 
-- **真实本地模型**：基于 Ollama 本地运行 `qwen2.5:7b`（LLM）和 `nomic-embed-text`（Embedding），零费用、可离线演示
+- **真实本地模型**：基于 Ollama 本地运行 `qwen2.5:7b-instruct`（LLM）和 `nomic-embed-text`（Embedding），零费用、可离线演示
 - **完整 RAG 链路**：向量检索 + 关键词检索混合，真实 768 维 Embedding，余弦相似度计算
 - **多轮对话**：支持上下文关联的连续追问，流式 SSE 输出
 - **来源可追溯**：每个回答标注引用文档和相似度分数
@@ -39,7 +39,7 @@ curl -fsSL https://ollama.com/install.sh | sh
 # 或访问 https://ollama.com 下载 Windows/macOS 客户端
 
 # 拉取模型（约 4-8GB）
-ollama pull qwen2.5:7b
+ollama pull qwen2.5:7b-instruct
 ollama pull nomic-embed-text
 
 # 启动 Ollama 服务（默认 http://localhost:11434）
@@ -204,7 +204,7 @@ pip install chroma-mcp
 |------|------|
 | 前端 | React 18 + TypeScript + Vite + Axios |
 | 后端 | NestJS 10 + TypeScript |
-| LLM | Ollama `qwen2.5:7b`（本地） |
+| LLM | Ollama `qwen2.5:7b-instruct`（本地） |
 | Embedding | Ollama `nomic-embed-text`（本地，768维） |
 | 向量存储 | In-Memory（接口抽象，可替换 Chroma） |
 | 认证 | JWT + 内存用户表 |

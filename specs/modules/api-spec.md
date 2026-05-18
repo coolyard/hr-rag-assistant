@@ -113,7 +113,7 @@ interface ApiError {
 ```json
 {
   "status": "ok",
-  "models": ["qwen2.5:7b", "nomic-embed-text"],
+  "models": ["qwen2.5:7b-instruct", "nomic-embed-text"],
   "ollamaVersion": "0.1.48"
 }
 ```

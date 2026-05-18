@@ -31,7 +31,7 @@
 - [ ] `cd apps/web && npm run dev` 能启动 Vite，显示默认 React 页面
 - [ ] TypeScript 编译无错误，无 `any` 类型
 - [ ] 调用 Ollama `nomic-embed-text`，输入"年假怎么请"，返回 768 维真实向量
-- [ ] 调用 Ollama `qwen2.5:7b`，输入"你好"，返回真实中文回答（SSE 流式）
+- [ ] 调用 Ollama `qwen2.5:7b-instruct`，输入"你好"，返回真实中文回答（SSE 流式）
 - [ ] 启动后端时，自动加载 `docs/hr-documents/` 目录下的 5 个内置 HR 文档
 - [ ] 控制台显示"已加载 5 个文档，共 XX 个片段，已建立 Embedding 索引"
 - [ ] 内存 VectorStore 中能通过 ID 查询到向量，维度为 768

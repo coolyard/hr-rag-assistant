@@ -45,8 +45,8 @@ Task-003 (文档索引) ── 依赖 Task-001 + Task-002
   - 健康检查接口 `GET /api/health/ollama`
 - **验收标准**：
   - [ ] 调用 Ollama `nomic-embed-text`，输入"年假怎么请"，返回 768 维真实向量
-  - [ ] 调用 Ollama `qwen2.5:7b`，输入"你好"，返回真实中文回答（SSE 流式）
-  - [ ] `/api/health/ollama` 返回 `{ status: 'ok', models: ['qwen2.5:7b', 'nomic-embed-text'] }`
+  - [ ] 调用 Ollama `qwen2.5:7b-instruct`，输入"你好"，返回真实中文回答（SSE 流式）
+  - [ ] `/api/health/ollama` 返回 `{ status: 'ok', models: ['qwen2.5:7b-instruct', 'nomic-embed-text'] }`
 - **预计耗时**：2-3 小时
 
 ## Task-003: 内置文档加载与真实 Embedding 索引

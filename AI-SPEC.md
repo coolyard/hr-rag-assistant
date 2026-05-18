@@ -128,7 +128,7 @@
 ### 5.1 模型配置
 | 参数 | 值 | 说明 |
 |------|-----|------|
-| `model` | `qwen2.5:7b` | Ollama 本地模型 |
+| `model` | `qwen2.5:7b-instruct` | Ollama 本地模型 |
 | `temperature` | 0.3 | 低温度，保证事实性 |
 | `top_p` | 0.9 | 核采样 |
 | `max_tokens` | 1024 | 单次回答最大长度 |

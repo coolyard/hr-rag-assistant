@@ -27,7 +27,7 @@
 
 | 参数 | 值 | 说明 |
 |------|-----|------|
-| `model` | `qwen2.5:7b` | Ollama 本地模型 |
+| `model` | `qwen2.5:7b-instruct` | Ollama 本地模型 |
 | `temperature` | 0.3 | 低温度，保证事实性 |
 | `top_p` | 0.9 | 核采样 |
 | `top_k` | 40 | Top-K 采样 |
@@ -77,7 +77,7 @@ POST http://localhost:11434/api/generate
 Content-Type: application/json
 
 {
-  "model": "qwen2.5:7b",
+  "model": "qwen2.5:7b-instruct",
   "prompt": "<组装后的完整 Prompt>",
   "stream": true,
   "options": {
@@ -91,11 +91,11 @@ Content-Type: application/json
 
 **流式响应**：
 ```
-{"model":"qwen2.5:7b","created_at":"2026-05-18T09:30:00Z","response":"根据","done":false}
-{"model":"qwen2.5:7b","created_at":"2026-05-18T09:30:00Z","response":"《年假制度》","done":false}
-{"model":"qwen2.5:7b","created_at":"2026-05-18T09:30:01Z","response":"，","done":false}
+{"model":"qwen2.5:7b-instruct","created_at":"2026-05-18T09:30:00Z","response":"根据","done":false}
+{"model":"qwen2.5:7b-instruct","created_at":"2026-05-18T09:30:00Z","response":"《年假制度》","done":false}
+{"model":"qwen2.5:7b-instruct","created_at":"2026-05-18T09:30:01Z","response":"，","done":false}
 ...
-{"model":"qwen2.5:7b","created_at":"2026-05-18T09:30:05Z","response":"","done":true,"context":[...]}
+{"model":"qwen2.5:7b-instruct","created_at":"2026-05-18T09:30:05Z","response":"","done":true,"context":[...]}
 ```
 
 ---
@@ -227,7 +227,7 @@ async function* parseOllamaStream(
 | 场景 | 处理策略 |
 |------|---------|
 | Ollama 未启动 | 重试 2 次后抛出 `OllamaConnectionError`，返回 503 |
-| 模型未下载 | 抛出 `ModelNotFoundError`，提示 `ollama pull qwen2.5:7b` |
+| 模型未下载 | 抛出 `ModelNotFoundError`，提示 `ollama pull qwen2.5:7b-instruct` |
 | 生成超时（>60s） | 中断流，SSE 发送 `{done: true, error: "生成超时"}` |
 | 生成过程中 Ollama 断开 | 发送已生成内容 + error 包 |
 | Token 超限 | Ollama 自动截断，返回 `done: true` |

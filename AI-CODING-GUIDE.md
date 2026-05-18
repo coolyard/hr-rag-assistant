@@ -12,7 +12,7 @@
 ```bash
 # 确认 Ollama 已安装并运行
 ollama --version
-ollama list  # 确认 qwen2.5:7b 和 nomic-embed-text 已下载
+ollama list  # 确认 qwen2.5:7b-instruct 和 nomic-embed-text 已下载
 ollama serve
 
 # 确认 Node.js 版本
@@ -147,7 +147,7 @@ git commit -m "feat(phase-1): initialize NestJS + React project structure (Task-
 1. 创建 `llm/llm.module.ts` + `llm/llm.service.ts`
    - 实现 `ILLMService` 接口
    - 封装 Ollama `/api/generate` 调用
-   - 参数：model=qwen2.5:7b, temperature=0.3, stream=true
+   - 参数：model=qwen2.5:7b-instruct, temperature=0.3, stream=true
    - 返回 `AsyncIterable<string>` 流式输出
 
 2. 创建 `embed/embed.module.ts` + `embed/embed.service.ts`
@@ -175,7 +175,7 @@ git commit -m "feat(phase-1): initialize NestJS + React project structure (Task-
 
 验收标准：
 - 调用 `nomic-embed-text`，输入"年假怎么请"，返回 768 维向量
-- 调用 `qwen2.5:7b`，输入"你好"，返回中文流式回答
+- 调用 `qwen2.5:7b-instruct`，输入"你好"，返回中文流式回答
 - `/api/health/ollama` 返回模型列表
 ```
 

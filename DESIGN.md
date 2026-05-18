@@ -102,7 +102,7 @@
 - 当实现与 Spec 冲突时，**优先修改 Spec 以反映真实业务需求**，再让 AI 重构代码
 
 ### 3.2 真实模型驱动（Real Model Driven）
-- 使用 Ollama 本地真实模型（`qwen2.5:7b` + `nomic-embed-text`）
+- 使用 Ollama 本地真实模型（`qwen2.5:7b-instruct` + `nomic-embed-text`）
 - 拒绝 Fake/Mock 数据进入核心链路
 - 面试时可现场演示真实推理过程
 
@@ -225,7 +225,7 @@
 
 ```bash
 # 1. 安装 Ollama
-ollama pull qwen2.5:7b
+ollama pull qwen2.5:7b-instruct
 ollama pull nomic-embed-text
 ollama serve
 

@@ -93,7 +93,7 @@
 | 后端框架 | NestJS | 10.x | Express / Fastify |
 | 后端语言 | TypeScript | 严格模式 | — |
 | 运行环境 | Node.js | 18+ | — |
-| LLM 推理 | Ollama HTTP API | 本地 `qwen2.5:7b` | OpenAI / Claude |
+| LLM 推理 | Ollama HTTP API | 本地 `qwen2.5:7b-instruct` | OpenAI / Claude |
 | Embedding | Ollama HTTP API | 本地 `nomic-embed-text` | OpenAI Embedding |
 | 向量存储 | In-Memory Dict | 接口抽象，未来可换 Chroma | Chroma / Milvus |
 | 认证 | JWT (jsonwebtoken) | 内存用户表 | OAuth / SSO |
@@ -112,7 +112,7 @@
 
 ### ADR-002: 为什么用 Ollama 本地模型而非云端 API？
 - **背景**：Demo 场景需要零注册、零费用、可离线演示；隐私性好
-- **决策**：Ollama 本地部署 `qwen2.5:7b` + `nomic-embed-text`
+- **决策**：Ollama 本地部署 `qwen2.5:7b-instruct` + `nomic-embed-text`
 - **代价**：需要 8GB+ 显存或 16GB+ 内存；首次下载模型耗时
 - **状态**：已接受
 - **扩展点**：LLM 和 Embedding 均通过接口抽象，未来可一键切换云端 API
@@ -353,7 +353,7 @@ file: <.md 文件>
 
 | 扩展点 | 当前实现 | 未来演进 |
 |--------|---------|---------|
-| LLM | Ollama `qwen2.5:7b` | 接口切换 OpenAI / Claude / 通义千问 |
+| LLM | Ollama `qwen2.5:7b-instruct` | 接口切换 OpenAI / Claude / 通义千问 |
 | Embedding | Ollama `nomic-embed-text` | 接口切换 OpenAI Embedding / BGE |
 | VectorStore | In-Memory Map | 实现 IVectorStore 接口接入 Chroma / Milvus |
 | Auth | Memory JWT | 接入 OAuth / SSO / LDAP |

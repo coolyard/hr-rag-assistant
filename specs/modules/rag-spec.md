@@ -37,7 +37,7 @@
 | `vector_weight` | 0.4 | 混合检索中向量检索权重 |
 | `keyword_weight` | 0.6 | 混合检索中关键词检索权重 |
 | `max_history_rounds` | 5 | 多轮对话保留轮数 |
-| `max_tokens_estimate` | 28000 | 总上下文 Token 估算上限（qwen2.5:7b 窗口 32768，留 4000+ 给生成） |
+| `max_tokens_estimate` | 28000 | 总上下文 Token 估算上限（qwen2.5:7b-instruct 窗口 32768，留 4000+ 给生成） |
 
 > ⚠️ **Spec 锁定**：以上参数变更需更新本 Spec 并重新测试准确率/拒绝率
 
