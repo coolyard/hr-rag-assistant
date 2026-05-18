@@ -63,6 +63,26 @@ export class VectorStoreService implements IVectorStore {
     return this.vectors.get(id) ?? null;
   }
 
+  getAll(): SearchResult[] {
+    const results: SearchResult[] = [];
+
+    for (const [id, data] of this.vectors) {
+      results.push({
+        chunkId: id,
+        content: data.metadata.content,
+        documentName: data.metadata.documentName,
+        documentTitle: data.metadata.documentTitle,
+        category: data.metadata.category,
+        categoryName: data.metadata.categoryName,
+        heading: data.metadata.heading,
+        similarity: 0,
+        metadata: data.metadata,
+      });
+    }
+
+    return results;
+  }
+
   logIndexSummary(): void {
     this.logger.log(`[VectorStore] 已建立 ${String(this.vectors.size)} 条 Embedding 索引`);
   }

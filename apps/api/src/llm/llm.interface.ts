@@ -1,10 +1,5 @@
 export interface ILLMService {
-  generate(
-    systemPrompt: string,
-    history: string,
-    retrievedChunks: string,
-    userQuestion: string,
-  ): AsyncIterable<string>;
+  generate(prompt: string): AsyncIterable<string>;
 
   healthCheck(): Promise<{ available: boolean; model: string }>;
 }

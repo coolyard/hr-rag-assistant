@@ -27,4 +27,5 @@ export interface IVectorStore {
   clear(): void;
   count(): number;
   get(id: string): { embedding: number[]; metadata: DocumentMeta } | null;
+  getAll(): SearchResult[];
 }
