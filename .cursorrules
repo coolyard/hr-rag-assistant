@@ -1,0 +1,261 @@
+# .cursorrules — AI 编码规范
+
+> 本文档约束 AI 编码时的技术栈选择、代码风格、模块边界。所有 AI 生成的代码必须遵守本文档。
+
+---
+
+## 1. 技术栈约束（不可违反）
+
+| 层级 | 技术 | 禁止使用的替代方案 |
+|------|------|------------------|
+| 前端框架 | React 18 + TypeScript（严格模式） | Vue / Svelte / Angular |
+| 前端构建 | Vite 5 | Webpack / Parcel |
+| 后端框架 | NestJS 10 + TypeScript（严格模式） | Express / Fastify / Koa |
+| 状态管理 | React Context + useReducer | Redux / Zustand / MobX |
+| 样式方案 | CSS Modules + CSS Variables | Tailwind / Styled Components / Sass |
+| HTTP 客户端 | Axios | Fetch API（除非 SSE 场景） |
+| LLM 推理 | Ollama HTTP API | 直接调用（必须封装为 Service） |
+| Embedding | Ollama HTTP API | 直接调用（必须封装为 Service） |
+| 认证 | JWT (jsonwebtoken) | Session / Cookie Auth |
+| 文档解析 | 原生 fs + Markdown | PDF Parser / Word Parser（MVP 禁止） |
+| 代码规范 | ESLint 9 (flat config) + Prettier 3 | 其他 Linter / Formatter |
+
+---
+
+## 2. 代码风格
+
+### 2.1 TypeScript
+
+- 开启 `strict: true`，禁止 `any` 类型
+- 接口名使用 `PascalCase`，以 `I` 前缀标识服务接口（如 `ILLMService`）
+- 类型定义优先使用 `interface` 而非 `type`
+- 函数返回值必须显式声明
+- 禁止隐式 `any`：所有参数必须有类型注解
+
+### 2.2 命名规范
+
+| 类型 | 规范 | 示例 |
+|------|------|------|
+| 组件 | PascalCase | `ChatMessage.tsx` |
+| Hook | camelCase，以 `use` 开头 | `useChat.ts` |
+| Service | PascalCase，以 `Service` 结尾 | `RAGService` |
+| Controller | PascalCase，以 `Controller` 结尾 | `AskController` |
+| 模块 | camelCase | `rag.module.ts` |
+| 常量 | UPPER_SNAKE_CASE | `SIMILARITY_THRESHOLD` |
+| 文件 | kebab-case | `vector-store.service.ts` |
+
+### 2.3 NestJS 模块规范
+
+```typescript
+// 模块结构
+@Module({
+  imports: [],
+  controllers: [XxxController],
+  providers: [XxxService],
+  exports: [XxxService],  // 需要被其他模块使用的 Service 必须导出
+})
+export class XxxModule {}
+```
+
+- 一个模块一个目录
+- 目录内包含：`.module.ts`、`.service.ts`、`.controller.ts`、`.spec.ts`（可选）
+- 跨模块依赖通过 `imports` 引入，禁止直接 `import` 其他模块的内部文件
+
+### 2.4 React 组件规范
+
+- 函数组件，使用 React.FC 或显式 Props 类型
+- Props 接口名：`XxxProps`
+- 事件处理函数以 `handle` 开头
+- 状态变量以 `[value, setValue]` 命名
+
+---
+
+## 3. 模块边界约束
+
+### 3.1 禁止跨模块直接引用
+
+```typescript
+// ❌ 错误：直接引用其他模块内部文件
+import { RAGService } from '../rag/rag.service';
+
+// ✅ 正确：通过模块导出引用
+import { RAGModule } from '../rag/rag.module';
+```
+
+### 3.2 接口优先
+
+- LLM / Embedding / VectorStore 必须通过接口抽象
+- 具体实现可替换，不影响调用方
+
+---
+
+## 4. 错误处理
+
+- 所有 Service 方法必须有 `try-catch`
+- Controller 层使用 NestJS 异常过滤器统一处理
+- 禁止裸 `throw` 字符串，必须使用 `Error` 实例或 NestJS HttpException
+- 异步函数必须 `await` 或返回 Promise，禁止裸 Promise 不处理
+
+---
+
+## 5. Git 约束
+
+- 每次提交必须可编译、可运行
+- 提交信息遵循 Conventional Commits（详见 CONTRIBUTING.md）
+- Spec 变更和代码变更分开提交（Spec 用 `docs:`，代码用 `feat:`/`fix:`）
+
+---
+
+## 6. 开发优先级
+
+1. 先实现接口定义（`.interface.ts`）
+2. 再实现 Service（业务逻辑）
+3. 再实现 Controller（HTTP 接口）
+4. 最后实现前端组件
+5. 始终参考对应模块 Spec（`specs/modules/*.md`）
+
+---
+
+## 7. 过度工程化防御
+
+- 禁止为了"未来扩展"增加抽象层（Strategy 模式、Factory 模式、Builder 模式）——当前需求不需要的就不写
+- 禁止创建少于 3 个方法的 interface（除非是跨模块 Service 接口，如 `ILLMService`）
+- 禁止创建工具函数文件（`utils.ts`、`helpers.ts`、`common.ts`）——函数归属于它服务的模块
+- 3 行以内能解决的内联逻辑，不抽取为独立函数
+- 禁止"万一以后要用"的参数预留和配置项
+
+---
+
+## 8. 依赖管理
+
+- 禁止引入任何不在技术栈约束表（Section 1）中的 npm 包
+- NestJS 内置能力优先：`@nestjs/common` 已提供的装饰器、管道、守卫、拦截器，不再引入第三方替代
+- 禁止引入 `lodash`、`moment`、`dayjs`、`class-validator`、`class-transformer`——用原生 JS/TS 替代
+
+---
+
+## 9. 注释策略
+
+- 默认不写注释。代码通过清晰的命名自解释
+- 仅在代码行为对读者不明显时才添加单行注释（如性能考虑、边界条件 workaround、已知坑）
+- 注释解释 WHY（为什么这样做），不解释 WHAT（代码做了什么）
+- 禁止 JSDoc 和多行注释块（`/** ... */`）
+
+---
+
+## 10. 常量与配置
+
+- 所有 RAG 参数（阈值、权重、top_k、batch_size）必须定义为命名常量，禁止在代码中硬编码数字或字符串
+- Ollama 地址、JWT Secret、服务端口号从环境变量读取，提供默认值作为 fallback
+- 环境变量统一在模块级 config 文件中管理（如 `llm.config.ts`），Service 通过依赖注入获取配置
+- 禁止在 Service 代码中直接访问 `process.env`
+
+---
+
+## 11. React 硬性规则
+
+- 列表渲染必须有唯一且稳定的 `key`（禁止用数组 `index` 作为 key）
+- `useEffect` 依赖数组必须完整，禁止用 `// eslint-disable-next-line` 绕过
+- 禁止 inline style（使用 CSS Modules）
+- 状态变量粒度：一个 `useState` 只存一个独立值，不把多个不相关的值合并到一个对象 state 中
+- 表单输入必须受控（`value` + `onChange`），禁止使用 `ref` 绕过
+
+---
+
+## 12. 安全底线
+
+- 禁止在代码中硬编码任何凭证（密钥、密码、token、secret）
+- 文件路径操作必须通过 `path.resolve()` 消毒 + `path.basename()` 防目录穿越
+- 用户上传的 Markdown 前端渲染前必须经过 DOMPurify（或等效的 XSS 消毒）
+- 后端返回给前端的错误信息不暴露内部堆栈、文件路径、数据库结构
+
+---
+
+## 13. 日志规范
+
+- 后端使用 NestJS `Logger`，禁止 `console.log`
+- 启动事件、关键操作（文档加载、索引建立、文件上传成功）→ `logger.log()`
+- 可恢复的异常（Ollama 超时、SSE 断开、文档解析跳过）→ `logger.warn()`
+- 不可恢复的错误（服务启动失败、模型加载失败）→ `logger.error()`
+- 禁止 log 用户提问内容和 LLM 回答内容（隐私保护）
+- 前端使用 `console.error` 仅用于开发调试，生产构建中通过 Vite 自动移除
+
+---
+
+## 14. 导入顺序
+
+导入按以下顺序分组，组间空一行：
+
+```
+// 1. Node 内置模块
+import * as fs from 'fs';
+import * as path from 'path';
+
+// 2. 第三方库
+import { Controller, Post, Body } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import axios from 'axios';
+
+// 3. 项目内模块（@/ 别名）
+import { RAGService } from '@/rag/rag.service';
+import { AuthGuard } from '@/auth/auth.guard';
+
+// 4. 相对路径导入
+import { formatChunks } from './utils';
+```
+
+- 同一来源的多个导入合并为一行（如上例 `@nestjs/common`）
+- 禁止 `import *` 全量导入（`import * as _ from 'lodash'`）
+
+---
+
+## 15. 命名导出
+
+- 组件、Service、Controller、Hook 使用命名导出，禁止 `export default`
+- NestJS 模块文件（`.module.ts`）例外：可用 `export class XxxModule {}` 作为模块主导出
+- 跨模块使用的内容必须在模块的 `index.ts` 中 re-export，禁止深路径引用
+
+---
+
+## 16. ESLint & Prettier 强制执行
+
+### 16.1 必须生成的配置文件
+
+- `eslint.config.mjs` (flat config) — 根目录，monorepo 共享配置
+- `.prettierrc` — 根目录
+- `.prettierignore` — 排除 node_modules, dist, build, .next, .claude
+
+### 16.2 ESLint 规则（不可违反）
+
+| 规则 | 级别 | 说明 |
+|------|------|------|
+| `@typescript-eslint/no-explicit-any` | error | 禁止 `any` 类型 |
+| `@typescript-eslint/no-unused-vars` | error | 未使用变量（`_` 前缀参数豁免） |
+| `import/order` | error | 导入自动排序（node → third-party → @/ → relative） |
+| `react-hooks/rules-of-hooks` | error | 必须遵守 React Hooks 规则 |
+| `react-hooks/exhaustive-deps` | error | useEffect 依赖数组必须完整 |
+
+前端使用：`typescript-eslint` + `eslint-plugin-react-hooks` + `eslint-plugin-react-refresh`
+后端使用：`typescript-eslint`（利用 NestJS 内置装饰器，无需额外插件）
+
+### 16.3 Prettier 规则
+
+| 规则 | 值 | 说明 |
+|------|-----|------|
+| `semi` | `true` | 必须分号 |
+| `singleQuote` | `true` | 单引号 |
+| `trailingComma` | `"all"` | 尾逗号 |
+| `printWidth` | `100` | 每行最大 100 字符 |
+| `tabWidth` | `2` | 2 空格缩进 |
+| `endOfLine` | `"lf"` | 统一 Unix 换行符 |
+
+### 16.4 强制执行机制
+
+- 根 `package.json` scripts 必须包含：
+  - `"lint": "eslint ."` — 检查代码规范
+  - `"format": "prettier --write ."` — 自动格式化
+  - `"format:check": "prettier --check ."` — 检查格式
+- **每个 Task 完成后，AI 必须运行 `pnpm lint` 并确保无 error**（warn 需记录并在后续清理）
+- **提交前必须通过 lint 检查**，格式修复类变更使用 `style:` 类型 commit
+- `.cursorrules` 第 11 节（React 硬性规则）禁止使用 `// eslint-disable-next-line` 绕过规则
+- IDE 配置（VSCode `.vscode/settings.json`）应设置 formatOnSave，减少手动格式化
