@@ -9,6 +9,7 @@
 ## 1. 范围边界
 
 ### 1.1 包含
+
 - 所有 REST API 端点的路径、方法、请求体、响应体定义
 - SSE 流式接口规范
 - 全局错误响应格式
@@ -17,6 +18,7 @@
 - 接口版本策略
 
 ### 1.2 不包含
+
 - ❌ 具体业务逻辑实现（由各 Service 模块负责）
 - ❌ 数据库 Schema（本项目无数据库）
 - ❌ 前端组件实现
@@ -33,29 +35,31 @@
 
 ### 2.2 请求头规范
 
-| Header | 必填 | 说明 |
-|--------|------|------|
-| `Content-Type` | 是（POST/PUT） | `application/json` 或 `multipart/form-data` |
-| `Authorization` | 是（受保护路由） | `Bearer <JWT_TOKEN>` |
-| `Accept` | 否 | 默认 `application/json`，SSE 接口需 `text/event-stream` |
+| Header          | 必填             | 说明                                                    |
+| --------------- | ---------------- | ------------------------------------------------------- |
+| `Content-Type`  | 是（POST/PUT）   | `application/json` 或 `multipart/form-data`             |
+| `Authorization` | 是（受保护路由） | `Bearer <JWT_TOKEN>`                                    |
+| `Accept`        | 否               | 默认 `application/json`，SSE 接口需 `text/event-stream` |
 
 ### 2.3 响应格式
 
 **成功响应**：直接返回数据对象，无统一包装（保持 NestJS 默认）
 
 **错误响应**：
+
 ```typescript
 interface ApiError {
-  statusCode: number;    // HTTP 状态码
-  message: string;       // 错误描述
-  error: string;         // 错误类型
-  code?: string;         // 业务错误码（可选）
-  timestamp?: string;    // 错误时间 ISO 字符串
-  path?: string;         // 请求路径
+  statusCode: number; // HTTP 状态码
+  message: string; // 错误描述
+  error: string; // 错误类型
+  code?: string; // 业务错误码（可选）
+  timestamp?: string; // 错误时间 ISO 字符串
+  path?: string; // 请求路径
 }
 ```
 
 **示例 400 Bad Request**：
+
 ```json
 {
   "statusCode": 400,
@@ -69,17 +73,17 @@ interface ApiError {
 
 ### 2.4 HTTP 状态码规范
 
-| 状态码 | 使用场景 |
-|--------|---------|
-| 200 | GET 请求成功、DELETE 成功 |
-| 201 | POST 创建成功（当前项目少用） |
-| 400 | 请求参数错误、文件类型不符 |
-| 401 | 未登录、Token 无效/过期 |
-| 403 | 权限不足（如 employee 访问上传接口） |
-| 404 | 资源不存在 |
-| 413 | 文件大小超过限制 |
-| 500 | 服务器内部错误 |
-| 503 | Ollama 服务未连接 |
+| 状态码 | 使用场景                             |
+| ------ | ------------------------------------ |
+| 200    | GET 请求成功、DELETE 成功            |
+| 201    | POST 创建成功（当前项目少用）        |
+| 400    | 请求参数错误、文件类型不符           |
+| 401    | 未登录、Token 无效/过期              |
+| 403    | 权限不足（如 employee 访问上传接口） |
+| 404    | 资源不存在                           |
+| 413    | 文件大小超过限制                     |
+| 500    | 服务器内部错误                       |
+| 503    | Ollama 服务未连接                    |
 
 ---
 
@@ -89,11 +93,12 @@ interface ApiError {
 
 #### GET /api/health
 
-| 属性 | 值 |
-|------|-----|
+| 属性 | 值       |
+| ---- | -------- |
 | 认证 | 无需认证 |
 
 **响应 200**：
+
 ```json
 {
   "status": "ok",
@@ -105,11 +110,12 @@ interface ApiError {
 
 #### GET /api/health/ollama
 
-| 属性 | 值 |
-|------|-----|
+| 属性 | 值       |
+| ---- | -------- |
 | 认证 | 无需认证 |
 
 **响应 200**：
+
 ```json
 {
   "status": "ok",
@@ -119,6 +125,7 @@ interface ApiError {
 ```
 
 **响应 503**：
+
 ```json
 {
   "status": "error",
@@ -148,11 +155,12 @@ interface ApiError {
 
 #### GET /api/conversations
 
-| 属性 | 值 |
-|------|-----|
+| 属性 | 值         |
+| ---- | ---------- |
 | 认证 | Bearer JWT |
 
 **响应 200**：
+
 ```json
 {
   "conversations": [
@@ -171,11 +179,12 @@ interface ApiError {
 
 #### GET /api/ask/history/:conversationId
 
-| 属性 | 值 |
-|------|-----|
+| 属性 | 值         |
+| ---- | ---------- |
 | 认证 | Bearer JWT |
 
 **响应 200**：
+
 ```json
 {
   "conversationId": "conv-123456-abc",
@@ -207,11 +216,12 @@ interface ApiError {
 
 #### DELETE /api/ask/history/:conversationId
 
-| 属性 | 值 |
-|------|-----|
+| 属性 | 值         |
+| ---- | ---------- |
 | 认证 | Bearer JWT |
 
 **响应 200**：
+
 ```json
 {
   "success": true,
@@ -225,11 +235,12 @@ interface ApiError {
 
 #### GET /api/documents
 
-| 属性 | 值 |
-|------|-----|
+| 属性 | 值         |
+| ---- | ---------- |
 | 认证 | Bearer JWT |
 
 **响应 200**：
+
 ```json
 {
   "documents": [
@@ -252,12 +263,13 @@ interface ApiError {
 
 #### GET /api/documents/:id
 
-| 属性 | 值 |
-|------|-----|
-| 认证 | Bearer JWT |
+| 属性 | 值                                   |
+| ---- | ------------------------------------ |
+| 认证 | Bearer JWT                           |
 | 参数 | `id` — 文档标识（如 `annual_leave`） |
 
 **响应 200**：
+
 ```json
 {
   "id": "doc-annual_leave",
@@ -273,12 +285,13 @@ interface ApiError {
 
 #### POST /api/documents/upload
 
-| 属性 | 值 |
-|------|-----|
-| 认证 | Bearer JWT（仅 hr 角色） |
-| Content-Type | `multipart/form-data` |
+| 属性         | 值                       |
+| ------------ | ------------------------ |
+| 认证         | Bearer JWT（仅 hr 角色） |
+| Content-Type | `multipart/form-data`    |
 
 **请求**：
+
 ```
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
 
@@ -291,11 +304,13 @@ Content-Type: text/markdown
 ```
 
 **约束**：
+
 - 仅接受 `.md` 扩展名
 - 单文件大小 ≤ 1MB（1,048,576 字节）
 - 保存路径：`docs/hr-documents/`
 
 **响应 200**：
+
 ```json
 {
   "filename": "新员工入职指南.md",
@@ -306,6 +321,7 @@ Content-Type: text/markdown
 ```
 
 **响应 400**：
+
 ```json
 {
   "statusCode": 400,
@@ -316,6 +332,7 @@ Content-Type: text/markdown
 ```
 
 **响应 413**：
+
 ```json
 {
   "statusCode": 413,
@@ -326,6 +343,7 @@ Content-Type: text/markdown
 ```
 
 **响应 403**：
+
 ```json
 {
   "statusCode": 403,
@@ -341,13 +359,14 @@ Content-Type: text/markdown
 
 #### GET /api/me
 
-| 属性 | 值 |
-|------|-----|
-| 路径 | `/api/me` |
-| 方法 | GET |
+| 属性 | 值         |
+| ---- | ---------- |
+| 路径 | `/api/me`  |
+| 方法 | GET        |
 | 认证 | Bearer JWT |
 
 **响应 200**：
+
 ```json
 {
   "id": "user-1",
@@ -387,11 +406,12 @@ Content-Type: text/markdown
 
 #### POST /api/mcp/initialize
 
-| 属性 | 值 |
-|------|-----|
+| 属性 | 值         |
+| ---- | ---------- |
 | 认证 | Bearer JWT |
 
 **请求体**：
+
 ```json
 {
   "jsonrpc": "2.0",
@@ -409,6 +429,7 @@ Content-Type: text/markdown
 ```
 
 **响应**：
+
 ```json
 {
   "jsonrpc": "2.0",
@@ -429,6 +450,7 @@ Content-Type: text/markdown
 #### POST /api/mcp/tools/list
 
 **响应**：
+
 ```json
 {
   "jsonrpc": "2.0",
@@ -471,17 +493,17 @@ Content-Type: text/markdown
 
 ## 5. 前后端模块映射
 
-| 前端模块 | 调用接口 | 对应后端模块 |
-|---------|---------|------------|
-| LoginPage.tsx | `POST /api/auth/login` | AuthModule |
-| AuthContext.tsx | `localStorage` 存储 Token | — |
-| ChatPage.tsx | `GET /api/conversations` | ChatService |
-| ChatPage.tsx + useChat.ts | `POST /api/ask` (SSE) | AskController + RAGService |
-| ChatPage.tsx | `GET/DELETE /api/ask/history/:id` | ChatService |
-| DocumentPage.tsx | `GET /api/documents` | DocumentController |
-| DocumentViewer.tsx | `GET /api/documents/:id` | DocumentController |
-| DocumentUploader.tsx | `POST /api/documents/upload` | DocumentController |
-| ConnectionStatus.tsx | `GET /api/health/ollama` | HealthController |
+| 前端模块                  | 调用接口                          | 对应后端模块               |
+| ------------------------- | --------------------------------- | -------------------------- |
+| LoginPage.tsx             | `POST /api/auth/login`            | AuthModule                 |
+| AuthContext.tsx           | `localStorage` 存储 Token         | —                          |
+| ChatPage.tsx              | `GET /api/conversations`          | ChatService                |
+| ChatPage.tsx + useChat.ts | `POST /api/ask` (SSE)             | AskController + RAGService |
+| ChatPage.tsx              | `GET/DELETE /api/ask/history/:id` | ChatService                |
+| DocumentPage.tsx          | `GET /api/documents`              | DocumentController         |
+| DocumentViewer.tsx        | `GET /api/documents/:id`          | DocumentController         |
+| DocumentUploader.tsx      | `POST /api/documents/upload`      | DocumentController         |
+| ConnectionStatus.tsx      | `GET /api/health/ollama`          | HealthController           |
 
 ---
 
@@ -499,6 +521,6 @@ Content-Type: text/markdown
 
 ## 7. Spec 演进记录
 
-| 日期 | 版本 | 变更内容 |
-|------|------|---------|
+| 日期       | 版本 | 变更内容                                                  |
+| ---------- | ---- | --------------------------------------------------------- |
 | 2026-05-18 | v1.0 | 初始版本，从 ARCHITECTURE.md 中提取所有接口定义，统一格式 |

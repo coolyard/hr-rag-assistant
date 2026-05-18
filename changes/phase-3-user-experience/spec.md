@@ -8,6 +8,7 @@
 ## 1. 范围边界
 
 ### 包含
+
 - Theme 系统（light/dark/system）
 - Fake 登录系统（JWT + 角色）
 - Chat 页面（消息列表、输入框、热门问题推荐）
@@ -15,6 +16,7 @@
 - 文档上传功能（仅接受 .md 文件，上传后自动解析并重建索引）
 
 ### 不包含
+
 - RAG 核心算法（phase-2）
 - MCP 协议（phase-4）
 - 文档索引重建的底层逻辑（phase-1 已提供，phase-3 调用接口）
@@ -22,12 +24,14 @@
 ---
 
 ## 2. 依赖的前置域
+
 - phase-1-infrastructure（项目结构、Ollama 连通、内置文档索引）
 - phase-2-rag-engine（SSE 流式 API、对话历史接口）
 
 ---
 
 ## 3. 验收标准
+
 - [ ] 打开系统，看到登录页（Theme 跟随系统偏好）
 - [ ] 输入预置账号登录成功，JWT Token 存储到 LocalStorage
 - [ ] 未登录访问 /chat 自动跳转 /login
@@ -45,6 +49,7 @@
 ---
 
 ## 4. 技术决策
+
 - 登录用 JWT，内存用户表，LocalStorage 持久化 Token
 - Theme 用 CSS Variables，三种模式（light/dark/system）
 - Chat 消息气泡：用户蓝色右对齐，助手白色左对齐

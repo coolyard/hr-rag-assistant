@@ -9,6 +9,7 @@
 ## 1. 范围边界
 
 ### 1.1 包含
+
 - Markdown 文档解析
 - 分块策略实现（按标题切分 + 长度控制）
 - Chunk 元数据生成（来源文档、分类、标题层级）
@@ -17,6 +18,7 @@
 - 新文档上传后的自动分块
 
 ### 1.2 不包含
+
 - ❌ Embedding 生成（见 embedding-spec.md）
 - ❌ 向量存储（见 vector-spec.md）
 - ❌ 文件上传 HTTP 接口（见 document-spec.md）
@@ -28,34 +30,31 @@
 
 ### 2.1 核心参数
 
-| 参数 | 值 | 说明 |
-|------|-----|------|
-| `split_by` | `h2`（Markdown 二级标题 `##`） | 主要切分依据 |
-| `max_chunk_size` | 512 | 单个 chunk 最大字符数 |
-| `overlap` | 50 | 相邻 chunk 重叠字符数 |
-| `min_chunk_size` | 20 | 过滤小于此长度的 chunk |
-| `max_chunks_per_doc` | 10 | 单个文档最多保留 chunk 数 |
+| 参数                 | 值                             | 说明                      |
+| -------------------- | ------------------------------ | ------------------------- |
+| `split_by`           | `h2`（Markdown 二级标题 `##`） | 主要切分依据              |
+| `max_chunk_size`     | 512                            | 单个 chunk 最大字符数     |
+| `overlap`            | 50                             | 相邻 chunk 重叠字符数     |
+| `min_chunk_size`     | 20                             | 过滤小于此长度的 chunk    |
+| `max_chunks_per_doc` | 10                             | 单个文档最多保留 chunk 数 |
 
 ### 2.2 分块算法
 
 ```typescript
 interface DocumentChunk {
-  id: string;                    // 唯一标识，如 `doc-annual_leave-chunk-0`
-  content: string;               // chunk 文本内容
-  documentName: string;          // 来源文件名，如 "年假制度.md"
-  documentTitle: string;         // 文档标题，如 "年假制度"
-  category: string;              // 分类标识，如 "annual_leave"
-  categoryName: string;          // 分类中文名，如 "年假"
-  heading: string;               // 所属二级标题，如 "年假申请规则"
-  headingLevel: number;          // 标题层级（2）
-  index: number;                 // 在文档中的序号
-  charCount: number;             // 字符数
+  id: string; // 唯一标识，如 `doc-annual_leave-chunk-0`
+  content: string; // chunk 文本内容
+  documentName: string; // 来源文件名，如 "年假制度.md"
+  documentTitle: string; // 文档标题，如 "年假制度"
+  category: string; // 分类标识，如 "annual_leave"
+  categoryName: string; // 分类中文名，如 "年假"
+  heading: string; // 所属二级标题，如 "年假申请规则"
+  headingLevel: number; // 标题层级（2）
+  index: number; // 在文档中的序号
+  charCount: number; // 字符数
 }
 
-function splitDocument(
-  content: string,
-  metadata: DocumentMeta
-): DocumentChunk[] {
+function splitDocument(content: string, metadata: DocumentMeta): DocumentChunk[] {
   // Step 1: 提取文档主标题（第一个 # 标题）
   const documentTitle = extractMainTitle(content);
 
@@ -75,9 +74,10 @@ function splitDocument(
     const subChunks = splitBySize(body, max_chunk_size, overlap);
 
     for (let j = 0; j < subChunks.length; j++) {
-      const chunkContent = j === 0
-        ? `## ${heading}\n${subChunks[j]}`  // 第一个 subChunk 保留标题
-        : subChunks[j];
+      const chunkContent =
+        j === 0
+          ? `## ${heading}\n${subChunks[j]}` // 第一个 subChunk 保留标题
+          : subChunks[j];
 
       chunks.push({
         id: `${metadata.id}-chunk-${chunks.length}`,
@@ -95,7 +95,7 @@ function splitDocument(
   }
 
   // Step 5: 过滤
-  const filtered = chunks.filter(c => c.charCount >= min_chunk_size);
+  const filtered = chunks.filter((c) => c.charCount >= min_chunk_size);
 
   // Step 6: 限制最大数量
   return filtered.slice(0, max_chunks_per_doc);
@@ -114,7 +114,7 @@ function splitBySize(text: string, maxSize: number, overlap: number): string[] {
   while (start < text.length) {
     const end = Math.min(start + maxSize, text.length);
     chunks.push(text.substring(start, end));
-    start = end - overlap;  // 重叠 50 字符
+    start = end - overlap; // 重叠 50 字符
     if (start >= text.length) break;
   }
 
@@ -128,14 +128,14 @@ function splitBySize(text: string, maxSize: number, overlap: number): string[] {
 
 ### 3.1 文档分类映射
 
-| 文件名关键词 | 分类标识 | 分类名 | 颜色 |
-|-------------|---------|--------|------|
-| 年假 | `annual_leave` | 年假 | `#E3F2FD` |
-| 报销 | `reimbursement` | 报销 | `#E8F5E9` |
-| 晋升 | `promotion` | 晋升 | `#FFF3E0` |
-| 考勤 | `attendance` | 考勤 | `#F3E5F5` |
-| 福利 | `welfare` | 福利 | `#FFFDE7` |
-| 其他 | `custom` | 自定义 | `#F5F5F5` |
+| 文件名关键词 | 分类标识        | 分类名 | 颜色      |
+| ------------ | --------------- | ------ | --------- |
+| 年假         | `annual_leave`  | 年假   | `#E3F2FD` |
+| 报销         | `reimbursement` | 报销   | `#E8F5E9` |
+| 晋升         | `promotion`     | 晋升   | `#FFF3E0` |
+| 考勤         | `attendance`    | 考勤   | `#F3E5F5` |
+| 福利         | `welfare`       | 福利   | `#FFFDE7` |
+| 其他         | `custom`        | 自定义 | `#F5F5F5` |
 
 ### 3.2 分类识别规则
 
@@ -207,14 +207,14 @@ function detectCategory(filename: string): DocumentCategory {
 
 ## 6. 错误处理
 
-| 场景 | 处理策略 |
-|------|---------|
-| 文件不存在 | 跳过，记录警告日志 |
-| 文件为空 | 跳过，记录警告日志 |
-| 无 Markdown 标题 | 使用文件名作为标题 |
-| 无 ## 二级标题 | 将整个文档作为一个 chunk |
-| 文件编码错误 | 尝试 UTF-8，失败则跳过 |
-| 分类无法识别 | 默认 `custom` |
+| 场景             | 处理策略                 |
+| ---------------- | ------------------------ |
+| 文件不存在       | 跳过，记录警告日志       |
+| 文件为空         | 跳过，记录警告日志       |
+| 无 Markdown 标题 | 使用文件名作为标题       |
+| 无 ## 二级标题   | 将整个文档作为一个 chunk |
+| 文件编码错误     | 尝试 UTF-8，失败则跳过   |
+| 分类无法识别     | 默认 `custom`            |
 
 ---
 
@@ -246,6 +246,6 @@ DocumentLoader
 
 ## 9. Spec 演进记录
 
-| 日期 | 版本 | 变更内容 |
-|------|------|---------|
+| 日期       | 版本 | 变更内容                                               |
+| ---------- | ---- | ------------------------------------------------------ |
 | 2026-05-18 | v1.0 | 初始版本，从 AI-SPEC.md 和 phase-1 spec 中提取分块规范 |
