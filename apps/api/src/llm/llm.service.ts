@@ -10,27 +10,7 @@ export class LLMService implements ILLMService {
 
   constructor(@Inject(LLM_CONFIG) private readonly config: LLMConfig) {}
 
-  async *generate(
-    systemPrompt: string,
-    history: string,
-    retrievedChunks: string,
-    userQuestion: string,
-  ): AsyncIterable<string> {
-    const prompt = [
-      systemPrompt,
-      '',
-      '## 检索到的文档片段',
-      retrievedChunks,
-      '',
-      '## 对话历史',
-      history,
-      '',
-      '## 当前问题',
-      userQuestion,
-      '',
-      '请基于以上文档片段回答问题。如果文档片段为空或无关，请直接返回拒绝话术。',
-    ].join('\n');
-
+  async *generate(prompt: string): AsyncIterable<string> {
     const url = `${this.config.ollamaBaseUrl}/api/generate`;
     const body = JSON.stringify({
       model: this.config.model,

@@ -10,4 +10,20 @@ export interface MergedResult extends RAGSearchResult {
   sources: Array<'vector' | 'keyword'>;
 }
 
+export interface SourceCitation {
+  documentName: string;
+  documentTitle: string;
+  category: string;
+  chunk: string;
+  similarity: number;
+}
+
+export interface StreamChunk {
+  token: string;
+  done: boolean;
+  sources?: SourceCitation[];
+  confidenceLevel?: 'high' | 'medium' | 'low';
+  error?: string;
+}
+
 export type { DocumentMeta, SearchResult };
