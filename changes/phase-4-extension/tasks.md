@@ -15,6 +15,7 @@ Phase 1 + Phase 2 + Phase 3 (全部完成)
 ---
 
 ## Task-010: MCP 协议支持
+
 - **目标**：实现基础 MCP Server 能力，暴露知识库工具
 - **输入**：PRD.md MCP 功能、ARCHITECTURE.md MCPModule
 - **输出**：
@@ -28,6 +29,7 @@ Phase 1 + Phase 2 + Phase 3 (全部完成)
 - **预计耗时**：3-4 小时
 
 ## Task-011: 热门问题推荐 + 连接状态检测
+
 - **目标**：首页展示快捷问题，检测 Ollama 连接状态
 - **输入**：PRD.md 热门问题、连接状态
 - **输出**：

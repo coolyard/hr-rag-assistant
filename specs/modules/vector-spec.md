@@ -9,6 +9,7 @@
 ## 1. 范围边界
 
 ### 1.1 包含
+
 - 向量存储接口定义（IVectorStore）
 - 内存实现（In-Memory VectorStore）
 - 余弦相似度计算
@@ -16,6 +17,7 @@
 - 启动时索引加载
 
 ### 1.2 不包含
+
 - ❌ Embedding 生成（见 embedding-spec.md）
 - ❌ 文档分块（见 chunk-spec.md）
 - ❌ 检索算法（见 rag-spec.md）
@@ -47,7 +49,7 @@ interface SearchResult {
   category: string;
   categoryName: string;
   heading: string;
-  similarity: number;      // 余弦相似度 [0, 1]
+  similarity: number; // 余弦相似度 [0, 1]
   metadata: DocumentMeta;
 }
 
@@ -89,10 +91,13 @@ interface IVectorStore {
 
 ```typescript
 class InMemoryVectorStore implements IVectorStore {
-  private vectors: Map<string, {
-    embedding: number[];     // 768 维浮点数组
-    metadata: DocumentMeta;
-  }>;
+  private vectors: Map<
+    string,
+    {
+      embedding: number[]; // 768 维浮点数组
+      metadata: DocumentMeta;
+    }
+  >;
 
   constructor() {
     this.vectors = new Map();
@@ -114,7 +119,7 @@ function cosineSimilarity(a: number[], b: number[]): number {
     dotProduct += a[i] * b[i];
   }
 
-  return dotProduct;  // 归一化后点积 = 余弦相似度
+  return dotProduct; // 归一化后点积 = 余弦相似度
 }
 ```
 
@@ -150,10 +155,12 @@ search(queryEmbedding: number[], topK: number): SearchResult[] {
 ### 3.4 性能优化
 
 当前数据量（~50-100 个片段）下，全量遍历完全足够：
+
 - 时间复杂度：O(N × D)，N=100, D=768 → 约 76,800 次操作
 - 单次搜索耗时：< 1ms
 
 未来数据量增长后，可考虑：
+
 - 局部敏感哈希（LSH）
 - HNSW 索引
 - 切换到 Chroma / Milvus
@@ -162,13 +169,14 @@ search(queryEmbedding: number[], topK: number): SearchResult[] {
 
 ## 4. 向量维度规范
 
-| 参数 | 值 | 说明 |
-|------|-----|------|
-| `dimensions` | 768 | nomic-embed-text 输出维度 |
-| `value_range` | [-1, 1] | 归一化后的向量值范围 |
-| `norm` | ≈ 1.0 | L2 范数 |
+| 参数          | 值      | 说明                      |
+| ------------- | ------- | ------------------------- |
+| `dimensions`  | 768     | nomic-embed-text 输出维度 |
+| `value_range` | [-1, 1] | 归一化后的向量值范围      |
+| `norm`        | ≈ 1.0   | L2 范数                   |
 
 **维度校验**：
+
 ```typescript
 function validateEmbedding(embedding: number[]): void {
   if (embedding.length !== 768) {
@@ -176,7 +184,7 @@ function validateEmbedding(embedding: number[]): void {
   }
 
   // 检查是否为 NaN / Infinity
-  if (embedding.some(v => !Number.isFinite(v))) {
+  if (embedding.some((v) => !Number.isFinite(v))) {
     throw new Error('向量包含非法数值 (NaN 或 Infinity)');
   }
 }
@@ -231,13 +239,13 @@ VectorStore.clear() 清空旧索引
 
 ## 6. 错误处理
 
-| 场景 | 处理策略 |
-|------|---------|
-| 维度不匹配 | 抛出 `DimensionMismatchError` |
-| 向量含 NaN | 抛出 `InvalidEmbeddingError` |
-| 搜索空存储 | 返回空数组 |
-| 重复 ID 添加 | 覆盖旧数据 |
-| 查询 ID 不存在 | 返回 `null` |
+| 场景           | 处理策略                      |
+| -------------- | ----------------------------- |
+| 维度不匹配     | 抛出 `DimensionMismatchError` |
+| 向量含 NaN     | 抛出 `InvalidEmbeddingError`  |
+| 搜索空存储     | 返回空数组                    |
+| 重复 ID 添加   | 覆盖旧数据                    |
+| 查询 ID 不存在 | 返回 `null`                   |
 
 ---
 
@@ -294,6 +302,6 @@ VectorStore
 
 ## 10. Spec 演进记录
 
-| 日期 | 版本 | 变更内容 |
-|------|------|---------|
+| 日期       | 版本 | 变更内容                                                             |
+| ---------- | ---- | -------------------------------------------------------------------- |
 | 2026-05-18 | v1.0 | 初始版本，从 ARCHITECTURE.md 和 phase-1 spec 中提取 VectorStore 规范 |

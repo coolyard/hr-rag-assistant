@@ -37,11 +37,13 @@ git checkout -b feature/phase-1-infrastructure
 ### 3. Claude Code 启动方式
 
 **方式 A：IDE 内 Claude Code GUI**
+
 - 在 IDEA 中打开项目根目录
 - 打开 Claude Code 面板（通常右侧或底部）
 - 确保 Claude Code 能读取项目根目录下的所有 `.md` 文件
 
 **方式 B：终端 Claude Code CLI**
+
 ```bash
 cd /Users/work/learn/hr-rag-assistant
 claude
@@ -52,24 +54,29 @@ claude
 ## 执行原则（大厂 Spec-Driven 规范）
 
 ### 原则 1：先读 Spec 再写代码
+
 每个 Task 开始前，Claude Code 必须先读取对应的模块 Spec，代码是 Spec 的**忠实实现**。
 
 ### 原则 2：接口先行
+
 ```
 interface → service → controller → frontend
 （接口）    →（逻辑） →（路由）   →（UI）
 ```
 
 ### 原则 3：模块隔离
+
 - 禁止跨模块直接引用内部文件
 - 跨模块通信通过 Module `imports/exports`
 
 ### 原则 4：逐 Task 交付
+
 - 每个 Task 生成后必须**独立可编译**
 - 每个 Task 完成后立即 `git commit`
 - 禁止累积多个 Task 一次性提交
 
 ### 原则 5：Lint 门禁
+
 - 每个 Task 完成后运行 `pnpm lint`，必须 0 error
 - 格式问题用 `pnpm format` 自动修复
 
@@ -78,6 +85,7 @@ interface → service → controller → frontend
 ## Phase 1：技术基建（Infrastructure）
 
 **对应 Spec**：
+
 - 变更级：`changes/phase-1-infrastructure/spec.md`
 - 模块级：`specs/modules/embedding-spec.md` + `specs/modules/chunk-spec.md` + `specs/modules/vector-spec.md`
 
@@ -117,6 +125,7 @@ interface → service → controller → frontend
 ```
 
 **Git 提交**：
+
 ```bash
 git add .
 git commit -m "feat(phase-1): initialize NestJS + React project structure (Task-001)
@@ -180,6 +189,7 @@ git commit -m "feat(phase-1): initialize NestJS + React project structure (Task-
 ```
 
 **Git 提交**：
+
 ```bash
 git add .
 git commit -m "feat(phase-1): configure Ollama client for LLM and Embedding (Task-002)
@@ -244,6 +254,7 @@ git commit -m "feat(phase-1): configure Ollama client for LLM and Embedding (Tas
 ```
 
 **Git 提交**：
+
 ```bash
 git add .
 git commit -m "feat(phase-1): implement document loading, chunking and vector store (Task-003)
@@ -256,6 +267,7 @@ git commit -m "feat(phase-1): implement document loading, chunking and vector st
 ```
 
 **Phase 1 完成后合并到 develop**：
+
 ```bash
 git checkout develop
 git merge feature/phase-1-infrastructure
@@ -266,6 +278,7 @@ git merge feature/phase-1-infrastructure
 ## Phase 2：AI 核心引擎（RAG Engine）
 
 **对应 Spec**：
+
 - 变更级：`changes/phase-2-rag-engine/spec.md`
 - 模块级：`specs/modules/rag-spec.md` + `specs/modules/chat-spec.md`
 
@@ -315,6 +328,7 @@ git merge feature/phase-1-infrastructure
 ```
 
 **Git 提交**：
+
 ```bash
 git add .
 git commit -m "feat(phase-2): implement hybrid retrieval and RAG orchestration (Task-004)
@@ -382,6 +396,7 @@ git commit -m "feat(phase-2): implement hybrid retrieval and RAG orchestration (
 ```
 
 **Git 提交**：
+
 ```bash
 git commit -m "feat(phase-2): implement multi-turn conversation and LLM generation (Task-005)
 
@@ -453,6 +468,7 @@ git commit -m "feat(phase-2): implement multi-turn conversation and LLM generati
 ```
 
 **Git 提交**：
+
 ```bash
 git commit -m "feat(phase-2): implement SSE streaming API and Chat frontend (Task-006)
 
@@ -465,6 +481,7 @@ git commit -m "feat(phase-2): implement SSE streaming API and Chat frontend (Tas
 ```
 
 **Phase 2 完成后合并到 develop**：
+
 ```bash
 git checkout develop
 git merge feature/phase-2-rag-engine
@@ -475,6 +492,7 @@ git merge feature/phase-2-rag-engine
 ## Phase 3：用户交互体验（User Experience）
 
 **对应 Spec**：
+
 - 变更级：`changes/phase-3-user-experience/spec.md`
 - 模块级：`specs/modules/auth-spec.md` + `specs/modules/theme-spec.md` + `specs/modules/document-spec.md` + `specs/modules/user-profile-spec.md`
 
@@ -524,6 +542,7 @@ git merge feature/phase-2-rag-engine
 ```
 
 **Git 提交**：
+
 ```bash
 git commit -m "feat(phase-3): implement Theme system with light/dark/system modes (Task-007)
 
@@ -605,6 +624,7 @@ git commit -m "feat(phase-3): implement Theme system with light/dark/system mode
 ```
 
 **Git 提交**：
+
 ```bash
 git commit -m "feat(phase-3): implement JWT auth with role-based access (Task-008)
 
@@ -685,6 +705,7 @@ git commit -m "feat(phase-3): implement JWT auth with role-based access (Task-00
 ```
 
 **Git 提交**：
+
 ```bash
 git commit -m "feat(phase-3): implement document center with browse and upload (Task-009)
 
@@ -766,6 +787,7 @@ git commit -m "feat(phase-3): implement document center with browse and upload (
 ```
 
 **Git 提交**：
+
 ```bash
 git commit -m "feat(phase-3): implement UserProfile module and Profile page (Task-010)
 
@@ -820,17 +842,22 @@ git merge develop
 ## 常见问题
 
 ### Q: Claude Code 生成的代码不符合 Spec 怎么办？
+
 **A**: 不要直接改代码。先更新 Spec 反映真实需求，再给 Claude Code 提示词："请根据更新后的 `specs/modules/xxx-spec.md` 重新实现 `apps/...`"
 
 ### Q: 一个 Task 太大，AI 生成不完整？
+
 **A**: 拆分为 sub-task，提交信息标注 `Task-004-part1`、`Task-004-part2`，但每个 part 必须可编译。
 
 ### Q: 需要修改已完成的模块？
-**A**: 
+
+**A**:
+
 1. 更新对应模块 Spec
 2. `git commit -m "docs: update xxx-spec ..."`
 3. 让 AI 基于新 Spec 重构
 4. `git commit -m "feat/refactor: ..."`
 
 ### Q: lint 报错怎么办？
+
 **A**: 先运行 `pnpm format` 自动修复格式问题。剩余 error 让 AI 修复："请修复以下 lint error：..."

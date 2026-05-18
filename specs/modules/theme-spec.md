@@ -9,6 +9,7 @@
 ## 1. 范围边界
 
 ### 1.1 包含
+
 - 三种 Theme 模式：light（浅色）、dark（深色）、system（跟随系统）
 - CSS Variables 动态切换机制
 - localStorage 持久化
@@ -16,6 +17,7 @@
 - ThemeProvider 全局上下文
 
 ### 1.2 不包含
+
 - ❌ 多套主题配色（如企业蓝、节日红等）
 - ❌ 后端主题配置存储
 - ❌ 主题动画过渡（CSS transition 除外）
@@ -27,10 +29,10 @@
 
 ### 2.1 支持的 Theme 模式
 
-| 模式 | 标识 | 行为 |
-|------|------|------|
-| 浅色模式 | `light` | 强制使用浅色配色 |
-| 深色模式 | `dark` | 强制使用深色配色 |
+| 模式     | 标识     | 行为                                    |
+| -------- | -------- | --------------------------------------- |
+| 浅色模式 | `light`  | 强制使用浅色配色                        |
+| 深色模式 | `dark`   | 强制使用深色配色                        |
 | 跟随系统 | `system` | 读取 `prefers-color-scheme`，随系统切换 |
 
 ### 2.2 默认行为
@@ -71,7 +73,7 @@
 }
 
 /* Dark Mode */
-[data-theme="dark"] {
+[data-theme='dark'] {
   --bg-primary: #121212;
   --bg-secondary: #1e1e1e;
   --bg-tertiary: #2a2a2a;
@@ -101,14 +103,14 @@
 
 各文档分类的颜色在深色模式下需降低饱和度：
 
-| 分类 | Light 背景 | Light 文字 | Dark 背景 | Dark 文字 |
-|------|-----------|-----------|-----------|-----------|
-| 年假 | `#E3F2FD` | `#1565C0` | `#0D47A1` | `#BBDEFB` |
-| 报销 | `#E8F5E9` | `#2E7D32` | `#1B5E20` | `#C8E6C9` |
-| 晋升 | `#FFF3E0` | `#E65100` | `#BF360C` | `#FFE0B2` |
-| 考勤 | `#F3E5F5` | `#7B1FA2` | `#4A148C` | `#E1BEE7` |
-| 福利 | `#FFFDE7` | `#F9A825` | `#F57F17` | `#FFF9C4` |
-| 自定义 | `#F5F5F5` | `#616161` | `#424242` | `#BDBDBD` |
+| 分类   | Light 背景 | Light 文字 | Dark 背景 | Dark 文字 |
+| ------ | ---------- | ---------- | --------- | --------- |
+| 年假   | `#E3F2FD`  | `#1565C0`  | `#0D47A1` | `#BBDEFB` |
+| 报销   | `#E8F5E9`  | `#2E7D32`  | `#1B5E20` | `#C8E6C9` |
+| 晋升   | `#FFF3E0`  | `#E65100`  | `#BF360C` | `#FFE0B2` |
+| 考勤   | `#F3E5F5`  | `#7B1FA2`  | `#4A148C` | `#E1BEE7` |
+| 福利   | `#FFFDE7`  | `#F9A825`  | `#F57F17` | `#FFF9C4` |
+| 自定义 | `#F5F5F5`  | `#616161`  | `#424242` | `#BDBDBD` |
 
 ---
 
@@ -120,10 +122,10 @@
 type ThemeMode = 'light' | 'dark' | 'system';
 
 interface ThemeContextType {
-  mode: ThemeMode;                    // 当前选择的模式
-  resolvedTheme: 'light' | 'dark';    // 实际生效的主题（system 已解析）
+  mode: ThemeMode; // 当前选择的模式
+  resolvedTheme: 'light' | 'dark'; // 实际生效的主题（system 已解析）
   setMode: (mode: ThemeMode) => void; // 切换模式
-  toggleTheme: () => void;            // 快捷切换：light → dark → system → light
+  toggleTheme: () => void; // 快捷切换：light → dark → system → light
 }
 ```
 
@@ -155,7 +157,9 @@ function ThemeProvider({ children }) {
   useEffect(() => {
     if (mode !== 'system') return;
     const media = window.matchMedia('(prefers-color-scheme: dark)');
-    const handler = () => { /* 触发重新渲染 */ };
+    const handler = () => {
+      /* 触发重新渲染 */
+    };
     media.addEventListener('change', handler);
     return () => media.removeEventListener('change', handler);
   }, [mode]);
@@ -186,21 +190,22 @@ function ThemeProvider({ children }) {
 
 ### 4.2 关键组件适配清单
 
-| 组件 | 浅色模式 | 深色模式注意点 |
-|------|---------|--------------|
-| ChatMessage（用户） | 蓝色气泡 | 蓝色稍暗，文字保持白色 |
-| ChatMessage（助手） | 灰色气泡 | 背景 `#2a2a2a`，文字 `#e0e0e0` |
-| SourceCitation | 浅色边框卡片 | 边框 `#333333`，背景 `#1e1e1e` |
-| DocumentCard | 分类色背景 | 使用深色模式分类色 |
-| DocumentViewer | 白色背景 | `#121212` 背景，代码块高亮适配 |
-| LoginPage | 白色背景卡片 | `#1e1e1e` 卡片，输入框 `#2a2a2a` |
-| Sidebar | `#fafafa` | `#1a1a1a` |
-| Input 框 | 白色背景，灰色边框 | `#2a2a2a` 背景，`#404040` 边框 |
-| 滚动条 | 系统默认 | 自定义滚动条颜色适配深色 |
+| 组件                | 浅色模式           | 深色模式注意点                   |
+| ------------------- | ------------------ | -------------------------------- |
+| ChatMessage（用户） | 蓝色气泡           | 蓝色稍暗，文字保持白色           |
+| ChatMessage（助手） | 灰色气泡           | 背景 `#2a2a2a`，文字 `#e0e0e0`   |
+| SourceCitation      | 浅色边框卡片       | 边框 `#333333`，背景 `#1e1e1e`   |
+| DocumentCard        | 分类色背景         | 使用深色模式分类色               |
+| DocumentViewer      | 白色背景           | `#121212` 背景，代码块高亮适配   |
+| LoginPage           | 白色背景卡片       | `#1e1e1e` 卡片，输入框 `#2a2a2a` |
+| Sidebar             | `#fafafa`          | `#1a1a1a`                        |
+| Input 框            | 白色背景，灰色边框 | `#2a2a2a` 背景，`#404040` 边框   |
+| 滚动条              | 系统默认           | 自定义滚动条颜色适配深色         |
 
 ### 4.3 Markdown 渲染深色适配
 
 Markdown 内容在深色模式下需特别处理：
+
 - 代码块背景：`#1a1a1a`（非纯白）
 - 引用块左边框：`--accent-color`
 - 表格边框：`--border-color`
@@ -217,14 +222,18 @@ Markdown 内容在深色模式下需特别处理：
 - 首屏渲染前需确定 Theme（避免 FOUC — Flash of Unstyled Content）
 
 **防 FOUC 策略**：
+
 ```html
 <!-- index.html 内联脚本 -->
 <script>
-  (function() {
+  (function () {
     const mode = localStorage.getItem('hr_rag_theme') || 'system';
-    const resolved = mode === 'system'
-      ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-      : mode;
+    const resolved =
+      mode === 'system'
+        ? window.matchMedia('(prefers-color-scheme: dark)').matches
+          ? 'dark'
+          : 'light'
+        : mode;
     document.documentElement.setAttribute('data-theme', resolved);
   })();
 </script>
@@ -261,6 +270,6 @@ ThemeProvider（全局包裹）
 
 ## 8. Spec 演进记录
 
-| 日期 | 版本 | 变更内容 |
-|------|------|---------|
+| 日期       | 版本 | 变更内容                                               |
+| ---------- | ---- | ------------------------------------------------------ |
 | 2026-05-18 | v1.0 | 初始版本，从 phase-3 spec 和 ADR-006 中提取 Theme 规范 |

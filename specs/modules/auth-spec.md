@@ -9,11 +9,13 @@
 ## 1. 范围边界
 
 ### 1.1 包含
+
 - 后端：JWT 签发/验证/刷新、内存用户表、角色权限控制、AuthGuard
 - 前端：登录页面、AuthContext（全局认证状态）、Token 持久化、自动跳转/拦截
 - 接口：`POST /api/auth/login`、JWT 中间件保护
 
 ### 1.2 不包含
+
 - ❌ 真实用户注册/密码找回/邮箱验证（PRD Out of Scope）
 - ❌ 连接数据库（MySQL/PostgreSQL/MongoDB）
 - ❌ OAuth / SSO / LDAP 集成（扩展点，当前不做）
@@ -27,21 +29,21 @@
 
 ```typescript
 interface User {
-  id: string;           // 唯一标识，如 "user-1"
-  username: string;     // 登录账号
-  password: string;     // 登录密码（当前明文）
-  role: 'employee' | 'hr';  // 角色
-  displayName: string;  // 显示名称
+  id: string; // 唯一标识，如 "user-1"
+  username: string; // 登录账号
+  password: string; // 登录密码（当前明文）
+  role: 'employee' | 'hr'; // 角色
+  displayName: string; // 显示名称
   profile: UserProfile; // 个人人事数据（见 user-profile-spec.md）
 }
 ```
 
 **预置用户表**（后端启动时加载到内存）：
 
-| id | username | password | role | displayName |
-|----|----------|----------|------|-------------|
-| user-1 | employee | 123456 | employee | 员工 |
-| user-2 | hr | 123456 | hr | HR专员 |
+| id     | username | password | role     | displayName |
+| ------ | -------- | -------- | -------- | ----------- |
+| user-1 | employee | 123456   | employee | 员工        |
+| user-2 | hr       | 123456   | hr       | HR专员      |
 
 > 完整 `UserProfile` 定义见 [user-profile-spec.md](./user-profile-spec.md)。每个预置用户携带模拟个人数据，使"我有多少天年假"这类个人问题可回答。
 
@@ -49,7 +51,7 @@ interface User {
 
 ```typescript
 interface UserPayload {
-  sub: string;        // user id
+  sub: string; // user id
   username: string;
   role: 'employee' | 'hr';
   iat: number;
@@ -68,7 +70,7 @@ interface LoginRequest {
 
 // Response: 200 OK
 interface LoginResponse {
-  access_token: string;  // JWT Token
+  access_token: string; // JWT Token
   user: {
     id: string;
     username: string;
@@ -79,10 +81,10 @@ interface LoginResponse {
 
 // Response: 401 Unauthorized
 interface LoginError {
-  statusCode: number;   // 401
-  message: string;      // 用户可读错误描述
-  error: string;        // 错误类型
-  code: string;         // 业务错误码
+  statusCode: number; // 401
+  message: string; // 用户可读错误描述
+  error: string; // 错误类型
+  code: string; // 业务错误码
 }
 ```
 
@@ -92,14 +94,15 @@ interface LoginError {
 
 ### 3.1 POST /api/auth/login
 
-| 属性 | 值 |
-|------|-----|
-| 路径 | `/api/auth/login` |
-| 方法 | POST |
-| 认证 | 无需认证 |
+| 属性         | 值                 |
+| ------------ | ------------------ |
+| 路径         | `/api/auth/login`  |
+| 方法         | POST               |
+| 认证         | 无需认证           |
 | Content-Type | `application/json` |
 
 **请求体**：
+
 ```json
 {
   "username": "employee",
@@ -108,6 +111,7 @@ interface LoginError {
 ```
 
 **成功响应 200**：
+
 ```json
 {
   "access_token": "eyJhbGciOiJIUzI1NiIs...",
@@ -121,6 +125,7 @@ interface LoginError {
 ```
 
 **失败响应 401**：
+
 ```json
 {
   "statusCode": 401,
@@ -157,16 +162,17 @@ Token 有效 → 将 user 注入 Request 对象 → 进入 Controller
 
 ### 3.4 角色控制（RolesGuard）
 
-| 路由 | 允许角色 |
-|------|---------|
-| `/api/ask` | employee, hr |
-| `/api/ask/history/*` | employee, hr |
-| `/api/documents` | employee, hr |
-| `/api/documents/:id` | employee, hr |
+| 路由                    | 允许角色           |
+| ----------------------- | ------------------ |
+| `/api/ask`              | employee, hr       |
+| `/api/ask/history/*`    | employee, hr       |
+| `/api/documents`        | employee, hr       |
+| `/api/documents/:id`    | employee, hr       |
 | `/api/documents/upload` | hr（仅 HR 可上传） |
-| `/api/mcp/*` | employee, hr |
+| `/api/mcp/*`            | employee, hr       |
 
 **无权限响应 403**：
+
 ```json
 {
   "statusCode": 403,
@@ -184,9 +190,9 @@ Token 有效 → 将 user 注入 Request 对象 → 进入 Controller
 
 ```typescript
 interface AuthContextType {
-  user: User | null;                    // 当前用户信息
-  isAuthenticated: boolean;             // 是否已登录
-  isLoading: boolean;                   // 初始化加载中
+  user: User | null; // 当前用户信息
+  isAuthenticated: boolean; // 是否已登录
+  isLoading: boolean; // 初始化加载中
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
 }
@@ -204,19 +210,20 @@ interface AuthContextType {
 
 ### 4.3 路由守卫
 
-| 路由 | 未登录状态 | 已登录状态 |
-|------|-----------|-----------|
-| `/` | 重定向到 `/login` | 重定向到 `/chat` |
-| `/login` | 正常访问 | 自动跳转到 `/chat` |
-| `/chat` | 自动跳转到 `/login` | 正常访问 |
-| `/documents` | 自动跳转到 `/login` | 正常访问 |
-| `/profile` | 自动跳转到 `/login` | 正常访问 |
+| 路由         | 未登录状态          | 已登录状态         |
+| ------------ | ------------------- | ------------------ |
+| `/`          | 重定向到 `/login`   | 重定向到 `/chat`   |
+| `/login`     | 正常访问            | 自动跳转到 `/chat` |
+| `/chat`      | 自动跳转到 `/login` | 正常访问           |
+| `/documents` | 自动跳转到 `/login` | 正常访问           |
+| `/profile`   | 自动跳转到 `/login` | 正常访问           |
 
 ### 4.4 全局导航栏（Navbar）
 
 **位置**：所有受保护页面顶部固定
 
 **内容**：
+
 - 左侧：Logo + 应用名称"HR 智能助手"
 - 中间：页面入口导航
   - 💬 对话（`/chat`）
@@ -230,12 +237,14 @@ interface AuthContextType {
     - 选项：退出登录
 
 **导航状态**：
+
 - 当前所在页面高亮显示
 - 未读/新消息提示（扩展点，当前不做）
 
 ### 4.5 Axios 拦截器
 
 **请求拦截器**：
+
 ```typescript
 axios.interceptors.request.use((config) => {
   const token = localStorage.getItem('hr_rag_token');
@@ -247,6 +256,7 @@ axios.interceptors.request.use((config) => {
 ```
 
 **响应拦截器**：
+
 ```typescript
 axios.interceptors.response.use(
   (response) => response,
@@ -256,7 +266,7 @@ axios.interceptors.response.use(
       window.location.href = '/login';
     }
     return Promise.reject(error);
-  }
+  },
 );
 ```
 
@@ -287,14 +297,14 @@ axios.interceptors.response.use(
 
 ## 6. 错误处理
 
-| 场景 | 前端行为 | 后端响应 |
-|------|---------|---------|
-| 账号不存在 | 提示"账号或密码错误" | 401 |
-| 密码错误 | 提示"账号或密码错误" | 401 |
-| Token 过期 | 自动跳转登录页，提示"登录已过期" | 401 |
-| 无 Token 访问受保护路由 | 自动跳转登录页 | 401 |
-| HR 专属功能被 employee 访问 | 提示"权限不足" | 403 |
-| 网络异常 | 提示"网络异常，请稍后重试" | — |
+| 场景                        | 前端行为                         | 后端响应 |
+| --------------------------- | -------------------------------- | -------- |
+| 账号不存在                  | 提示"账号或密码错误"             | 401      |
+| 密码错误                    | 提示"账号或密码错误"             | 401      |
+| Token 过期                  | 自动跳转登录页，提示"登录已过期" | 401      |
+| 无 Token 访问受保护路由     | 自动跳转登录页                   | 401      |
+| HR 专属功能被 employee 访问 | 提示"权限不足"                   | 403      |
+| 网络异常                    | 提示"网络异常，请稍后重试"       | —        |
 
 ---
 
@@ -326,7 +336,7 @@ AuthModule
 
 ## 9. Spec 演进记录
 
-| 日期 | 版本 | 变更内容 |
-|------|------|---------|
+| 日期       | 版本 | 变更内容                                                 |
+| ---------- | ---- | -------------------------------------------------------- |
 | 2026-05-18 | v1.0 | 初始版本，从 AI-SPEC + ARCHITECTURE 中提取 Auth 相关规范 |
-| 2026-05-18 | v1.1 | 增加 `profile: UserProfile` 字段，支持个人数据查询 |
+| 2026-05-18 | v1.1 | 增加 `profile: UserProfile` 字段，支持个人数据查询       |

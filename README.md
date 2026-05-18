@@ -1,9 +1,9 @@
 # HR AI Assistant — 企业人事智能问答系统
 
 > 基于 RAG (Retrieval-Augmented Generation) 的企业内部 HR 知识问答系统。
-> 
+>
 > 技术栈：NestJS + React + TypeScript + Ollama（本地真实模型）
-> 
+>
 > 开发模式：Spec-Driven Agentic Development (SDAD)
 
 ---
@@ -67,10 +67,10 @@ pnpm --filter web dev
 
 ### 3. 测试账号
 
-| 账号 | 密码 | 角色 |
-|------|------|------|
+| 账号       | 密码     | 角色     |
+| ---------- | -------- | -------- |
 | `employee` | `123456` | 普通员工 |
-| `hr` | `123456` | HR 专员 |
+| `hr`       | `123456` | HR 专员  |
 
 ---
 
@@ -129,8 +129,8 @@ hr-rag-assistant/
 
 系统预置 5 个 HR 制度文档：
 
-| 文档 | 分类 | 内容 |
-|------|------|------|
+| 文档          | 分类 | 内容                                             |
+| ------------- | ---- | ------------------------------------------------ |
 | `年假制度.md` | 年假 | 年假天数、申请规则、使用规则、请假流程、折算规定 |
 | `报销流程.md` | 报销 | 报销时间、发票要求、审批额度、差旅标准、通讯补贴 |
 | `晋升规则.md` | 晋升 | 评估时间、考核标准、晋升等级、薪资调整、申请流程 |
@@ -166,14 +166,14 @@ hr-rag-assistant/
 
 ### Skills（自动加载）
 
-| Skill | 触发场景 |
-|-------|---------|
-| `frontend-architect` | 前端组件开发、页面实现 |
-| `rag-engineer` | RAG 链路开发、检索调优 |
-| `spec-driven-dev` | 需求分析、Task 拆分、Spec 演进 |
-| `code-reviewer` | 代码审查、重构建议 |
-| `nestjs-expert` | 后端模块开发、接口设计 |
-| `git-workflow` | Git 操作、分支管理、提交规范 |
+| Skill                | 触发场景                       |
+| -------------------- | ------------------------------ |
+| `frontend-architect` | 前端组件开发、页面实现         |
+| `rag-engineer`       | RAG 链路开发、检索调优         |
+| `spec-driven-dev`    | 需求分析、Task 拆分、Spec 演进 |
+| `code-reviewer`      | 代码审查、重构建议             |
+| `nestjs-expert`      | 后端模块开发、接口设计         |
+| `git-workflow`       | Git 操作、分支管理、提交规范   |
 
 ### MCP Servers（配置模板）
 
@@ -200,16 +200,16 @@ pip install chroma-mcp
 
 ## 🛠 技术栈
 
-| 层级 | 技术 |
-|------|------|
-| 前端 | React 18 + TypeScript + Vite + Axios |
-| 后端 | NestJS 10 + TypeScript |
-| LLM | Ollama `qwen2.5:7b-instruct`（本地） |
+| 层级      | 技术                                     |
+| --------- | ---------------------------------------- |
+| 前端      | React 18 + TypeScript + Vite + Axios     |
+| 后端      | NestJS 10 + TypeScript                   |
+| LLM       | Ollama `qwen2.5:7b-instruct`（本地）     |
 | Embedding | Ollama `nomic-embed-text`（本地，768维） |
-| 向量存储 | In-Memory（接口抽象，可替换 Chroma） |
-| 认证 | JWT + 内存用户表 |
-| 协议 | MCP (Model Context Protocol) |
-| 文件上传 | Multer（仅接受 .md 文件） |
+| 向量存储  | In-Memory（接口抽象，可替换 Chroma）     |
+| 认证      | JWT + 内存用户表                         |
+| 协议      | MCP (Model Context Protocol)             |
+| 文件上传  | Multer（仅接受 .md 文件）                |
 
 ---
 

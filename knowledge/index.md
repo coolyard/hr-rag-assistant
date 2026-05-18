@@ -8,15 +8,15 @@
 
 ## 知识索引（按关键词触发）
 
-| 关键词 | 知识文件 | 状态 |
-|--------|---------|------|
-| Ollama | `ollama-setup.md` | 🔜 待沉淀（开发过程中补充） |
-| NestJS | `nestjs-patterns.md` | 🔜 待沉淀（开发过程中补充） |
-| RAG | `rag-tuning.md` | 🔜 待沉淀（开发过程中补充） |
-| SSE | `sse-patterns.md` | 🔜 待沉淀（开发过程中补充） |
-| Theme | `theme-css.md` | 🔜 待沉淀（开发过程中补充） |
+| 关键词   | 知识文件             | 状态                        |
+| -------- | -------------------- | --------------------------- |
+| Ollama   | `ollama-setup.md`    | 🔜 待沉淀（开发过程中补充） |
+| NestJS   | `nestjs-patterns.md` | 🔜 待沉淀（开发过程中补充） |
+| RAG      | `rag-tuning.md`      | 🔜 待沉淀（开发过程中补充） |
+| SSE      | `sse-patterns.md`    | 🔜 待沉淀（开发过程中补充） |
+| Theme    | `theme-css.md`       | 🔜 待沉淀（开发过程中补充） |
 | 文件上传 | `upload-patterns.md` | 🔜 待沉淀（开发过程中补充） |
-| Git | `git-workflow.md` | 🔜 待沉淀（开发过程中补充） |
+| Git      | `git-workflow.md`    | 🔜 待沉淀（开发过程中补充） |
 
 > **注意**：以上知识文件尚未创建。在开发各阶段完成并验证后，将踩坑经验写入对应文件。AI agent 在读取本索引时，应理解这些文件目前不存在，不应尝试读取或依赖其内容。
 

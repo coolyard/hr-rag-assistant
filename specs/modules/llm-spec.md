@@ -9,6 +9,7 @@
 ## 1. 范围边界
 
 ### 1.1 包含
+
 - Ollama Generate API 调用封装
 - 流式输出（SSE）生成
 - Prompt 组装（与 RAGService 协作）
@@ -16,6 +17,7 @@
 - 超时与错误处理
 
 ### 1.2 不包含
+
 - ❌ Prompt 模板定义（见 rag-spec.md 和 AI-SPEC.md）
 - ❌ RAG 检索逻辑（见 rag-spec.md）
 - ❌ 对话历史管理（见 chat-spec.md）
@@ -25,17 +27,17 @@
 
 ## 2. 模型配置
 
-| 参数 | 值 | 说明 |
-|------|-----|------|
-| `model` | `qwen2.5:7b-instruct` | Ollama 本地模型 |
-| `temperature` | 0.3 | 低温度，保证事实性 |
-| `top_p` | 0.9 | 核采样 |
-| `top_k` | 40 | Top-K 采样 |
-| `max_tokens` | 1024 | 单次回答最大 Token 数 |
-| `stream` | `true` | 必须开启流式输出 |
-| `ollama_base_url` | `http://localhost:11434` | Ollama 服务地址 |
-| `timeout` | 60000 | 单次生成超时 60 秒 |
-| `max_retries` | 2 | 失败重试次数 |
+| 参数              | 值                       | 说明                  |
+| ----------------- | ------------------------ | --------------------- |
+| `model`           | `qwen2.5:7b-instruct`    | Ollama 本地模型       |
+| `temperature`     | 0.3                      | 低温度，保证事实性    |
+| `top_p`           | 0.9                      | 核采样                |
+| `top_k`           | 40                       | Top-K 采样            |
+| `max_tokens`      | 1024                     | 单次回答最大 Token 数 |
+| `stream`          | `true`                   | 必须开启流式输出      |
+| `ollama_base_url` | `http://localhost:11434` | Ollama 服务地址       |
+| `timeout`         | 60000                    | 单次生成超时 60 秒    |
+| `max_retries`     | 2                        | 失败重试次数          |
 
 > ⚠️ **temperature 锁定为 0.3**：这是事实性回答的关键参数，变更需更新 Spec 并测试
 
@@ -59,7 +61,7 @@ interface ILLMService {
     systemPrompt: string,
     history: string,
     retrievedChunks: string,
-    userQuestion: string
+    userQuestion: string,
   ): AsyncIterable<string>;
 
   /**
@@ -72,6 +74,7 @@ interface ILLMService {
 ### 3.2 Ollama API 调用规范
 
 **请求**：
+
 ```http
 POST http://localhost:11434/api/generate
 Content-Type: application/json
@@ -90,6 +93,7 @@ Content-Type: application/json
 ```
 
 **流式响应**：
+
 ```
 {"model":"qwen2.5:7b-instruct","created_at":"2026-05-18T09:30:00Z","response":"根据","done":false}
 {"model":"qwen2.5:7b-instruct","created_at":"2026-05-18T09:30:00Z","response":"《年假制度》","done":false}
@@ -172,10 +176,7 @@ export class AskController {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
-    const stream = await this.ragService.orchestrate(
-      body.question,
-      body.conversationId
-    );
+    const stream = await this.ragService.orchestrate(body.question, body.conversationId);
 
     for await (const chunk of stream) {
       res.write(`data: ${JSON.stringify(chunk)}\n\n`);
@@ -190,9 +191,7 @@ export class AskController {
 ### 5.2 流式数据处理
 
 ```typescript
-async function* parseOllamaStream(
-  response: Response
-): AsyncGenerator<string> {
+async function* parseOllamaStream(response: Response): AsyncGenerator<string> {
   const reader = response.body!.getReader();
   const decoder = new TextDecoder();
   let buffer = '';
@@ -224,25 +223,25 @@ async function* parseOllamaStream(
 
 ## 6. 错误处理
 
-| 场景 | 处理策略 |
-|------|---------|
-| Ollama 未启动 | 重试 2 次后抛出 `OllamaConnectionError`，返回 503 |
-| 模型未下载 | 抛出 `ModelNotFoundError`，提示 `ollama pull qwen2.5:7b-instruct` |
-| 生成超时（>60s） | 中断流，SSE 发送 `{done: true, error: "生成超时"}` |
-| 生成过程中 Ollama 断开 | 发送已生成内容 + error 包 |
-| Token 超限 | Ollama 自动截断，返回 `done: true` |
-| 空响应 | 返回 "抱歉，生成失败，请重试" |
+| 场景                   | 处理策略                                                          |
+| ---------------------- | ----------------------------------------------------------------- |
+| Ollama 未启动          | 重试 2 次后抛出 `OllamaConnectionError`，返回 503                 |
+| 模型未下载             | 抛出 `ModelNotFoundError`，提示 `ollama pull qwen2.5:7b-instruct` |
+| 生成超时（>60s）       | 中断流，SSE 发送 `{done: true, error: "生成超时"}`                |
+| 生成过程中 Ollama 断开 | 发送已生成内容 + error 包                                         |
+| Token 超限             | Ollama 自动截断，返回 `done: true`                                |
+| 空响应                 | 返回 "抱歉，生成失败，请重试"                                     |
 
 ---
 
 ## 7. 性能要求
 
-| 指标 | 目标值 |
-|------|--------|
-| 流式首字延迟 | < 2 秒 |
+| 指标                  | 目标值  |
+| --------------------- | ------- |
+| 流式首字延迟          | < 2 秒  |
 | 完整回答时间（500字） | < 10 秒 |
-| 单次最大生成 Token | 1024 |
-| 并发请求建议 | ≤ 5 |
+| 单次最大生成 Token    | 1024    |
+| 并发请求建议          | ≤ 5     |
 
 ---
 
@@ -273,6 +272,6 @@ LLMService
 
 ## 10. Spec 演进记录
 
-| 日期 | 版本 | 变更内容 |
-|------|------|---------|
+| 日期       | 版本 | 变更内容                                                  |
+| ---------- | ---- | --------------------------------------------------------- |
 | 2026-05-18 | v1.0 | 初始版本，从 AI-SPEC.md 和 phase-1/2 spec 中提取 LLM 规范 |

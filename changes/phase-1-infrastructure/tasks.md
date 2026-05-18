@@ -18,6 +18,7 @@ Task-003 (文档索引) ── 依赖 Task-001 + Task-002
 ---
 
 ## Task-001: 初始化 NestJS + React 项目结构
+
 - **目标**：搭建 Monorepo 基础结构，配置 TypeScript 严格模式
 - **输入**：ARCHITECTURE.md 模块划分、.cursorrules 技术栈约束
 - **输出**：
@@ -36,6 +37,7 @@ Task-003 (文档索引) ── 依赖 Task-001 + Task-002
 - **预计耗时**：2-3 小时
 
 ## Task-002: 配置 Ollama 客户端与模型连通性
+
 - **目标**：后端能成功调用本地 Ollama 的 Embedding 和 Generate API
 - **输入**：AI-SPEC.md 模型配置、ARCHITECTURE.md ADR-002
 - **输出**：
@@ -50,6 +52,7 @@ Task-003 (文档索引) ── 依赖 Task-001 + Task-002
 - **预计耗时**：2-3 小时
 
 ## Task-003: 内置文档加载与真实 Embedding 索引
+
 - **目标**：启动时自动加载 `docs/hr-documents/` 下的 5 个内置 HR 文档，分块，生成真实 Embedding，存入内存 VectorStore
 - **输入**：AI-SPEC.md 分块策略、ARCHITECTURE.md IVectorStore 接口、5 个内置 Markdown 文件
 - **输出**：

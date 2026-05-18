@@ -8,12 +8,14 @@
 ## 1. 范围边界
 
 ### 包含
+
 - NestJS + React + TypeScript 项目结构初始化
 - Ollama HTTP 客户端封装（LLM + Embedding）
 - 内置 5 个 HR 制度 Markdown 文档加载与分块
 - 真实 Embedding 生成与内存向量索引
 
 ### 不包含
+
 - RAG 检索算法（phase-2）
 - 用户界面（phase-3）
 - 文档上传功能（phase-3）
@@ -22,11 +24,13 @@
 ---
 
 ## 2. 依赖的前置域
+
 - 无（本项目第一个变更域）
 
 ---
 
 ## 3. 验收标准
+
 - [ ] `cd apps/api && npm run start:dev` 能启动 NestJS，监听 3000 端口
 - [ ] `cd apps/web && npm run dev` 能启动 Vite，显示默认 React 页面
 - [ ] TypeScript 编译无错误，无 `any` 类型
@@ -42,6 +46,7 @@
 ---
 
 ## 4. 技术决策
+
 - 使用 pnpm workspace 管理 Monorepo
 - 使用 ESLint flat config (eslint.config.mjs) + Prettier 统一代码风格
 - 前端和后端共享相同的 Prettier 配置，ESLint 规则按运行环境区分

@@ -9,6 +9,7 @@
 ## 1. 范围边界
 
 ### 1.1 包含
+
 - 用户个人数据模型（UserProfile）定义
 - 内存预置用户个人数据（基于 HR 制度文档生成模拟数据）
 - 个人问题识别规则（判断用户是否在询问自身相关数据）
@@ -16,6 +17,7 @@
 - 个人数据与通用制度的融合回答机制
 
 ### 1.2 不包含
+
 - ❌ 真实数据库连接（仍为内存预置）
 - ❌ 个人隐私数据（工资、身份证号、家庭住址等敏感信息）
 - ❌ 动态数据更新（如每日打卡、实时审批状态）
@@ -30,49 +32,49 @@
 ```typescript
 interface UserProfile {
   // ── 基础信息 ──
-  realName: string;                 // 真实姓名
-  department: string;               // 部门
-  position: string;                 // 职位
-  level: string;                    // 职级 P4/P5/P6/P7/M1/M2
-  hireDate: string;                 // 入职日期（ISO 格式）
-  probationEndDate: string;         // 转正日期（ISO 格式）
-  isProbation: boolean;             // 是否在试用期
+  realName: string; // 真实姓名
+  department: string; // 部门
+  position: string; // 职位
+  level: string; // 职级 P4/P5/P6/P7/M1/M2
+  hireDate: string; // 入职日期（ISO 格式）
+  probationEndDate: string; // 转正日期（ISO 格式）
+  isProbation: boolean; // 是否在试用期
 
   // ── 年假 ──
-  annualLeaveTotal: number;         // 年假总天数（根据入职年限）
-  annualLeaveUsed: number;          // 已休年假天数（本年度）
-  annualLeaveRemaining: number;     // 剩余年假天数
+  annualLeaveTotal: number; // 年假总天数（根据入职年限）
+  annualLeaveUsed: number; // 已休年假天数（本年度）
+  annualLeaveRemaining: number; // 剩余年假天数
 
   // ── 其他请假 ──
-  sickLeaveUsed: number;            // 已休病假天数（本年度）
-  personalLeaveUsed: number;        // 已休事假天数（本年度，累计≤10天）
-  marriageLeaveUsed: number;        // 已休婚假天数
-  maternityLeaveUsed: number;       // 已休产假天数
+  sickLeaveUsed: number; // 已休病假天数（本年度）
+  personalLeaveUsed: number; // 已休事假天数（本年度，累计≤10天）
+  marriageLeaveUsed: number; // 已休婚假天数
+  maternityLeaveUsed: number; // 已休产假天数
 
   // ── 报销 ──
-  reimbursementTotal: number;       // 本年度报销总额（元）
-  reimbursementPending: number;     // 待审批报销金额（元）
-  reimbursementApproved: number;    // 已审批到账金额（元）
-  reimbursementCount: number;       // 本年度报销次数
+  reimbursementTotal: number; // 本年度报销总额（元）
+  reimbursementPending: number; // 待审批报销金额（元）
+  reimbursementApproved: number; // 已审批到账金额（元）
+  reimbursementCount: number; // 本年度报销次数
 
   // ── 补贴（已发放）──
-  communicationSubsidy: number;     // 通讯补贴：固定 200 元/月
-  transportSubsidy: number;         // 交通补贴：固定 500 元/月
-  mealSubsidy: number;              // 餐补：30 元/工作日
+  communicationSubsidy: number; // 通讯补贴：固定 200 元/月
+  transportSubsidy: number; // 交通补贴：固定 500 元/月
+  mealSubsidy: number; // 餐补：30 元/工作日
 
   // ── 考勤 ──
-  lateCountThisMonth: number;       // 本月迟到次数
+  lateCountThisMonth: number; // 本月迟到次数
   forgotClockCountThisMonth: number; // 本月忘打卡次数（允许2次补录）
-  overtimeBalanceHours: number;     // 加班调休余额（小时）
+  overtimeBalanceHours: number; // 加班调休余额（小时）
 
   // ── 福利 ──
-  trainingBudgetRemaining: number;  // 培训预算余额（年度 5000 元）
+  trainingBudgetRemaining: number; // 培训预算余额（年度 5000 元）
   annualExaminationStatus: 'completed' | 'scheduled' | 'not_yet'; // 体检状态
   birthdayBenefitStatus: 'claimed' | 'unclaimed'; // 生日福利
 
   // ── 晋升 ──
   lastPromotionDate: string | null; // 上次晋升日期
-  nextEvaluationEligible: boolean;  // 是否可参与下次晋升评估
+  nextEvaluationEligible: boolean; // 是否可参与下次晋升评估
 }
 ```
 
@@ -182,7 +184,8 @@ function isPersonalQuery(query: string): boolean {
 
   // 条件 1: 包含第一人称代词 + HR 相关关键词
   const firstPerson = /我|我的|本人/;
-  const hrKeywords = /年假|假期|请假|报销|补贴|考勤|迟到|打卡|加班|调休|福利|体检|培训|晋升|职级|工资|薪资|事假|病假|婚假|产假/;
+  const hrKeywords =
+    /年假|假期|请假|报销|补贴|考勤|迟到|打卡|加班|调休|福利|体检|培训|晋升|职级|工资|薪资|事假|病假|婚假|产假/;
 
   if (firstPerson.test(lower) && hrKeywords.test(lower)) {
     return true;
@@ -206,24 +209,24 @@ function isPersonalQuery(query: string): boolean {
 
 ### 3.2 个人查询示例
 
-| 问题类型 | 示例 |
-|---------|------|
-| 年假余额 | "我还有多少天年假？" "我今年还能请几天假？" |
-| 请假记录 | "我休过几天病假？" "我请过多少天事假？" |
-| 报销状态 | "我有多少报销在审批中？" "我今年报销了多少钱？" |
-| 补贴情况 | "我的餐补是多少？" "通讯补贴发了吗？" |
-| 考勤状态 | "我这个月迟到几次了？" "我还有几次忘打卡机会？" |
-| 加班调休 | "我有多少调休余额？" "我的加班时长还剩多少？" |
+| 问题类型 | 示例                                                           |
+| -------- | -------------------------------------------------------------- |
+| 年假余额 | "我还有多少天年假？" "我今年还能请几天假？"                    |
+| 请假记录 | "我休过几天病假？" "我请过多少天事假？"                        |
+| 报销状态 | "我有多少报销在审批中？" "我今年报销了多少钱？"                |
+| 补贴情况 | "我的餐补是多少？" "通讯补贴发了吗？"                          |
+| 考勤状态 | "我这个月迟到几次了？" "我还有几次忘打卡机会？"                |
+| 加班调休 | "我有多少调休余额？" "我的加班时长还剩多少？"                  |
 | 福利状态 | "我今年体检了吗？" "我的培训预算还剩多少？" "生日福利领了没？" |
-| 晋升资格 | "我今年能参加晋升评估吗？" "我上次什么时候晋升的？" |
+| 晋升资格 | "我今年能参加晋升评估吗？" "我上次什么时候晋升的？"            |
 
 ### 3.3 非个人查询示例（仍走纯 RAG）
 
-| 问题 | 处理方式 |
-|------|---------|
-| "年假怎么请？" | 纯制度查询，只检索文档 |
-| "病假需要什么证明？" | 纯制度查询 |
-| "晋升后薪资涨多少？" | 纯制度查询 |
+| 问题                   | 处理方式                       |
+| ---------------------- | ------------------------------ |
+| "年假怎么请？"         | 纯制度查询，只检索文档         |
+| "病假需要什么证明？"   | 纯制度查询                     |
+| "晋升后薪资涨多少？"   | 纯制度查询                     |
 | "公司年假最多多少天？" | 纯制度查询（通用规则，非个人） |
 
 ---
@@ -315,6 +318,7 @@ System Prompt（核心规则）
 **Prompt 注入**：包含张小明的 profile（剩余 3 天）
 
 **AI 回答**：
+
 > 你还有 **3 天**年假剩余。
 >
 > 你今年的年假总额是 5 天（根据《年假制度》，入职满 1 年享受 5 天年假），已休 2 天，所以剩余 3 天。年假不可跨年累计，建议在年底前安排休完。
@@ -328,6 +332,7 @@ System Prompt（核心规则）
 **Prompt 注入**：张小明本月已迟到 1 次
 
 **AI 回答**：
+
 > 你这个月已经迟到 1 次，根据《考勤制度》每月前 3 次免罚，所以你还**可以免罚迟到 2 次**。
 >
 > 从第 4 次开始，每次扣 50 元。如果每月累计超过 10 次，还会记警告一次。
@@ -341,6 +346,7 @@ System Prompt（核心规则）
 **处理**：虽然 profile 中未包含工资数据，但用户询问工资属于敏感隐私。
 
 **AI 回答**：
+
 > 根据现有 HR 文档，无法确认该问题的答案。涉及具体薪资数字的问题，建议联系 HR 部门获取准确信息。
 
 ---
@@ -351,14 +357,14 @@ System Prompt（核心规则）
 
 即使有个人数据注入，以下问题**必须拒绝**：
 
-| 问题 | 拒绝原因 |
-|------|---------|
-| "我的工资/月薪/年薪是多少？" | 具体薪资数字为高度敏感隐私 |
-| "我的银行卡号是多少？" | 金融信息 |
-| "我的身份证号是多少？" | 身份敏感信息 |
-| "我的家庭住址是什么？" | 个人隐私 |
-| "张三的工资是多少？" | 跨用户查询，无论是否在职均拒绝 |
-| "我和李四谁工资高？" | 涉及他人隐私 |
+| 问题                         | 拒绝原因                       |
+| ---------------------------- | ------------------------------ |
+| "我的工资/月薪/年薪是多少？" | 具体薪资数字为高度敏感隐私     |
+| "我的银行卡号是多少？"       | 金融信息                       |
+| "我的身份证号是多少？"       | 身份敏感信息                   |
+| "我的家庭住址是什么？"       | 个人隐私                       |
+| "张三的工资是多少？"         | 跨用户查询，无论是否在职均拒绝 |
+| "我和李四谁工资高？"         | 涉及他人隐私                   |
 
 ### 6.2 个人数据访问边界
 
@@ -400,13 +406,14 @@ interface IUserProfileService {
 
 #### GET /api/me
 
-| 属性 | 值 |
-|------|-----|
-| 路径 | `/api/me` |
-| 方法 | GET |
+| 属性 | 值         |
+| ---- | ---------- |
+| 路径 | `/api/me`  |
+| 方法 | GET        |
 | 认证 | Bearer JWT |
 
 **响应 200**：
+
 ```json
 {
   "id": "user-1",
@@ -434,8 +441,8 @@ interface IUserProfileService {
 
 ### 8.1 页面路由
 
-| 路由 | 权限 | 说明 |
-|------|------|------|
+| 路由       | 权限                   | 说明               |
+| ---------- | ---------------------- | ------------------ |
 | `/profile` | employee, hr（需登录） | 用户个人信息展示页 |
 
 ### 8.2 页面布局
@@ -508,13 +515,13 @@ interface IUserProfileService {
 
 #### 数据颜色规范
 
-| 数据类型 | 正常状态 | 警示状态 | 条件 |
-|---------|---------|---------|------|
-| 年假剩余 | 绿色 `#388e3c` | 橙色 `#f57c00` | 剩余 ≤ 1 天 |
-| 迟到次数 | 绿色 | 橙色 | ≥ 3 次（即将扣款） |
-| 待审批报销 | 蓝色 | — | — |
-| 培训预算 | 绿色 | 橙色 | 剩余 ≤ 500 元 |
-| 忘打卡次数 | 绿色 | 红色 | ≥ 2 次（即将用完） |
+| 数据类型   | 正常状态       | 警示状态       | 条件               |
+| ---------- | -------------- | -------------- | ------------------ |
+| 年假剩余   | 绿色 `#388e3c` | 橙色 `#f57c00` | 剩余 ≤ 1 天        |
+| 迟到次数   | 绿色           | 橙色           | ≥ 3 次（即将扣款） |
+| 待审批报销 | 蓝色           | —              | —                  |
+| 培训预算   | 绿色           | 橙色           | 剩余 ≤ 500 元      |
+| 忘打卡次数 | 绿色           | 红色           | ≥ 2 次（即将用完） |
 
 ### 8.4 加载与空状态
 
@@ -570,7 +577,7 @@ UserProfileModule
 
 ## 11. Spec 演进记录
 
-| 日期 | 版本 | 变更内容 |
-|------|------|---------|
-| 2026-05-18 | v1.0 | 初始版本，新增用户个人数据模块，支持"我有多少天年假"类个人查询 |
+| 日期       | 版本 | 变更内容                                                           |
+| ---------- | ---- | ------------------------------------------------------------------ |
+| 2026-05-18 | v1.0 | 初始版本，新增用户个人数据模块，支持"我有多少天年假"类个人查询     |
 | 2026-05-18 | v1.1 | 增加前端 Profile 页面规范（`/profile` 路由、统计卡片、响应式布局） |
