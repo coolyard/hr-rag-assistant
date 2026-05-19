@@ -1,6 +1,7 @@
 import { type FC, useCallback, useEffect, useRef } from 'react';
 
 import { ChatMessage } from '@/components/Chat/ChatMessage';
+import { ThemeToggle } from '@/components/Theme/ThemeToggle';
 import { useChat } from '@/hooks/useChat';
 import styles from '@/pages/ChatPage.module.css';
 
@@ -80,6 +81,7 @@ export const ChatPage: FC = () => {
       <nav className={styles.navbar}>
         <span className={styles.navTitle}>HR RAG Assistant</span>
         <div className={styles.navActions}>
+          <ThemeToggle />
           {hasMessages && (
             <button className={styles.navButton} onClick={newConversation} type="button">
               新对话

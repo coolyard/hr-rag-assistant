@@ -7,8 +7,8 @@
 
 .userBubble {
   max-width: 70%;
-  background: #1976d2;
-  color: #ffffff;
+  background: var(--user-message-bg);
+  color: var(--user-message-text);
   border-radius: 16px 4px 16px 16px;
   padding: 12px 16px;
 }
@@ -22,21 +22,10 @@
 
 .assistantBubble {
   max-width: 85%;
-  background: #f3f4f6;
-  color: #1a1a1a;
+  background: var(--assistant-message-bg);
+  color: var(--assistant-message-text);
   border-radius: 4px 16px 16px 16px;
   padding: 12px 16px;
-}
-
-@media (prefers-color-scheme: dark) {
-  .userBubble {
-    background: #1565c0;
-  }
-
-  .assistantBubble {
-    background: #2d2d2d;
-    color: #e5e5e5;
-  }
 }
 
 .messageText {
@@ -46,14 +35,14 @@
 }
 
 .messageText code {
-  background: rgba(0, 0, 0, 0.08);
+  background: var(--bg-tertiary);
   border-radius: 3px;
   padding: 2px 6px;
   font-size: 0.9em;
 }
 
 .messageText pre {
-  background: rgba(0, 0, 0, 0.08);
+  background: var(--bg-tertiary);
   border-radius: 6px;
   padding: 12px;
   overflow-x: auto;
@@ -113,35 +102,35 @@
 }
 
 .errorText {
-  color: #dc2626;
+  color: var(--error-color);
   font-size: 0.875rem;
   margin: 8px 0 0 0;
 }
 
 .sourcesSection {
   margin-top: 12px;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  border-top: 1px solid var(--border-color);
   padding-top: 8px;
 }
 
 .sourcesLabel {
   font-size: 0.8rem;
-  color: #666;
+  color: var(--text-secondary);
   margin: 0 0 6px 0;
 }
 
 .citationCard {
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 10px 12px;
   margin-bottom: 6px;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.5);
+  background: var(--card-bg);
   transition: background 0.15s;
 }
 
 .citationCard:hover {
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--hover-bg);
 }
 
 .citationHeader {
@@ -158,12 +147,12 @@
 
 .citationSimilarity {
   font-size: 0.75rem;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .citationChunk {
   font-size: 0.8rem;
-  color: #555;
+  color: var(--text-tertiary);
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
@@ -174,6 +163,6 @@
 
 .citationChunkExpanded {
   font-size: 0.8rem;
-  color: #555;
+  color: var(--text-tertiary);
   line-height: 1.4;
 }
