@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from '@/app.controller';
 import { AppService } from '@/app.service';
 import { AskModule } from '@/ask/ask.module';
+import { AuthModule } from '@/auth/auth.module';
 import { ChatModule } from '@/chat/chat.module';
 import { DocumentModule } from '@/document/document.module';
 import { EmbeddingModule } from '@/embed/embed.module';
@@ -14,6 +15,7 @@ import { VectorModule } from '@/vector/vector.module';
 @Module({
   imports: [
     AskModule,
+    AuthModule,
     ChatModule,
     DocumentModule,
     EmbeddingModule,

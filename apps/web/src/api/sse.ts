@@ -23,9 +23,15 @@ export async function* streamAsk(
   request: AskRequest,
   signal?: AbortSignal,
 ): AsyncGenerator<AskStreamChunk> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  const token = localStorage.getItem('hr_rag_token');
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
   const response = await fetch('/api/ask', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify(request),
     signal,
   });
