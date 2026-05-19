@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { ChatPage } from '@/pages/ChatPage';
 import { DocumentPage } from '@/pages/DocumentPage';
 import { LoginPage } from '@/pages/LoginPage';
+import { ProfilePage } from '@/pages/ProfilePage';
 
 const ProtectedRoute: FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -47,7 +48,7 @@ export const App: FC = () => {
         path="/profile"
         element={
           <ProtectedRoute>
-            <Navigate to="/chat" replace />
+            <ProfilePage />
           </ProtectedRoute>
         }
       />

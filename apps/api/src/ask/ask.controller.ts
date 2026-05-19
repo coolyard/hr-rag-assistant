@@ -2,6 +2,7 @@ import { Controller, Delete, Get, Logger, Param, Post, Body, Req, Res } from '@n
 import type { Request, Response } from 'express';
 
 import type { AskRequest, AskStreamChunk } from '@/ask/ask.interface';
+import type { UserPayload } from '@/auth/auth.interface';
 import { ChatService } from '@/chat/chat.service';
 import { RAGService } from '@/rag/rag.service';
 
@@ -33,7 +34,8 @@ export class AskController {
     });
 
     try {
-      const stream = this.ragService.orchestrate(body.question, body.conversationId);
+      const user = req.user as UserPayload;
+      const stream = this.ragService.orchestrate(body.question, body.conversationId, user.sub);
 
       for await (const chunk of stream) {
         const data: AskStreamChunk = {

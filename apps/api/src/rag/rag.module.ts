@@ -5,10 +5,11 @@ import { EmbeddingModule } from '@/embed/embed.module';
 import { LLMModule } from '@/llm/llm.module';
 import { KeywordSearchService } from '@/rag/keyword-search.service';
 import { RAGService } from '@/rag/rag.service';
+import { UserProfileModule } from '@/user-profile/user-profile.module';
 import { VectorModule } from '@/vector/vector.module';
 
 @Module({
-  imports: [EmbeddingModule, VectorModule, LLMModule, ChatModule],
+  imports: [EmbeddingModule, VectorModule, LLMModule, ChatModule, UserProfileModule],
   providers: [KeywordSearchService, RAGService],
   exports: [RAGService],
 })
