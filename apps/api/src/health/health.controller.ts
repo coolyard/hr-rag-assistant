@@ -1,6 +1,7 @@
 import { Controller, Get, HttpException, HttpStatus, Inject, Logger } from '@nestjs/common';
 import axios from 'axios';
 
+import { Public } from '@/auth/public.decorator';
 import { LLM_CONFIG, type LLMConfig } from '@/llm/llm.config';
 
 @Controller('api/health')
@@ -9,6 +10,7 @@ export class HealthController {
 
   constructor(@Inject(LLM_CONFIG) private readonly llmConfig: LLMConfig) {}
 
+  @Public()
   @Get()
   getHealth(): { status: string; timestamp: string; service: string; version: string } {
     return {
@@ -19,6 +21,7 @@ export class HealthController {
     };
   }
 
+  @Public()
   @Get('ollama')
   async getOllamaHealth(): Promise<{
     status: string;

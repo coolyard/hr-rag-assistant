@@ -1,0 +1,75 @@
+.container {
+  position: relative;
+}
+
+.toggleButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  line-height: 1;
+}
+
+.toggleButton:hover {
+  background: var(--hover-bg);
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 140px;
+  padding: 4px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--card-bg);
+  box-shadow: var(--shadow);
+  z-index: 100;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.option:hover {
+  background: var(--hover-bg);
+}
+
+.optionActive {
+  background: var(--accent-color);
+  color: #ffffff;
+}
+
+.optionActive:hover {
+  background: var(--accent-hover);
+  color: #ffffff;
+}
+
+.optionIcon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.optionLabel {
+  font-size: 0.875rem;
+}

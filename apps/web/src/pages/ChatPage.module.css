@@ -2,44 +2,32 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: var(--color-bg-primary, #ffffff);
-  color: var(--color-text-primary, #1a1a1a);
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
-.navbar {
+.toolbar {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 20px;
-  border-bottom: 1px solid var(--color-border, #e5e7eb);
-  background: var(--color-bg-primary, #ffffff);
+  gap: 8px;
+  padding: 6px 16px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-secondary);
   flex-shrink: 0;
 }
 
-.navTitle {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--color-accent, #2563eb);
-}
-
-.navActions {
-  display: flex;
-  gap: 8px;
-}
-
-.navButton {
+.toolbarButton {
   padding: 4px 12px;
-  border: 1px solid var(--color-border, #e5e7eb);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   background: transparent;
-  color: var(--color-text-secondary, #666666);
+  color: var(--text-secondary);
   font-size: 0.8rem;
   cursor: pointer;
   transition: background 0.15s;
 }
 
-.navButton:hover {
-  background: var(--color-bg-secondary, #f5f5f5);
+.toolbarButton:hover {
+  background: var(--hover-bg);
 }
 
 .messageList {
@@ -61,13 +49,13 @@
 .welcomeTitle {
   font-size: 1.5rem;
   font-weight: 600;
-  color: var(--color-text-primary, #1a1a1a);
+  color: var(--text-primary);
   margin: 0 0 8px 0;
 }
 
 .welcomeHint {
   font-size: 0.95rem;
-  color: var(--color-text-secondary, #666666);
+  color: var(--text-secondary);
   margin: 0;
 }
 
@@ -80,29 +68,29 @@
 
 .retryButton {
   padding: 4px 14px;
-  border: 1px solid #dc2626;
+  border: 1px solid var(--error-color);
   border-radius: 6px;
   background: transparent;
-  color: #dc2626;
+  color: var(--error-color);
   font-size: 0.8rem;
   cursor: pointer;
 }
 
 .retryButton:hover {
-  background: rgba(220, 38, 38, 0.08);
+  background: var(--hover-bg);
 }
 
 .searchingHint {
   text-align: center;
-  color: var(--color-text-secondary, #666);
+  color: var(--text-secondary);
   font-size: 0.85rem;
   margin: 8px 0;
 }
 
 .inputArea {
-  border-top: 1px solid var(--color-border, #e5e7eb);
+  border-top: 1px solid var(--border-color);
   padding: 12px 16px 16px;
-  background: var(--color-bg-primary, #ffffff);
+  background: var(--bg-primary);
   flex-shrink: 0;
 }
 
@@ -111,7 +99,7 @@
   min-height: 44px;
   max-height: 120px;
   padding: 10px 14px;
-  border: 1px solid var(--color-border, #e5e7eb);
+  border: 1px solid var(--input-border);
   border-radius: 8px;
   font-size: 0.95rem;
   font-family: inherit;
@@ -120,16 +108,16 @@
   outline: none;
   transition: border-color 0.15s;
   box-sizing: border-box;
-  background: var(--color-bg-primary, #ffffff);
-  color: var(--color-text-primary, #1a1a1a);
+  background: var(--input-bg);
+  color: var(--text-primary);
 }
 
 .input:focus {
-  border-color: var(--color-accent, #2563eb);
+  border-color: var(--accent-color);
 }
 
 .input:disabled {
-  background: var(--color-bg-secondary, #f5f5f5);
+  background: var(--bg-secondary);
 }
 
 .inputFooter {
@@ -141,14 +129,14 @@
 
 .charCount {
   font-size: 0.75rem;
-  color: var(--color-text-secondary, #666666);
+  color: var(--text-secondary);
 }
 
 .sendButton {
   padding: 6px 20px;
   border: none;
   border-radius: 6px;
-  background: var(--color-accent, #2563eb);
+  background: var(--accent-color);
   color: #ffffff;
   font-size: 0.9rem;
   font-weight: 500;
@@ -158,7 +146,7 @@
 }
 
 .sendButton:hover:not(:disabled) {
-  background: var(--color-accent-hover, #1d4ed8);
+  background: var(--accent-hover);
 }
 
 .sendButton:disabled {
