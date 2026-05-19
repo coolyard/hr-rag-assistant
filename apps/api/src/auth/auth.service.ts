@@ -70,4 +70,8 @@ export class AuthService {
     }
     return null;
   }
+
+  getAllUsers(): User[] {
+    return Array.from(this.users.values());
+  }
 }

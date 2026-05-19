@@ -10,6 +10,7 @@ import { EmbeddingModule } from '@/embed/embed.module';
 import { HealthModule } from '@/health/health.module';
 import { LLMModule } from '@/llm/llm.module';
 import { RagModule } from '@/rag/rag.module';
+import { UserProfileModule } from '@/user-profile/user-profile.module';
 import { VectorModule } from '@/vector/vector.module';
 
 @Module({
@@ -22,6 +23,7 @@ import { VectorModule } from '@/vector/vector.module';
     HealthModule,
     LLMModule,
     RagModule,
+    UserProfileModule,
     VectorModule,
   ],
   controllers: [AppController],

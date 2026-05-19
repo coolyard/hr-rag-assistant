@@ -11,6 +11,7 @@ import type {
   SourceCitation,
   StreamChunk,
 } from '@/rag/rag.interface';
+import { UserProfileService } from '@/user-profile/user-profile.service';
 import { VectorStoreService } from '@/vector/vector-store.service';
 
 const VECTOR_TOP_K = 3;
@@ -59,9 +60,14 @@ export class RAGService {
     private readonly keywordSearch: KeywordSearchService,
     private readonly chatService: ChatService,
     private readonly llmService: LLMService,
+    private readonly userProfileService: UserProfileService,
   ) {}
 
-  async *orchestrate(query: string, conversationId?: string): AsyncIterable<StreamChunk> {
+  async *orchestrate(
+    query: string,
+    conversationId?: string,
+    userId?: string,
+  ): AsyncIterable<StreamChunk> {
     const conv = this.chatService.getOrCreateConversation(conversationId);
     this.chatService.addUserMessage(conv.id, query);
 
@@ -86,7 +92,20 @@ export class RAGService {
     }
 
     const history = this.chatService.getHistory(conv.id);
-    const prompt = this.buildPrompt(query, merged, history);
+
+    let userProfileText = '（未提供）';
+    if (userId) {
+      const isPersonal = this.userProfileService.isPersonalQuery(query);
+      if (isPersonal) {
+        const profile = this.userProfileService.getProfile(userId);
+        if (profile) {
+          userProfileText = this.userProfileService.formatForPrompt(profile);
+          this.logger.log(`Personal data injected for user ${userId}`);
+        }
+      }
+    }
+
+    const prompt = this.buildPrompt(query, merged, history, userProfileText);
 
     const sources = this.buildSources(merged);
     const confidenceLevel = this.getConfidenceLevel(merged[0].hybridScore);
@@ -194,12 +213,17 @@ export class RAGService {
     return false;
   }
 
-  private buildPrompt(query: string, chunks: MergedResult[], history: Message[]): string {
+  private buildPrompt(
+    query: string,
+    chunks: MergedResult[],
+    history: Message[],
+    userProfileText: string,
+  ): string {
     const formattedChunks = this.formatChunks(chunks);
     const formattedHistory = this.formatHistory(history);
 
     let prompt = SYSTEM_PROMPT_TEMPLATE.replace('{{retrieved_chunks}}', formattedChunks)
-      .replace('{{user_profile}}', '（未提供）')
+      .replace('{{user_profile}}', userProfileText)
       .replace('{{conversation_history}}', formattedHistory)
       .replace('{{user_question}}', query);
 
@@ -212,7 +236,7 @@ export class RAGService {
     if (totalTokens > MAX_TOKENS_ESTIMATE) {
       const compressedHistory = this.formatHistory(history.slice(-6));
       prompt = SYSTEM_PROMPT_TEMPLATE.replace('{{retrieved_chunks}}', formattedChunks)
-        .replace('{{user_profile}}', '（未提供）')
+        .replace('{{user_profile}}', userProfileText)
         .replace('{{conversation_history}}', compressedHistory)
         .replace('{{user_question}}', query);
 
@@ -225,7 +249,7 @@ export class RAGService {
       if (newTotal > MAX_TOKENS_ESTIMATE) {
         const minimalHistory = this.formatHistory(history.slice(-2));
         prompt = SYSTEM_PROMPT_TEMPLATE.replace('{{retrieved_chunks}}', formattedChunks)
-          .replace('{{user_profile}}', '（未提供）')
+          .replace('{{user_profile}}', userProfileText)
           .replace('{{conversation_history}}', minimalHistory)
           .replace('{{user_question}}', query);
       }
