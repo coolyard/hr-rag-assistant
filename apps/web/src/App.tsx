@@ -5,6 +5,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { useAuth } from '@/context/AuthContext';
 import { ChatPage } from '@/pages/ChatPage';
+import { DocumentPage } from '@/pages/DocumentPage';
 import { LoginPage } from '@/pages/LoginPage';
 
 const ProtectedRoute: FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -38,7 +39,7 @@ export const App: FC = () => {
         path="/documents"
         element={
           <ProtectedRoute>
-            <Navigate to="/chat" replace />
+            <DocumentPage />
           </ProtectedRoute>
         }
       />
