@@ -46,8 +46,8 @@ export interface UserPayload {
   username: string;
   role: UserRole;
   displayName: string;
-  iat: number;
-  exp: number;
+  iat?: number;
+  exp?: number;
 }
 
 export interface LoginRequest {

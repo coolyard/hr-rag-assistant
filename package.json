@@ -2,12 +2,16 @@
   "name": "hr-rag-assistant",
   "private": true,
   "scripts": {
+    "dev:api": "pnpm --filter api start:dev",
+    "dev:web": "pnpm --filter web dev",
+    "dev": "concurrently -n api,web -c blue,green \"pnpm run dev:api\" \"pnpm run dev:web\"",
     "lint": "eslint .",
     "format": "prettier --write \"**/*.{ts,tsx,js,mjs,cjs,json,css,html,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,mjs,cjs,json,css,html,md}\""
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
+    "concurrently": "^9.2.1",
     "eslint": "^9.0.0",
     "eslint-plugin-import-x": "^4.0.0",
     "eslint-plugin-react-hooks": "^5.0.0",

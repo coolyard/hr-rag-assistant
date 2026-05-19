@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 import type { User, UserProfile } from '@/auth/auth.interface';
 import { AuthService } from '@/auth/auth.service';
@@ -6,8 +6,6 @@ import type { IUserProfileService } from '@/user-profile/user-profile.interface'
 
 @Injectable()
 export class UserProfileService implements IUserProfileService {
-  private readonly logger = new Logger(UserProfileService.name);
-
   constructor(private readonly authService: AuthService) {}
 
   getProfile(userId: string): UserProfile | null {

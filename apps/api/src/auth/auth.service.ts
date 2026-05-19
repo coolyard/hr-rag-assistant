@@ -43,8 +43,6 @@ export class AuthService {
       username: user.username,
       role: user.role,
       displayName: user.displayName,
-      iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
     };
 
     const token = this.jwtService.sign(payload);
