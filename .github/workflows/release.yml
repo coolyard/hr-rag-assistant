@@ -21,9 +21,8 @@ jobs:
         id: release
         with:
           release-type: node
-          package-name: hr-rag-assistant
-          default-branch: main
           target-branch: main
+          config-file: .github/release-please-config.json
 
   publish-release:
     name: Publish Release Notes
