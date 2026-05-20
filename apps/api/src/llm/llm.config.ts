@@ -21,7 +21,7 @@ export function createLLMConfig(): LLMConfig {
     topP: 0.9,
     topK: 40,
     maxTokens: 1024,
-    ollamaBaseUrl: process.env.OLLAMA_BASE_URL ?? 'http://localhost:11434',
+    ollamaBaseUrl: process.env.OLLAMA_BASE_URL ?? 'http://127.0.0.1:11434',
     timeout: Number(process.env.LLM_TIMEOUT) || 60000,
     maxRetries: Number(process.env.LLM_MAX_RETRIES) || 2,
     stream: true,

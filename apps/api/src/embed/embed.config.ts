@@ -17,7 +17,7 @@ export function createEmbeddingConfig(): EmbeddingConfig {
     model: process.env.EMBEDDING_MODEL ?? 'nomic-embed-text',
     dimensions: 768,
     normalize: true,
-    ollamaBaseUrl: process.env.OLLAMA_BASE_URL ?? 'http://localhost:11434',
+    ollamaBaseUrl: process.env.OLLAMA_BASE_URL ?? 'http://127.0.0.1:11434',
     timeout: Number(process.env.EMBEDDING_TIMEOUT) || 30000,
     maxRetries: Number(process.env.EMBEDDING_MAX_RETRIES) || 3,
     batchSize: Number(process.env.EMBEDDING_BATCH_SIZE) || 10,

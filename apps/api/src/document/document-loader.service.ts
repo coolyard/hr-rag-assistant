@@ -81,7 +81,7 @@ export class DocumentLoader implements OnModuleInit {
   }
 
   loadDocuments(): { chunks: DocumentChunk[]; docCount: number } {
-    const docsDir = resolve(process.cwd(), 'docs/hr-documents');
+    const docsDir = resolve(__dirname, '../../../../docs/hr-documents');
     this.logger.log(`[DocumentLoader] 扫描目录: ${docsDir}`);
 
     let files: string[];
