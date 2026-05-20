@@ -42,6 +42,8 @@ const CUSTOM_CATEGORY: CategoryDef = {
   keywords: [],
 };
 
+export const DOCUMENTS_DIR = resolve(__dirname, '../../../../docs/hr-documents');
+
 const MAX_CHUNK_SIZE = 512;
 const OVERLAP = 50;
 const MIN_CHUNK_SIZE = 20;
@@ -81,7 +83,7 @@ export class DocumentLoader implements OnModuleInit {
   }
 
   loadDocuments(): { chunks: DocumentChunk[]; docCount: number } {
-    const docsDir = resolve(__dirname, '../../../../docs/hr-documents');
+    const docsDir = DOCUMENTS_DIR;
     this.logger.log(`[DocumentLoader] 扫描目录: ${docsDir}`);
 
     let files: string[];

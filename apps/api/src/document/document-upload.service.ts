@@ -3,7 +3,7 @@ import { basename, extname, resolve } from 'node:path';
 
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 
-import { DocumentLoader } from '@/document/document-loader.service';
+import { DocumentLoader, DOCUMENTS_DIR } from '@/document/document-loader.service';
 import { EmbeddingService } from '@/embed/embed.service';
 import { VectorStoreService } from '@/vector/vector-store.service';
 import type { DocumentMeta } from '@/vector/vector.interface';
@@ -32,7 +32,7 @@ export class DocumentUploadService {
       throw new BadRequestException('文件大小不能超过 1MB');
     }
 
-    const destPath = resolve(process.cwd(), 'docs/hr-documents', safeName);
+    const destPath = resolve(DOCUMENTS_DIR, safeName);
     writeFileSync(destPath, file.buffer);
 
     this.logger.log(`[DocumentUpload] 保存文件: ${safeName} (${String(file.size)} bytes)`);
@@ -79,7 +79,7 @@ export class DocumentUploadService {
 
   getFileInfo(filename: string): { size: number; createdAt: string; updatedAt: string } {
     const safeName = basename(filename);
-    const filePath = resolve(process.cwd(), 'docs/hr-documents', safeName);
+    const filePath = resolve(DOCUMENTS_DIR, safeName);
     const stats = statSync(filePath);
 
     return {

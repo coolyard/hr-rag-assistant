@@ -8,9 +8,6 @@ export interface HRDocument {
   title: string;
   category: string;
   categoryName: string;
-  chunkCount: number;
-  size: number;
-  createdAt: string;
   updatedAt: string;
 }
 
@@ -28,14 +25,9 @@ const CATEGORY_LABELS: Record<string, string> = {
   custom: '自定义',
 };
 
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) {
-    return `${String(bytes)} B`;
-  }
-  if (bytes < 1024 * 1024) {
-    return `${(bytes / 1024).toFixed(1)} KB`;
-  }
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+function formatDate(iso: string): string {
+  const d = new Date(iso);
+  return `${String(d.getFullYear())}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 export const DocumentCard: FC<DocumentCardProps> = ({ document: doc, onClick }) => {
@@ -69,8 +61,7 @@ export const DocumentCard: FC<DocumentCardProps> = ({ document: doc, onClick }) 
       </span>
       <h3 className={styles.title}>{doc.title}</h3>
       <div className={styles.meta}>
-        <span>{String(doc.chunkCount)} 个片段</span>
-        <span>{formatFileSize(doc.size)}</span>
+        <span>更新于 {formatDate(doc.updatedAt)}</span>
       </div>
     </div>
   );

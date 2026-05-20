@@ -73,11 +73,6 @@ export const DocumentPage: FC = () => {
     void fetchDocuments();
   }, [fetchDocuments]);
 
-  const totalChunks = useMemo(
-    () => documents.reduce((sum, d) => sum + d.chunkCount, 0),
-    [documents],
-  );
-
   return (
     <div className={styles.page}>
       <Navbar />
@@ -86,9 +81,6 @@ export const DocumentPage: FC = () => {
         <div className={styles.stats}>
           <span className={styles.statItem}>
             📚 {String(documents.length)} 个文档
-          </span>
-          <span className={styles.statItem}>
-            📄 {String(totalChunks)} 个索引片段
           </span>
         </div>
         {user?.role === 'hr' && <DocumentUploader onSuccess={handleUploadSuccess} />}
