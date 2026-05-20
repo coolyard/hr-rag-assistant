@@ -1,0 +1,366 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--bg-primary);
+}
+
+.container {
+  flex: 1;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px;
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.headerInfo {
+  flex: 1;
+}
+
+.name {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.position {
+  margin: 4px 0 0;
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+
+.department {
+  margin: 2px 0 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.hireInfo {
+  margin: 4px 0 0;
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.probationTag {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: #f57c00;
+  border-radius: 4px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.statCard {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+
+.cardTitle {
+  margin: 0 0 16px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.statsRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.statValue {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.successGreen {
+  color: #388e3c;
+}
+
+[data-theme="dark"] .successGreen {
+  color: #66bb6a;
+}
+
+.warningOrange {
+  color: #f57c00;
+}
+
+[data-theme="dark"] .warningOrange {
+  color: #ffa726;
+}
+
+.warningRed {
+  color: #d32f2f;
+}
+
+[data-theme="dark"] .warningRed {
+  color: #ef5350;
+}
+
+.infoBlue {
+  color: #1976d2;
+}
+
+[data-theme="dark"] .infoBlue {
+  color: #42a5f5;
+}
+
+.summaryPill {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--hover-bg);
+  border-radius: 20px;
+  text-align: center;
+}
+
+.pillSuccess {
+  background: rgba(56, 139, 60, 0.1);
+  color: #388e3c;
+}
+
+[data-theme="dark"] .pillSuccess {
+  background: rgba(102, 187, 106, 0.15);
+  color: #66bb6a;
+}
+
+.pillWarning {
+  background: rgba(245, 124, 0, 0.1);
+  color: #f57c00;
+}
+
+[data-theme="dark"] .pillWarning {
+  background: rgba(255, 167, 38, 0.15);
+  color: #ffa726;
+}
+
+.detailSection {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+
+.sectionTitle {
+  margin: 0 0 16px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.detailRow {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.detailItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 80px;
+}
+
+.detailValue {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.detailLabel {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.errorState {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.errorText {
+  color: var(--text-tertiary);
+  font-size: 0.95rem;
+  margin-bottom: 16px;
+}
+
+.retryButton {
+  padding: 8px 24px;
+  background: var(--accent-color);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.retryButton:hover {
+  opacity: 0.9;
+}
+
+/* Skeleton */
+
+.skeletonHeader {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px;
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+}
+
+.skeletonAvatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--skeleton-bg);
+  animation: pulse 1.5s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.skeletonLines {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skeletonLineWide {
+  height: 20px;
+  width: 40%;
+  background: var(--skeleton-bg);
+  border-radius: 4px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeletonLine {
+  height: 14px;
+  width: 60%;
+  background: var(--skeleton-bg);
+  border-radius: 4px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeletonLineShort {
+  height: 14px;
+  width: 30%;
+  background: var(--skeleton-bg);
+  border-radius: 4px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeletonCard {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeletonStat {
+  height: 36px;
+  width: 60%;
+  background: var(--skeleton-bg);
+  border-radius: 4px;
+  animation: pulse 1.5s ease-in-out infinite;
+  align-self: center;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@media (max-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 16px;
+  }
+
+  .header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hireInfo {
+    justify-content: center;
+  }
+
+  .detailRow {
+    justify-content: center;
+  }
+}

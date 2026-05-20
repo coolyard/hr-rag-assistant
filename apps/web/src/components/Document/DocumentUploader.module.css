@@ -1,0 +1,40 @@
+.wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.uploadButton {
+  padding: 8px 20px;
+  background: var(--accent-color);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.uploadButton:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.uploadButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.fileInput {
+  display: none;
+}
+
+.successMessage {
+  font-size: 0.85rem;
+  color: var(--success-color);
+}
+
+.errorMessage {
+  font-size: 0.85rem;
+  color: var(--error-color);
+}

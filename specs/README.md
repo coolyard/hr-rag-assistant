@@ -54,6 +54,7 @@ specs/
 ```
 
 **更新优先级**：当实现与 Spec 冲突时，从下往上更新：
+
 1. 先更新模块级 Spec（反映具体实现需求）
 2. 必要时更新变更级 Spec（反映 Phase 范围变化）
 3. 必要时更新项目级 Spec（反映全局规则变化）
@@ -62,19 +63,19 @@ specs/
 
 ## 各模块对应代码位置
 
-| 模块 Spec | 前端代码 | 后端代码 |
-|-----------|---------|---------|
-| auth-spec.md | `apps/web/src/context/AuthContext.tsx`<br>`apps/web/src/pages/LoginPage.tsx` | `apps/api/src/auth/*` |
-| theme-spec.md | `apps/web/src/context/ThemeContext.tsx`<br>`apps/web/src/styles/variables.css` | — |
-| chat-spec.md | `apps/web/src/hooks/useChat.ts`<br>`apps/web/src/pages/ChatPage.tsx`<br>`apps/web/src/components/Chat/*` | `apps/api/src/ask/*`<br>`apps/api/src/chat/*` |
-| api-spec.md | `apps/web/src/api/*` | `apps/api/src/**/*.controller.ts` |
-| embedding-spec.md | — | `apps/api/src/embed/*` |
-| chunk-spec.md | — | `apps/api/src/document/document-loader.service.ts` |
-| rag-spec.md | — | `apps/api/src/rag/*` |
-| document-spec.md | `apps/web/src/pages/DocumentPage.tsx`<br>`apps/web/src/components/Document/*` | `apps/api/src/document/document.controller.ts`<br>`apps/api/src/document/document-upload.service.ts` |
-| llm-spec.md | — | `apps/api/src/llm/*` |
-| vector-spec.md | — | `apps/api/src/vector/*` |
-| user-profile-spec.md | `apps/web/src/components/Profile/`（可选） | `apps/api/src/user-profile/*` |
+| 模块 Spec            | 前端代码                                                                                                 | 后端代码                                                                                             |
+| -------------------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| auth-spec.md         | `apps/web/src/context/AuthContext.tsx`<br>`apps/web/src/pages/LoginPage.tsx`                             | `apps/api/src/auth/*`                                                                                |
+| theme-spec.md        | `apps/web/src/context/ThemeContext.tsx`<br>`apps/web/src/styles/variables.css`                           | —                                                                                                    |
+| chat-spec.md         | `apps/web/src/hooks/useChat.ts`<br>`apps/web/src/pages/ChatPage.tsx`<br>`apps/web/src/components/Chat/*` | `apps/api/src/ask/*`<br>`apps/api/src/chat/*`                                                        |
+| api-spec.md          | `apps/web/src/api/*`                                                                                     | `apps/api/src/**/*.controller.ts`                                                                    |
+| embedding-spec.md    | —                                                                                                        | `apps/api/src/embed/*`                                                                               |
+| chunk-spec.md        | —                                                                                                        | `apps/api/src/document/document-loader.service.ts`                                                   |
+| rag-spec.md          | —                                                                                                        | `apps/api/src/rag/*`                                                                                 |
+| document-spec.md     | `apps/web/src/pages/DocumentPage.tsx`<br>`apps/web/src/components/Document/*`                            | `apps/api/src/document/document.controller.ts`<br>`apps/api/src/document/document-upload.service.ts` |
+| llm-spec.md          | —                                                                                                        | `apps/api/src/llm/*`                                                                                 |
+| vector-spec.md       | —                                                                                                        | `apps/api/src/vector/*`                                                                              |
+| user-profile-spec.md | `apps/web/src/components/Profile/`（可选）                                                               | `apps/api/src/user-profile/*`                                                                        |
 
 ---
 

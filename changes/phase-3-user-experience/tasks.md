@@ -17,6 +17,7 @@ Phase 1 + Phase 2 (全部完成)
 ---
 
 ## Task-007: Theme 系统（深色/浅色模式）
+
 - **目标**：实现全局 Theme 切换，持久化到 localStorage
 - **输入**：ARCHITECTURE.md ADR-006
 - **输出**：
@@ -31,6 +32,7 @@ Phase 1 + Phase 2 (全部完成)
 - **预计耗时**：2-3 小时
 
 ## Task-008: Fake 登录系统（JWT + 角色）
+
 - **目标**：实现内存预置账号登录，JWT 鉴权，区分员工/HR 角色
 - **输入**：ARCHITECTURE.md ADR-004、PRD.md 登录流
 - **输出**：
@@ -51,6 +53,7 @@ Phase 1 + Phase 2 (全部完成)
 - **预计耗时**：3-4 小时
 
 ## Task-009: 文档浏览 + 上传页面
+
 - **目标**：实现文档列表、文档详情查看、Markdown 文件上传
 - **输入**：PRD.md 文档浏览功能 + 文档上传功能、Task-003 的文档数据、ARCHITECTURE.md 文档上传接口
 - **输出**：

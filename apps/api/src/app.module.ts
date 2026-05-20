@@ -1,0 +1,33 @@
+import { Module } from '@nestjs/common';
+
+import { AppController } from '@/app.controller';
+import { AppService } from '@/app.service';
+import { AskModule } from '@/ask/ask.module';
+import { AuthModule } from '@/auth/auth.module';
+import { ChatModule } from '@/chat/chat.module';
+import { DocumentModule } from '@/document/document.module';
+import { EmbeddingModule } from '@/embed/embed.module';
+import { HealthModule } from '@/health/health.module';
+import { LLMModule } from '@/llm/llm.module';
+import { RagModule } from '@/rag/rag.module';
+import { UserProfileModule } from '@/user-profile/user-profile.module';
+import { VectorModule } from '@/vector/vector.module';
+
+@Module({
+  imports: [
+    AskModule,
+    AuthModule,
+    ChatModule,
+    DocumentModule,
+    EmbeddingModule,
+    HealthModule,
+    LLMModule,
+    RagModule,
+    UserProfileModule,
+    VectorModule,
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+  exports: [],
+})
+export class AppModule {}

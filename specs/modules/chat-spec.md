@@ -9,6 +9,7 @@
 ## 1. 范围边界
 
 ### 1.1 包含
+
 - 前端：Chat 页面布局、消息列表、输入框、发送按钮、来源引用展示
 - 前端：useChat Hook（SSE 连接、消息状态、发送/重试/清除）
 - 前端：多轮对话历史展示、消息气泡样式
@@ -17,6 +18,7 @@
 - 后端：LLM 生成调用 + Prompt 组装
 
 ### 1.2 不包含
+
 - ❌ RAG 检索算法细节（见 rag-spec.md）
 - ❌ Embedding 生成（见 embedding-spec.md）
 - ❌ 文档上传（见 document-spec.md）
@@ -31,21 +33,21 @@
 
 ```typescript
 interface Message {
-  id: string;                    // 消息唯一 ID，如 `msg-${timestamp}-${random}`
+  id: string; // 消息唯一 ID，如 `msg-${timestamp}-${random}`
   role: 'user' | 'assistant' | 'system';
-  content: string;               // 消息内容（Markdown 格式）
-  timestamp: number;             // 发送时间戳
-  sources?: SourceCitation[];    // 来源引用（仅 assistant 消息）
+  content: string; // 消息内容（Markdown 格式）
+  timestamp: number; // 发送时间戳
+  sources?: SourceCitation[]; // 来源引用（仅 assistant 消息）
   status?: 'sending' | 'streaming' | 'complete' | 'error';
-  error?: string;                // 错误信息
+  error?: string; // 错误信息
 }
 
 interface SourceCitation {
-  documentName: string;          // 如 "年假制度.md"
-  documentTitle: string;         // 如 "年假制度"
-  category: string;              // 如 "annual_leave"
-  chunk: string;                 // 引用的原文片段
-  similarity: number;            // 相似度分数，如 0.89
+  documentName: string; // 如 "年假制度.md"
+  documentTitle: string; // 如 "年假制度"
+  category: string; // 如 "annual_leave"
+  chunk: string; // 引用的原文片段
+  similarity: number; // 相似度分数，如 0.89
 }
 ```
 
@@ -53,8 +55,8 @@ interface SourceCitation {
 
 ```typescript
 interface Conversation {
-  id: string;                    // 会话 ID，如 `conv-${timestamp}-${random}`
-  title: string;                 // 会话标题（首条用户消息前 20 字）
+  id: string; // 会话 ID，如 `conv-${timestamp}-${random}`
+  title: string; // 会话标题（首条用户消息前 20 字）
   messages: Message[];
   createdAt: number;
   updatedAt: number;
@@ -74,23 +76,23 @@ interface ConversationListItem {
 ```typescript
 // POST /api/ask — 请求体
 interface AskRequest {
-  question: string;              // 用户问题
-  conversationId?: string;       // 可选，为空则创建新会话
+  question: string; // 用户问题
+  conversationId?: string; // 可选，为空则创建新会话
 }
 
 // 后端内部扩展：AskRequest 携带用户 ID（从 JWT 解析）
 interface AskContext {
-  userId: string;                // 从 JWT payload.sub 提取
+  userId: string; // 从 JWT payload.sub 提取
   question: string;
   conversationId?: string;
 }
 
 // SSE 流式数据包
 interface AskStreamChunk {
-  chunk: string;                 // 文本片段
-  done: boolean;                 // 是否结束
-  sources?: SourceCitation[];    // 结束包携带来源
-  error?: string;                // 错误信息
+  chunk: string; // 文本片段
+  done: boolean; // 是否结束
+  sources?: SourceCitation[]; // 结束包携带来源
+  error?: string; // 错误信息
 }
 
 // GET /api/ask/history/:conversationId — 响应
@@ -112,15 +114,16 @@ interface ClearHistoryResponse {
 
 ### 3.1 POST /api/ask（SSE 流式）
 
-| 属性 | 值 |
-|------|-----|
-| 路径 | `/api/ask` |
-| 方法 | POST |
-| 认证 | Bearer JWT |
-| Content-Type | `application/json` |
-| 响应类型 | `text/event-stream`（SSE） |
+| 属性         | 值                         |
+| ------------ | -------------------------- |
+| 路径         | `/api/ask`                 |
+| 方法         | POST                       |
+| 认证         | Bearer JWT                 |
+| Content-Type | `application/json`         |
+| 响应类型     | `text/event-stream`（SSE） |
 
 **请求体**：
+
 ```json
 {
   "question": "年假怎么请？",
@@ -143,6 +146,7 @@ data: {"chunk": "", "done": true, "sources": [{"documentName": "年假制度.md"
 ```
 
 **错误响应（SSE 格式）**：
+
 ```
 data: {"chunk": "", "done": true, "error": "生成超时，请稍后重试"}
 ```
@@ -188,13 +192,14 @@ LLMService.generate(prompt, history) → SSE 流式
 
 ### 3.3 GET /api/ask/history/:conversationId
 
-| 属性 | 值 |
-|------|-----|
+| 属性 | 值                                 |
+| ---- | ---------------------------------- |
 | 路径 | `/api/ask/history/:conversationId` |
-| 方法 | GET |
-| 认证 | Bearer JWT |
+| 方法 | GET                                |
+| 认证 | Bearer JWT                         |
 
 **响应 200**：
+
 ```json
 {
   "conversationId": "conv-123456-abc",
@@ -207,13 +212,14 @@ LLMService.generate(prompt, history) → SSE 流式
 
 ### 3.4 DELETE /api/ask/history/:conversationId
 
-| 属性 | 值 |
-|------|-----|
+| 属性 | 值                                 |
+| ---- | ---------------------------------- |
 | 路径 | `/api/ask/history/:conversationId` |
-| 方法 | DELETE |
-| 认证 | Bearer JWT |
+| 方法 | DELETE                             |
+| 认证 | Bearer JWT                         |
 
 **响应 200**：
+
 ```json
 {
   "success": true,
@@ -229,17 +235,17 @@ LLMService.generate(prompt, history) → SSE 流式
 
 ```typescript
 interface UseChatReturn {
-  messages: Message[];                    // 当前会话消息列表
-  inputValue: string;                     // 输入框值
+  messages: Message[]; // 当前会话消息列表
+  inputValue: string; // 输入框值
   setInputValue: (value: string) => void;
-  isLoading: boolean;                     // 是否正在生成回答
+  isLoading: boolean; // 是否正在生成回答
   sendMessage: (content: string) => void; // 发送消息
   retryMessage: (messageId: string) => void; // 重试某条消息
-  clearConversation: () => void;          // 清空当前对话
+  clearConversation: () => void; // 清空当前对话
   conversationId: string | null;
-  conversations: ConversationListItem[];  // 会话列表（侧边栏）
+  conversations: ConversationListItem[]; // 会话列表（侧边栏）
   loadConversation: (id: string) => void; // 切换到指定会话
-  newConversation: () => void;            // 创建新会话
+  newConversation: () => void; // 创建新会话
 }
 
 function useChat(): UseChatReturn;
@@ -320,6 +326,7 @@ function useChat(): UseChatReturn;
 ### 5.2 消息气泡规范
 
 **用户消息**：
+
 - 对齐：右对齐
 - 背景：`var(--user-message-bg)`（浅色 `#1976d2`，深色 `#1565c0`）
 - 文字：`var(--user-message-text)`（白色）
@@ -328,6 +335,7 @@ function useChat(): UseChatReturn;
 - 内边距：12px 16px
 
 **助手消息**：
+
 - 对齐：左对齐
 - 背景：`var(--assistant-message-bg)`
 - 文字：`var(--assistant-message-text)`
@@ -378,7 +386,7 @@ async function* streamAsk(request: AskRequest): AsyncGenerator<AskStreamChunk> {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${getToken()}`,
+      Authorization: `Bearer ${getToken()}`,
     },
     body: JSON.stringify(request),
   });
@@ -412,19 +420,23 @@ async function* streamAsk(request: AskRequest): AsyncGenerator<AskStreamChunk> {
 ### 6.3 SSE 生命周期管理
 
 **取消生成**：
+
 - 前端：用户点击"停止生成"按钮或发送新消息时，调用 `AbortController.abort()` 中断 fetch 请求
 - 后端：监听 `req.on('close')` 事件，客户端断开时立即取消 Ollama 生成请求并清理资源
 - 已接收的部分内容保留在消息列表中，不删除
 
 **超时处理**：
+
 - 后端：LLM 生成超时 60 秒，超时后发送 error 包并关闭 SSE 连接
 - 前端：60 秒内未收到任何 chunk，视为超时，显示"生成超时"并自动清理连接
 
 **心跳保活**：
+
 - 后端：每 15 秒发送 SSE comment（`: heartbeat`），防止代理/负载均衡器断开空闲连接
 - 前端：忽略 SSE comment 行，不影响消息渲染
 
 **重连策略**：
+
 - SSE 连接意外断开时：
   1. 前端显示"连接中断，点击重试"提示
   2. 用户点击重试 → 重新发送完整请求（创建新的 SSE 连接）
@@ -432,6 +444,7 @@ async function* streamAsk(request: AskRequest): AsyncGenerator<AskStreamChunk> {
   4. 已接收的部分内容保留，重试后从头开始流式输出
 
 **并发控制**：
+
 - 后端：同一 conversationId 最多 1 个活跃 SSE 连接（新连接到达时取消旧连接）
 - 前端：发送新消息前检查 `isLoading`，生成期间禁止发送
 
@@ -439,15 +452,15 @@ async function* streamAsk(request: AskRequest): AsyncGenerator<AskStreamChunk> {
 
 ## 7. 错误处理
 
-| 场景 | 前端行为 | 后端行为 |
-|------|---------|---------|
-| 问题为空/仅空白 | 禁止发送，输入框抖动提示 | — |
-| 问题超长（>500字） | 截断提示，禁止发送 | — |
-| 检索无结果（相似度<0.5） | 显示拒绝话术，无来源卡片 | 不调用 LLM，直接返回拒绝话术 |
-| LLM 生成超时（>30s） | 显示"生成超时，请稍后重试" | SSE 发送 error 包后关闭 |
-| Ollama 未启动 | 顶部显示红色警告 | 返回 503 |
-| SSE 连接断开 | 显示"连接中断，点击重试" | — |
-| JWT 失效 | 跳转登录页 | 401 |
+| 场景                     | 前端行为                   | 后端行为                     |
+| ------------------------ | -------------------------- | ---------------------------- |
+| 问题为空/仅空白          | 禁止发送，输入框抖动提示   | —                            |
+| 问题超长（>500字）       | 截断提示，禁止发送         | —                            |
+| 检索无结果（相似度<0.5） | 显示拒绝话术，无来源卡片   | 不调用 LLM，直接返回拒绝话术 |
+| LLM 生成超时（>30s）     | 显示"生成超时，请稍后重试" | SSE 发送 error 包后关闭      |
+| Ollama 未启动            | 顶部显示红色警告           | 返回 503                     |
+| SSE 连接断开             | 显示"连接中断，点击重试"   | —                            |
+| JWT 失效                 | 跳转登录页                 | 401                          |
 
 ---
 
@@ -484,6 +497,6 @@ ChatModule
 
 ## 10. Spec 演进记录
 
-| 日期 | 版本 | 变更内容 |
-|------|------|---------|
+| 日期       | 版本 | 变更内容                                           |
+| ---------- | ---- | -------------------------------------------------- |
 | 2026-05-18 | v1.0 | 初始版本，合并 phase-2 和 phase-3 中 Chat 相关规范 |

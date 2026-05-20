@@ -9,6 +9,7 @@
 ## 1. 范围边界
 
 ### 1.1 包含
+
 - 文档列表展示（卡片式布局）
 - 文档详情查看（Markdown 渲染）
 - 文档分类筛选
@@ -17,6 +18,7 @@
 - 文档元数据管理
 
 ### 1.2 不包含
+
 - ❌ 文档分块实现（见 chunk-spec.md）
 - ❌ Embedding 生成（见 embedding-spec.md）
 - ❌ 向量索引重建（见 vector-spec.md）
@@ -31,17 +33,17 @@
 
 ```typescript
 interface HRDocument {
-  id: string;                    // 文档标识，如 "annual_leave"
-  filename: string;              // 文件名，如 "年假制度.md"
-  title: string;                 // 文档标题
-  category: string;              // 分类标识
-  categoryName: string;          // 分类中文名
-  categoryColor: string;         // 分类颜色
-  content: string;               // 完整 Markdown 内容
-  chunkCount: number;            // 分块数量
-  size: number;                  // 文件大小（字节）
-  createdAt: string;             // ISO 时间字符串
-  updatedAt: string;             // ISO 时间字符串
+  id: string; // 文档标识，如 "annual_leave"
+  filename: string; // 文件名，如 "年假制度.md"
+  title: string; // 文档标题
+  category: string; // 分类标识
+  categoryName: string; // 分类中文名
+  categoryColor: string; // 分类颜色
+  content: string; // 完整 Markdown 内容
+  chunkCount: number; // 分块数量
+  size: number; // 文件大小（字节）
+  createdAt: string; // ISO 时间字符串
+  updatedAt: string; // ISO 时间字符串
 }
 ```
 
@@ -49,11 +51,11 @@ interface HRDocument {
 
 ```typescript
 interface DocumentCategory {
-  id: string;                    // 如 "annual_leave"
-  name: string;                  // 如 "年假"
-  color: string;                 // 如 "#E3F2FD"
-  darkColor: string;             // 深色模式颜色，如 "#0D47A1"
-  count: number;                 // 该分类下的文档数
+  id: string; // 如 "annual_leave"
+  name: string; // 如 "年假"
+  color: string; // 如 "#E3F2FD"
+  darkColor: string; // 深色模式颜色，如 "#0D47A1"
+  count: number; // 该分类下的文档数
 }
 ```
 
@@ -67,13 +69,14 @@ interface DocumentCategory {
 
 ### 3.2 GET /api/documents/:id
 
-| 属性 | 值 |
-|------|-----|
+| 属性 | 值                   |
+| ---- | -------------------- |
 | 路径 | `/api/documents/:id` |
-| 方法 | GET |
-| 认证 | Bearer JWT |
+| 方法 | GET                  |
+| 认证 | Bearer JWT           |
 
 **响应 200**：
+
 ```json
 {
   "id": "annual_leave",
@@ -130,6 +133,7 @@ Multer 接收文件
 **页面定位**：用户主动浏览、搜索、查看所有 HR 制度文档的知识库中心。
 
 **布局**：
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  顶部导航栏（Logo + 页面入口 + ThemeToggle + 用户菜单）        │
@@ -201,12 +205,14 @@ Multer 接收文件
 ### 4.6 上传组件（DocumentUploader）
 
 **触发方式**：
+
 - 点击"上传文档"按钮
 - 拖拽文件到页面指定区域
 
 **按钮位置**：页面标题栏右侧，仅 `hr` 角色可见
 
 **上传流程**：
+
 ```
 选择文件 / 拖拽文件
     │
@@ -237,6 +243,7 @@ Multer 接收文件
 ### 4.7 文档统计头部
 
 页面标题下方显示知识库统计：
+
 - 总文档数：如 "共 5 个文档"
 - 总片段数：如 "32 个知识片段"
 - 最后更新时间：如 "最后更新：2026-05-18"
@@ -257,13 +264,13 @@ Multer 接收文件
 
 ## 5. 权限控制
 
-| 功能 | employee | hr |
-|------|----------|-----|
-| 查看文档列表 | ✅ | ✅ |
-| 查看文档详情 | ✅ | ✅ |
-| 分类筛选 | ✅ | ✅ |
-| 上传文档 | ❌ | ✅ |
-| 查看上传按钮 | ❌ | ✅ |
+| 功能         | employee | hr  |
+| ------------ | -------- | --- |
+| 查看文档列表 | ✅       | ✅  |
+| 查看文档详情 | ✅       | ✅  |
+| 分类筛选     | ✅       | ✅  |
+| 上传文档     | ❌       | ✅  |
+| 查看上传按钮 | ❌       | ✅  |
 
 **前端实现**：根据 `user.role` 条件渲染上传按钮
 **后端实现**：`@Roles('hr')` Guard 保护上传接口
@@ -305,6 +312,6 @@ DocumentModule
 
 ## 8. Spec 演进记录
 
-| 日期 | 版本 | 变更内容 |
-|------|------|---------|
+| 日期       | 版本 | 变更内容                                     |
+| ---------- | ---- | -------------------------------------------- |
 | 2026-05-18 | v1.0 | 初始版本，从 phase-3 spec 中提取文档管理规范 |
