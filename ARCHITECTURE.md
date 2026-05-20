@@ -27,7 +27,7 @@
                           │ HTTP / SSE
 ┌─────────────────────────┼──────────────────────────────────┐
 │                      Backend                                │
-│  NestJS 10 + TypeScript                                     │
+│  NestJS 11 + TypeScript                                     │
 │                                                              │
 │  ┌────────────────────────────────────────────────────────┐ │
 │  │                    API Gateway                          │ │
@@ -86,19 +86,19 @@
 | ----------- | --------------------------- | -------------------------- | ---------------------------- |
 | 前端框架    | React                       | 18.x                       | Vue / Svelte                 |
 | 前端语言    | TypeScript                  | 严格模式                   | —                            |
-| 构建工具    | Vite                        | 5.x                        | Webpack                      |
+| 构建工具    | Vite                        | 8.x                        | Webpack                      |
 | 样式方案    | CSS Modules + CSS Variables | Theme 动态切换             | Tailwind / Styled Components |
 | 状态管理    | React Context + useReducer  | 足够当前复杂度             | Zustand / Redux              |
 | HTTP 客户端 | Axios                       | 支持 SSE                   | Fetch API                    |
-| 后端框架    | NestJS                      | 10.x                       | Express / Fastify            |
+| 后端框架    | NestJS                      | 11.x                       | Express / Fastify            |
 | 后端语言    | TypeScript                  | 严格模式                   | —                            |
-| 运行环境    | Node.js                     | 18+                        | —                            |
+| 运行环境    | Node.js                     | 22.12+ (见 .nvmrc)         | —                            |
 | LLM 推理    | Ollama HTTP API             | 本地 `qwen2.5:7b-instruct` | OpenAI / Claude              |
 | Embedding   | Ollama HTTP API             | 本地 `nomic-embed-text`    | OpenAI Embedding             |
 | 向量存储    | In-Memory Dict              | 接口抽象，未来可换 Chroma  | Chroma / Milvus              |
 | 认证        | JWT (jsonwebtoken)          | 内存用户表                 | OAuth / SSO                  |
 | 文档解析    | 原生 fs + Markdown          | 按标题分块                 | PDF Parser                   |
-| 文件上传    | Multer (multipart)          | 仅接受 .md 文件            | —                            |
+| 文件上传    | Multer 2.x (multipart)      | 仅接受 .md 文件            | —                            |
 
 ---
 
@@ -196,8 +196,8 @@ interface IAuthService {
 }
 
 interface IDocumentUploadService {
-  upload(file: Express.Multer.File): Promise<{ filename: string; chunks: number }>;
-  reindex(): Promise<{ totalDocuments: number; totalChunks: number }>;
+  saveFile(file: MulterFile): string;
+  rebuildIndex(): Promise<{ chunks: number; docs: number }>;
 }
 ```
 
@@ -284,12 +284,14 @@ SSE 流式返回 → 前端逐字渲染
 NestJS DocumentController → AuthGuard(JWT) 验证 + 文件类型检查（仅 .md）
     │
     ▼
-DocumentUploadService.upload(file)
-    ├── 保存文件到 docs/hr-documents/
-    ├── 调用 DocumentLoader 解析 Markdown
-    ├── 调用 EmbeddingService 生成 768 维向量
-    ├── 调用 VectorStore.add() 存入内存索引
-    └── 返回 { filename, chunks, status: 'indexed' }
+DocumentUploadService.saveFile(file) → 保存到 docs/hr-documents/
+    │
+DocumentUploadService.rebuildIndex()
+    ├── 清空 VectorStore
+    ├── DocumentLoader 重新加载全量 Markdown 文档并分块
+    ├── EmbeddingService 批量生成 768 维向量
+    ├── VectorStore.add() 存入内存索引
+    └── 返回 { chunks, docs }
     │
     ▼
 前端提示"上传成功，已建立索引"
@@ -311,7 +313,7 @@ DocumentUploadService.upload(file)
 | POST   | `/api/ask`              | RAG 问答           | `AskRequest`           | SSE `AskResponse`                       |
 | GET    | `/api/documents`        | 列出所有文档       | —                      | `{documents, total}`                    |
 | GET    | `/api/documents/:id`    | 获取单个文档       | —                      | `Document`                              |
-| POST   | `/api/documents/upload` | 上传 Markdown 文档 | multipart/form-data    | `{filename, chunks, status}`            |
+| POST   | `/api/documents/upload` | 上传 Markdown 文档 | multipart/form-data    | `{success, filename, indexResult}`      |
 | GET    | `/api/ask/history/:id`  | 获取对话历史       | —                      | `{history, conversationId}`             |
 | DELETE | `/api/ask/history/:id`  | 清空对话历史       | —                      | `{success}`                             |
 
@@ -331,10 +333,12 @@ file: <.md 文件>
 
 ```json
 {
+  "success": true,
   "filename": "新员工入职指南.md",
-  "chunks": 8,
-  "status": "indexed",
-  "message": "上传成功，已建立索引"
+  "indexResult": {
+    "chunks": 8,
+    "docs": 1
+  }
 }
 ```
 
