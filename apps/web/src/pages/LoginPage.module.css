@@ -99,3 +99,36 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.hint {
+  margin-top: 20px;
+  padding: 14px 16px;
+  border-radius: 8px;
+  background: var(--bg-secondary);
+}
+
+.hintTitle {
+  margin: 0 0 8px 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+}
+
+.hintItem {
+  margin: 0 0 4px 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-family: monospace;
+}
+
+.hintItem:last-child {
+  margin-bottom: 0;
+}
+
+.hintRole {
+  display: inline-block;
+  min-width: 60px;
+  font-family: inherit;
+  font-weight: 500;
+  color: var(--text-primary);
+}
