@@ -224,11 +224,9 @@ export class RAGService {
     }
 
     const secretPatterns: RegExp[] = [/裁员/, /收购|并购/, /季度财报.*未公布/];
-    if (secretPatterns.some((p) => p.test(query))) {
-      return true;
-    }
+    return secretPatterns.some((p) => p.test(query));
 
-    return false;
+
   }
 
   private buildPrompt(

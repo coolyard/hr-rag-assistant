@@ -30,11 +30,9 @@ export class UserProfileService implements IUserProfileService {
     }
 
     const statusPatterns = /(?:我|我的).*?(?:可以|能不能|是否符合|有没有资格|还能|是否可以)/;
-    if (statusPatterns.test(lower)) {
-      return true;
-    }
+    return statusPatterns.test(lower);
 
-    return false;
+
   }
 
   formatForPrompt(profile: UserProfile): string {

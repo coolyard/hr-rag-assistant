@@ -18,6 +18,7 @@ import { RolesGuard } from '@/auth/roles.guard';
 import { VectorStoreService } from '@/vector/vector-store.service';
 
 import { DOCUMENTS_DIR } from './document-loader.service';
+import type { MulterFile } from './document-upload.service';
 import { DocumentUploadService } from './document-upload.service';
 
 interface DocumentItem {
@@ -107,7 +108,7 @@ export class DocumentController {
   @Roles('hr')
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
-  async upload(@UploadedFile() file: Express.Multer.File): Promise<{
+  async upload(@UploadedFile() file: MulterFile): Promise<{
     success: boolean;
     filename: string;
     indexResult: { chunks: number; docs: number };

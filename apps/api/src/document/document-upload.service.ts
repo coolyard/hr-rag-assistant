@@ -8,7 +8,13 @@ import { EmbeddingService } from '@/embed/embed.service';
 import { VectorStoreService } from '@/vector/vector-store.service';
 import type { DocumentMeta } from '@/vector/vector.interface';
 
-const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1MB
+export interface MulterFile {
+  originalname: string;
+  size: number;
+  buffer: Buffer;
+}
+
+const MAX_FILE_SIZE = 1024 * 1024; // 1MB
 
 @Injectable()
 export class DocumentUploadService {
@@ -20,7 +26,7 @@ export class DocumentUploadService {
     private readonly vectorStore: VectorStoreService,
   ) {}
 
-  saveFile(file: Express.Multer.File): string {
+  saveFile(file: MulterFile): string {
     const safeName = basename(file.originalname);
     const ext = extname(safeName).toLowerCase();
 
