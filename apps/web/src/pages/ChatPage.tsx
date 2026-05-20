@@ -7,6 +7,14 @@ import styles from '@/pages/ChatPage.module.css';
 
 const MAX_CHARS = 500;
 
+const QUICK_QUESTIONS = [
+  '我今年还有几天年假？怎么申请？',
+  '报销流程怎么走？多久能到账',
+  '迟到几次开始扣钱？弹性打卡怎么算？',
+  '加班调休怎么算？有加班费吗？',
+  '我什么时候可以申请晋升？薪资能涨多少？',
+];
+
 export const ChatPage: FC = () => {
   const {
     messages,
@@ -98,6 +106,21 @@ export const ChatPage: FC = () => {
             <p className={styles.welcomeHint}>
               您可以询问关于年假、报销、晋升、考勤、福利等 HR 相关问题
             </p>
+            <div className={styles.quickQuestions}>
+              {QUICK_QUESTIONS.map((q) => (
+                <button
+                  key={q}
+                  className={styles.quickQuestion}
+                  onClick={() => {
+                    void sendMessage(q);
+                  }}
+                  disabled={isLoading}
+                  type="button"
+                >
+                  {q}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
