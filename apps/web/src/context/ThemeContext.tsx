@@ -1,15 +1,6 @@
-import { createContext, type FC, type ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { type FC, type ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 
-export type ThemeMode = 'light' | 'dark' | 'system';
-
-export interface ThemeContextType {
-  mode: ThemeMode;
-  resolvedTheme: 'light' | 'dark';
-  setMode: (mode: ThemeMode) => void;
-  toggleTheme: () => void;
-}
-
-const ThemeContext = createContext<ThemeContextType | null>(null);
+import { ThemeContext, type ThemeContextType, type ThemeMode } from '@/context/theme-context';
 
 const STORAGE_KEY = 'hr_rag_theme';
 
@@ -74,11 +65,3 @@ export const ThemeProvider: FC<ThemeProviderProps> = ({ children }) => {
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };
-
-export function useTheme(): ThemeContextType {
-  const ctx = useContext(ThemeContext);
-  if (!ctx) {
-    throw new Error('useTheme must be used within a ThemeProvider');
-  }
-  return ctx;
-}

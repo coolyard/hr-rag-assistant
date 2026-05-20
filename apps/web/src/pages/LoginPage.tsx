@@ -1,8 +1,9 @@
 import { type FC, useCallback, useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 
-import { getStoredCredentials, useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import styles from '@/pages/LoginPage.module.css';
+import { getStoredCredentials } from '@/utils/storage';
 
 export const LoginPage: FC = () => {
   const { isAuthenticated, isLoading, login } = useAuth();

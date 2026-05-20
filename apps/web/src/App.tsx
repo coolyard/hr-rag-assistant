@@ -3,7 +3,7 @@ import '@/styles/variables.css';
 import { type FC } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import { ChatPage } from '@/pages/ChatPage';
 import { DocumentPage } from '@/pages/DocumentPage';
 import { LoginPage } from '@/pages/LoginPage';

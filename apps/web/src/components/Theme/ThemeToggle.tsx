@@ -1,7 +1,8 @@
 import { type FC, useCallback, useEffect, useRef, useState } from 'react';
 
 import styles from '@/components/Theme/ThemeToggle.module.css';
-import { type ThemeMode, useTheme } from '@/context/ThemeContext';
+import { type ThemeMode } from '@/context/theme-context';
+import { useTheme } from '@/hooks/useTheme';
 
 const MODE_ICONS: Record<ThemeMode, string> = {
   light: '☼',

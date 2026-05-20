@@ -1,35 +1,8 @@
-import {
-  createContext,
-  type FC,
-  type ReactNode,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { type FC, type ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { client } from '@/api/client';
-
-interface AuthUser {
-  id: string;
-  username: string;
-  role: 'employee' | 'hr';
-  displayName: string;
-}
-
-interface AuthContextType {
-  user: AuthUser | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (username: string, password: string, remember?: boolean) => Promise<void>;
-  logout: () => void;
-}
-
-const AuthContext = createContext<AuthContextType | null>(null);
-
-const TOKEN_KEY = 'hr_rag_token';
-const REMEMBER_KEY = 'hr_rag_remember';
+import type { AuthUser } from '@/context/auth-context';
+import { AuthContext, type AuthContextType, REMEMBER_KEY, TOKEN_KEY } from '@/context/auth-context';
 
 function decodeToken(token: string): AuthUser | null {
   try {
@@ -57,21 +30,6 @@ function decodeToken(token: string): AuthUser | null {
       role: decoded.role,
       displayName: decoded.displayName,
     };
-  } catch {
-    return null;
-  }
-}
-
-interface StoredCredentials {
-  username: string;
-  password: string;
-}
-
-export function getStoredCredentials(): StoredCredentials | null {
-  try {
-    const raw = localStorage.getItem(REMEMBER_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw) as StoredCredentials;
   } catch {
     return null;
   }
@@ -129,11 +87,3 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
-
-export function useAuth(): AuthContextType {
-  const ctx = useContext(AuthContext);
-  if (!ctx) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return ctx;
-}

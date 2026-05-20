@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import styles from '@/components/Layout/Navbar.module.css';
 import { ThemeToggle } from '@/components/Theme/ThemeToggle';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 
 export const Navbar: FC = () => {
   const { user, logout } = useAuth();

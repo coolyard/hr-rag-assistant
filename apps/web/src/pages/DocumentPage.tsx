@@ -6,7 +6,7 @@ import { DocumentCard } from '@/components/Document/DocumentCard';
 import { DocumentUploader } from '@/components/Document/DocumentUploader';
 import { DocumentViewer } from '@/components/Document/DocumentViewer';
 import { Navbar } from '@/components/Layout/Navbar';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import styles from '@/pages/DocumentPage.module.css';
 
 const CATEGORY_FILTERS = [
