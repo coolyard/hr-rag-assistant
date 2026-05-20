@@ -1,0 +1,58 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    name: Create Release
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          release-type: node
+          package-name: hr-rag-assistant
+          default-branch: main
+          target-branch: main
+
+  publish-release:
+    name: Publish Release Notes
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate Release Notes
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -z "$PREV_TAG" ]; then
+            echo "## Highlights" > /tmp/release-notes.md
+            echo "" >> /tmp/release-notes.md
+            git log --oneline --no-merges >> /tmp/release-notes.md
+          else
+            echo "## Changes since $PREV_TAG" > /tmp/release-notes.md
+            echo "" >> /tmp/release-notes.md
+            git log --oneline --no-merges "$PREV_TAG..HEAD" >> /tmp/release-notes.md
+          fi
+
+      - name: Update GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release edit "${{ needs.release-please.outputs.tag_name }}" \
+            --notes-file /tmp/release-notes.md \
+            --draft=false \
+            --prerelease=false
