@@ -1,7 +1,7 @@
 import { type FC, useCallback, useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 
-import { useAuth } from '@/context/AuthContext';
+import { getStoredCredentials, useAuth } from '@/context/AuthContext';
 import styles from '@/pages/LoginPage.module.css';
 
 export const LoginPage: FC = () => {
@@ -9,8 +9,10 @@ export const LoginPage: FC = () => {
   const navigate = useNavigate();
   const usernameRef = useRef<HTMLInputElement>(null);
 
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const stored = getStoredCredentials();
+  const [username, setUsername] = useState(stored?.username ?? '');
+  const [password, setPassword] = useState(stored?.password ?? '');
+  const [remember, setRemember] = useState(stored !== null);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -33,7 +35,7 @@ export const LoginPage: FC = () => {
     setSubmitting(true);
 
     try {
-      await login(username, password);
+      await login(username, password, remember);
     } catch (err) {
       const axiosError = err as { response?: { data?: { message?: string } }; message?: string };
       if (axiosError.response?.data?.message) {
@@ -46,7 +48,7 @@ export const LoginPage: FC = () => {
     } finally {
       setSubmitting(false);
     }
-  }, [username, password, login]);
+  }, [username, password, remember, login]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -95,6 +97,17 @@ export const LoginPage: FC = () => {
             autoComplete="current-password"
           />
         </div>
+        <label className={styles.rememberLabel}>
+          <input
+            type="checkbox"
+            checked={remember}
+            onChange={(e) => {
+              setRemember(e.target.checked);
+            }}
+            className={styles.rememberCheckbox}
+          />
+          记住用户名和密码
+        </label>
         {error && <p className={styles.error}>{error}</p>}
         <button
           className={styles.submitButton}

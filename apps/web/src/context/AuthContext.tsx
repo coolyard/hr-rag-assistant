@@ -22,18 +22,26 @@ interface AuthContextType {
   user: AuthUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (username: string, password: string) => Promise<void>;
+  login: (username: string, password: string, remember?: boolean) => Promise<void>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 const TOKEN_KEY = 'hr_rag_token';
+const REMEMBER_KEY = 'hr_rag_remember';
 
 function decodeToken(token: string): AuthUser | null {
   try {
     const payload = token.split('.')[1];
-    const decoded = JSON.parse(atob(payload)) as {
+    const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    const text = new TextDecoder().decode(bytes);
+    const decoded = JSON.parse(text) as {
       sub: string;
       username: string;
       role: 'employee' | 'hr';
@@ -49,6 +57,21 @@ function decodeToken(token: string): AuthUser | null {
       role: decoded.role,
       displayName: decoded.displayName,
     };
+  } catch {
+    return null;
+  }
+}
+
+interface StoredCredentials {
+  username: string;
+  password: string;
+}
+
+export function getStoredCredentials(): StoredCredentials | null {
+  try {
+    const raw = localStorage.getItem(REMEMBER_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as StoredCredentials;
   } catch {
     return null;
   }
@@ -75,7 +98,7 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(false);
   }, []);
 
-  const login = useCallback(async (username: string, password: string) => {
+  const login = useCallback(async (username: string, password: string, remember = false) => {
     const response = await client.post<{
       access_token: string;
       user: AuthUser;
@@ -83,11 +106,17 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
 
     const { access_token, user: loginUser } = response.data;
     localStorage.setItem(TOKEN_KEY, access_token);
+    if (remember) {
+      localStorage.setItem(REMEMBER_KEY, JSON.stringify({ username, password }));
+    } else {
+      localStorage.removeItem(REMEMBER_KEY);
+    }
     setUser(loginUser);
   }, []);
 
   const logout = useCallback(() => {
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(REMEMBER_KEY);
     setUser(null);
   }, []);
 
