@@ -93,10 +93,15 @@ export class VectorStoreService implements IVectorStore {
     }
 
     let dotProduct = 0;
+    let magA = 0;
+    let magB = 0;
     for (let i = 0; i < a.length; i++) {
       dotProduct += a[i] * b[i];
+      magA += a[i] * a[i];
+      magB += b[i] * b[i];
     }
 
-    return dotProduct;
+    const magnitude = Math.sqrt(magA) * Math.sqrt(magB);
+    return magnitude === 0 ? 0 : dotProduct / magnitude;
   }
 }
