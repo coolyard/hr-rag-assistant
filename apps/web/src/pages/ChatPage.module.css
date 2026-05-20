@@ -121,6 +121,36 @@
   margin: 8px 0;
 }
 
+.statusHint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  color: var(--accent-color);
+  font-size: 0.85rem;
+  margin: 8px 0;
+  animation: statusPulse 1.8s ease-in-out infinite;
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--accent-color);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes statusPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 .inputArea {
   border-top: 1px solid var(--border-color);
   padding: 12px 16px 16px;

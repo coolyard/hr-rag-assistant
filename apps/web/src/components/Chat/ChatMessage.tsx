@@ -41,9 +41,10 @@ const CitationCard: FC<CitationCardProps> = ({ citation }) => {
 
 interface ChatMessageProps {
   message: Message;
+  onFollowUp?: (question: string) => void;
 }
 
-export const ChatMessage: FC<ChatMessageProps> = ({ message }) => {
+export const ChatMessage: FC<ChatMessageProps> = ({ message, onFollowUp }) => {
   const isUser = message.role === 'user';
   const isLoading = message.status === 'sending' || message.status === 'streaming';
   const hasContent = message.content.length > 0;
@@ -83,6 +84,23 @@ export const ChatMessage: FC<ChatMessageProps> = ({ message }) => {
             <p className={styles.sourcesLabel}>参考来源：</p>
             {message.sources.map((s, i) => (
               <CitationCard key={`${s.documentName}-${String(i)}`} citation={s} />
+            ))}
+          </div>
+        )}
+        {message.status === 'complete' && message.followUps && message.followUps.length > 0 && (
+          <div className={styles.followUpsSection}>
+            <p className={styles.followUpsLabel}>猜你想问：</p>
+            {message.followUps.map((q) => (
+              <button
+                key={q}
+                className={styles.followUpButton}
+                onClick={() => {
+                  onFollowUp?.(q);
+                }}
+                type="button"
+              >
+                {q}
+              </button>
             ))}
           </div>
         )}

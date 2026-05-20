@@ -9,6 +9,7 @@ export interface Message {
   content: string;
   timestamp: number;
   sources?: SourceCitation[];
+  followUps?: string[];
   status?: 'sending' | 'streaming' | 'complete' | 'error';
   error?: string;
 }
@@ -23,6 +24,7 @@ export function useChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [statusText, setStatusText] = useState('');
   const [conversationId, setConversationId] = useState<string | null>(null);
   const loadingRef = useRef(false);
   const abortRef = useRef<AbortController | null>(null);
@@ -59,6 +61,7 @@ export function useChat() {
       setMessages((prev) => [...prev, userMsg, assistantMsg]);
       setInputValue('');
       setIsLoading(true);
+      setStatusText('正在理解您的问题...');
 
       const abortController = new AbortController();
       abortRef.current = abortController;
@@ -90,6 +93,18 @@ export function useChat() {
           { question: content.trim(), conversationId: convId },
           abortController.signal,
         )) {
+          if (chunk.status) {
+            setStatusText(chunk.status);
+          }
+
+          if (chunk.followUps) {
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === assistantMsg.id ? { ...m, followUps: chunk.followUps } : m,
+              ),
+            );
+          }
+
           if (chunk.chunk) {
             pendingTokens.push(chunk.chunk);
             if (rafId === null) {
@@ -140,6 +155,7 @@ export function useChat() {
         }
       } finally {
         setIsLoading(false);
+        setStatusText('');
         loadingRef.current = false;
         abortRef.current = null;
       }
@@ -179,6 +195,7 @@ export function useChat() {
     inputValue,
     setInputValue,
     isLoading,
+    statusText,
     sendMessage,
     retryMessage,
     clearConversation,

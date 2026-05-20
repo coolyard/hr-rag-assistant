@@ -166,3 +166,41 @@
   color: var(--text-tertiary);
   line-height: 1.4;
 }
+
+.followUpsSection {
+  margin-top: 12px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 8px;
+}
+
+.followUpsLabel {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin: 0 0 6px 0;
+}
+
+.followUpButton {
+  display: block;
+  width: 100%;
+  padding: 6px 12px;
+  margin-bottom: 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--card-bg);
+  color: var(--text-secondary);
+  font-size: 0.83rem;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.followUpButton:last-child {
+  margin-bottom: 0;
+}
+
+.followUpButton:hover {
+  background: var(--hover-bg);
+  border-color: var(--accent-color);
+  color: var(--text-primary);
+}

@@ -8,6 +8,8 @@ export interface AskRequest {
 export interface AskStreamChunk {
   chunk: string;
   done: boolean;
+  status?: string;
+  followUps?: string[];
   sources?: SourceCitation[];
   error?: string;
   conversationId?: string;

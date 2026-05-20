@@ -74,9 +74,11 @@ export class RAGService {
     let merged: MergedResult[];
     try {
       const vectorResults = await this.vectorSearch(query, VECTOR_TOP_K);
+      yield { token: '', done: false, status: '正在检索相关文档...' };
       const allChunks = this.vectorStore.getAll();
       const keywordResults = this.keywordSearch.search(query, allChunks, KEYWORD_TOP_K);
       merged = this.mergeResults(vectorResults, keywordResults, MERGE_TOP_K);
+      yield { token: '', done: false, status: `找到 ${String(merged.length)} 条匹配，正在分析...` };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.error(`RAG retrieval failed: ${message}`);
@@ -112,6 +114,8 @@ export class RAGService {
     const sources = this.buildSources(merged);
     const confidenceLevel = this.getConfidenceLevel(merged[0].hybridScore);
 
+    yield { token: '', done: false, status: '正在生成回答...' };
+
     let fullAnswer = '';
     try {
       for await (const token of this.llmService.generate(prompt)) {
@@ -126,6 +130,16 @@ export class RAGService {
       }
       yield { token: '', done: true, error: message, confidenceLevel: 'low' };
       return;
+    }
+
+    try {
+      const followUps = await this.generateFollowUps(query, fullAnswer);
+      if (followUps.length > 0) {
+        yield { token: '', done: false, status: '正在推测您可能想问...' };
+        yield { token: '', done: false, followUps };
+      }
+    } catch (error) {
+      this.logger.warn(`Follow-up generation failed: ${String(error)}`);
     }
 
     this.chatService.addAssistantMessage(conv.id, fullAnswer, sources);
@@ -310,7 +324,31 @@ export class RAGService {
       documentTitle: r.documentTitle,
       category: r.category,
       chunk: r.content,
-      similarity: r.similarity,
+      similarity: r.hybridScore,
     }));
+  }
+
+  private async generateFollowUps(query: string, answer: string): Promise<string[]> {
+    const prompt = `用户刚问了 HR 相关问题："${query}"，AI 回答："${answer.slice(0, 500)}"
+
+请根据上下文推测用户接下来可能想问的 3 个相关问题。要求：
+1. 问题要具体，与 HR 制度和福利相关
+2. 每个问题一行，不要编号，不要其他文字
+3. 问题用中文`;
+
+    let output = '';
+    try {
+      for await (const token of this.llmService.generate(prompt)) {
+        output += token;
+      }
+    } catch {
+      return [];
+    }
+
+    return output
+      .split('\n')
+      .map((line) => line.replace(/^[\d.\s、-]+/, '').trim())
+      .filter((line) => line.length > 5 && (line.includes('？') || line.includes('?')))
+      .slice(0, 3);
   }
 }

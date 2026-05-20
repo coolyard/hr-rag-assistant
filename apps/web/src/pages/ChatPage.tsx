@@ -21,6 +21,7 @@ export const ChatPage: FC = () => {
     inputValue,
     setInputValue,
     isLoading,
+    statusText,
     sendMessage,
     retryMessage,
     clearConversation,
@@ -126,7 +127,12 @@ export const ChatPage: FC = () => {
 
         {messages.map((msg) => (
           <div key={msg.id}>
-            <ChatMessage message={msg} />
+            <ChatMessage
+              message={msg}
+              onFollowUp={(q) => {
+                void sendMessage(q);
+              }}
+            />
             {msg.status === 'error' && msg.role === 'assistant' && (
               <div className={styles.retryRow}>
                 <button
@@ -146,7 +152,12 @@ export const ChatPage: FC = () => {
           </div>
         ))}
 
-        {isLoading && <p className={styles.searchingHint}>正在检索文档...</p>}
+        {isLoading && statusText && (
+          <div className={styles.statusHint}>
+            <span className={styles.spinner} />
+            <span>{statusText}</span>
+          </div>
+        )}
       </div>
 
       <div className={styles.inputArea}>

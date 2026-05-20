@@ -21,6 +21,8 @@ export interface SourceCitation {
 export interface StreamChunk {
   token: string;
   done: boolean;
+  status?: string;
+  followUps?: string[];
   sources?: SourceCitation[];
   confidenceLevel?: 'high' | 'medium' | 'low';
   error?: string;

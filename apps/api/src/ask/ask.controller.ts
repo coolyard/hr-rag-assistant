@@ -41,6 +41,8 @@ export class AskController {
         const data: AskStreamChunk = {
           chunk: chunk.token,
           done: chunk.done,
+          status: chunk.status,
+          followUps: chunk.followUps,
           sources: chunk.sources,
           error: chunk.error,
           conversationId: body.conversationId,
