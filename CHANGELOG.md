@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.1.0](https://github.com/coolyard/hr-rag-assistant/compare/v1.0.0...v1.1.0) (2026-05-21)
+
+
+### Features
+
+* **api:** add production deployment support ([4b7ff73](https://github.com/coolyard/hr-rag-assistant/commit/4b7ff73dac7b27495d4fa311d4d34a3e74eabf3e))
+* mobile UX polish, production deployment, and demo-ready improvements ([1205742](https://github.com/coolyard/hr-rag-assistant/commit/1205742ec5df6ae4886d3727e13fe7c60965d70e))
+* **navbar:** add responsive layout for mobile screens ([a448d41](https://github.com/coolyard/hr-rag-assistant/commit/a448d414935e2c2d114a96a1e226bf73830c13ee))
+* **web:** add demo account hints and default credentials on login page ([b24d60d](https://github.com/coolyard/hr-rag-assistant/commit/b24d60d23439ec7dbf36a37445d1b15b447cec84))
+
+
+### Bug Fixes
+
+* **api:** correct Express middleware return patterns ([702d9dd](https://github.com/coolyard/hr-rag-assistant/commit/702d9dd1602cffcbd0d1a3070a350916c5c43370))
+
 ## 1.0.0 (2026-05-20)
 
 
