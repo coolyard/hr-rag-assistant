@@ -21,10 +21,12 @@ async function bootstrap(): Promise<void> {
     const expressApp = app.getHttpAdapter().getInstance();
     expressApp.use((req: Request, res: Response, next: NextFunction) => {
       if (req.path.startsWith('/api/')) {
-        return next();
+        next();
+        return;
       }
       if (req.path.includes('.')) {
-        return next();
+        next();
+        return;
       }
       res.sendFile(join(webDistPath, 'index.html'));
     });
