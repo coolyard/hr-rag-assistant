@@ -11,8 +11,8 @@ export const LoginPage: FC = () => {
   const usernameRef = useRef<HTMLInputElement>(null);
 
   const stored = getStoredCredentials();
-  const [username, setUsername] = useState(stored?.username ?? '');
-  const [password, setPassword] = useState(stored?.password ?? '');
+  const [username, setUsername] = useState(stored?.username ?? 'hr');
+  const [password, setPassword] = useState(stored?.password ?? '123456');
   const [remember, setRemember] = useState(stored !== null);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -120,6 +120,15 @@ export const LoginPage: FC = () => {
         >
           {submitting ? '登录中...' : '登录'}
         </button>
+        <div className={styles.hint}>
+          <p className={styles.hintTitle}>演示账号</p>
+          <p className={styles.hintItem}>
+            <span className={styles.hintRole}>HR 专员</span> hr / 123456
+          </p>
+          <p className={styles.hintItem}>
+            <span className={styles.hintRole}>普通员工</span> employee / 123456
+          </p>
+        </div>
       </div>
     </div>
   );

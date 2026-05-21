@@ -82,3 +82,73 @@
 .logoutButton:hover {
   background: var(--hover-bg);
 }
+
+.navLabel {
+  /* desktop: no extra style needed */
+}
+
+/* ≤ 640px: compact layout */
+@media (max-width: 640px) {
+  .navbar {
+    padding: 8px 12px;
+  }
+
+  .brand {
+    font-size: 1rem;
+  }
+
+  .navLinks {
+    gap: 2px;
+  }
+
+  .navLink,
+  .navLinkActive {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+  }
+
+  .right {
+    gap: 6px;
+  }
+
+  .userRole {
+    display: none;
+  }
+
+  .userName {
+    max-width: 60px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .logoutButton {
+    padding: 3px 6px;
+    font-size: 0.7rem;
+  }
+}
+
+/* ≤ 480px: extra-small screens — nav emoji only */
+@media (max-width: 480px) {
+  .brand {
+    font-size: 0.9rem;
+  }
+
+  .navLabel {
+    display: none;
+  }
+
+  .navLink,
+  .navLinkActive {
+    padding: 4px 6px;
+    font-size: 1rem;
+  }
+
+  .userName {
+    display: none;
+  }
+
+  .userInfo {
+    gap: 4px;
+  }
+}

@@ -66,7 +66,7 @@ export interface LoginResponse {
 }
 
 export const EMPLOYEE_PROFILE: UserProfile = {
-  realName: '张小明',
+  realName: '李明',
   department: '技术研发部',
   position: '前端开发工程师',
   level: 'P5',
@@ -98,7 +98,7 @@ export const EMPLOYEE_PROFILE: UserProfile = {
 };
 
 export const HR_PROFILE: UserProfile = {
-  realName: '李丽华',
+  realName: '李华',
   department: '人力资源部',
   position: 'HRBP',
   level: 'P6',

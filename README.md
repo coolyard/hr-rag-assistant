@@ -2,7 +2,7 @@
 
 > 基于 RAG (Retrieval-Augmented Generation) 的企业内部 HR 知识问答系统。
 >
-> 技术栈：NestJS 10 + React 18 + TypeScript + Vite 5 + Ollama（本地真实模型）
+> 技术栈：NestJS 11 + React 18 + TypeScript + Vite 5 + Ollama（本地真实模型）
 >
 > 开发模式：Spec-Driven Agentic Development (SDAD)
 
@@ -28,7 +28,7 @@
 | 层级      | 技术                                          |
 | --------- | --------------------------------------------- |
 | 前端      | React 18 + TypeScript + Vite 5 + Axios        |
-| 后端      | NestJS 10 + TypeScript + JWT                  |
+| 后端      | NestJS 11 + TypeScript + JWT                  |
 | LLM       | Ollama `qwen2.5:7b-instruct`（本地）          |
 | Embedding | Ollama `nomic-embed-text`（本地，768维）      |
 | 向量存储  | In-Memory（接口抽象，可替换为 Chroma 等）     |
@@ -124,7 +124,7 @@ hr-rag-assistant/
 
 ### 环境要求
 
-- Node.js 18+
+- Node.js 22.12+
 - pnpm 8+（或 npm/yarn）
 - Ollama（本地 LLM 推理引擎）
 - 8GB+ 显存 或 16GB+ 内存（用于运行 7B 模型）
@@ -246,6 +246,11 @@ pnpm --filter web dev
 ## 📜 开发脚本
 
 ```bash
+# 根脚本（一键操作）
+pnpm build        # 构建 Web + API（先 Web 后 API）
+pnpm start        # 启动生产模式（端口 3000，serve API + 前端）
+pnpm preview      # 一键构建 + 启动
+
 # 代码格式化
 pnpm format
 
@@ -258,13 +263,61 @@ pnpm format:check
 # 后端（独立）
 pnpm --filter api start:dev   # 开发模式（热重载）
 pnpm --filter api build       # 构建
-pnpm --filter api start:prod  # 生产模式
+pnpm --filter api start:prod  # 生产模式（仅 API）
 
 # 前端（独立）
 pnpm --filter web dev         # 开发服务器
 pnpm --filter web build       # 构建
 pnpm --filter web preview     # 预览生产构建
 ```
+
+---
+
+## 📦 生产部署与分享
+
+生产模式下，NestJS 后端会自动 serve 前端构建产物，无需额外 Web 服务器。
+
+### 本地构建与预览
+
+```bash
+# 一键构建 + 启动
+pnpm preview
+
+# 或分步操作
+pnpm build     # 先构建（Web → API）
+pnpm start     # 再启动（端口 3000）
+```
+
+启动后访问 <http://localhost:3000> 即可使用。
+
+### 通过 ngrok 分享给他人
+
+如果想让其他人在线体验：
+
+```bash
+# 1. 安装 ngrok（macOS）
+brew install ngrok
+
+# 2. 启动项目
+pnpm preview
+
+# 3. 另开终端，暴露公网
+ngrok http 3000
+
+# 4. 将 ngrok 输出的 URL 分享给对方
+#    例如: https://abc123.ngrok-free.app
+```
+
+> ngrok 免费版每次重启 URL 会变化，适合临时演示。如需固定域名，可考虑 Cloudflare Tunnel 或部署到云服务器。
+
+### 项目端口说明
+
+| 模式   | 端口  | 说明                    |
+| ------ | ----- | ----------------------- |
+| 开发   | :5173 | Vite dev server + proxy |
+| 开发   | :3000 | NestJS API（热重载）    |
+| 生产   | :3000 | NestJS serve API + 前端 |
+| ngrok  | → :3000 | 公网 URL → 本地 3000  |
 
 ---
 

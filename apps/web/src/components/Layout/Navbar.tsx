@@ -24,13 +24,13 @@ export const Navbar: FC = () => {
       <span className={styles.brand}>HR 智能助手</span>
       <div className={styles.navLinks}>
         <Link to="/chat" className={isActive('/chat')}>
-          💬 对话
+          💬 <span className={styles.navLabel}>对话</span>
         </Link>
         <Link to="/documents" className={isActive('/documents')}>
-          📚 文档
+          📚 <span className={styles.navLabel}>文档</span>
         </Link>
         <Link to="/profile" className={isActive('/profile')}>
-          👤 我的
+          👤 <span className={styles.navLabel}>我的</span>
         </Link>
       </div>
       <div className={styles.right}>
