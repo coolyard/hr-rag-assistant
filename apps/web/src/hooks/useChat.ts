@@ -10,6 +10,8 @@ export interface Message {
   timestamp: number;
   sources?: SourceCitation[];
   followUps?: string[];
+  confidenceLevel?: 'high' | 'medium' | 'low';
+  hallucinationWarning?: string;
   status?: 'sending' | 'streaming' | 'complete' | 'error';
   error?: string;
 }
@@ -126,6 +128,8 @@ export function useChat() {
                       ...m,
                       content: accumulated,
                       sources: chunk.sources,
+                      confidenceLevel: chunk.confidenceLevel,
+                      hallucinationWarning: chunk.hallucinationWarning,
                       status: finalStatus,
                       error: chunk.error,
                     }
