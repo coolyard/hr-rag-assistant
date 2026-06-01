@@ -282,7 +282,6 @@ function calculateMonthlyMealSubsidies(
         "payableAmount": 660,
         "isClaimed": true
       }
-      // ... 3-12 月类似
     ]
   }
 }
