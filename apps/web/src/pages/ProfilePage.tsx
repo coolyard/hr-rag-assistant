@@ -21,6 +21,7 @@ interface MonthlyMealSubsidy {
   deductedAmount: number;
   payableAmount: number;
   isClaimed: boolean;
+  isFuture: boolean;
 }
 
 interface UserProfile {
@@ -146,6 +147,17 @@ export const ProfilePage: FC = () => {
     void fetchProfile();
   }, [fetchProfile]);
 
+  useEffect(() => {
+    const d = new Date();
+    const srvYear = d.getFullYear();
+    const srvMonth = d.getMonth() + 1;
+    const maxMonth =
+      selectedYear > srvYear ? 0 : selectedYear === srvYear ? srvMonth : 12;
+    if (selectedMonth > maxMonth && maxMonth > 0) {
+      setSelectedMonth(maxMonth);
+    }
+  }, [selectedYear, selectedMonth]);
+
   if (loading) {
     return (
       <div className={styles.page}>
@@ -205,12 +217,29 @@ export const ProfilePage: FC = () => {
     leaveMapByDate.set(r.date, r);
   }
 
-  const claimedTotal = profile.monthlyMealSubsidies
+  const availableYears = [
+    ...new Set([
+      now.getFullYear(),
+      ...profile.leaveRecords.map((r) => new Date(r.date).getFullYear()),
+    ]),
+  ].sort();
+
+  const yearSubsidies = profile.monthlyMealSubsidies.filter(
+    (s) => s.year === selectedYear,
+  );
+
+  const serverYear = now.getFullYear();
+  const serverMonth = now.getMonth() + 1;
+
+  const maxSelectableMonth =
+    selectedYear > serverYear ? 0 : selectedYear === serverYear ? serverMonth : 12;
+
+  const claimedTotal = yearSubsidies
     .filter((s) => s.isClaimed)
     .reduce((sum, s) => sum + s.payableAmount, 0);
 
-  const unclaimedTotal = profile.monthlyMealSubsidies
-    .filter((s) => !s.isClaimed)
+  const unclaimedTotal = yearSubsidies
+    .filter((s) => !s.isClaimed && !s.isFuture)
     .reduce((sum, s) => sum + s.payableAmount, 0);
 
   return (
@@ -406,17 +435,20 @@ export const ProfilePage: FC = () => {
                 value={selectedYear}
                 onChange={(e) => { setSelectedYear(Number(e.target.value)); }}
               >
-                <option value={2025}>2025 年</option>
-                <option value={2026}>2026 年</option>
+                {availableYears.map((y) => (
+                  <option key={y} value={y}>{String(y)} 年</option>
+                ))}
               </select>
               <select
                 className={styles.monthSelect}
                 value={selectedMonth}
                 onChange={(e) => { setSelectedMonth(Number(e.target.value)); }}
               >
-                {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-                  <option key={m} value={m}>{String(m)} 月</option>
-                ))}
+                {Array.from({ length: 12 }, (_, i) => i + 1)
+                  .filter((m) => m <= maxSelectableMonth)
+                  .map((m) => (
+                    <option key={m} value={m}>{String(m)} 月</option>
+                  ))}
               </select>
             </div>
           </div>
@@ -488,7 +520,7 @@ export const ProfilePage: FC = () => {
               <h4 className={styles.mealCardTitle}>
                 {String(selectedYear)} 年 {String(selectedMonth)} 月 餐补统计
               </h4>
-              {selectedMonthSubsidy ? (
+              {selectedMonthSubsidy && !selectedMonthSubsidy.isFuture ? (
                 <>
                   <div className={styles.mealStats}>
                     <div className={styles.mealStatItem}>
@@ -549,6 +581,10 @@ export const ProfilePage: FC = () => {
                     )}
                   </div>
                 </>
+              ) : selectedMonthSubsidy?.isFuture ? (
+                <p className={styles.mealEmptyNote}>
+                  {String(selectedYear)} 年 {String(selectedMonth)} 月尚未到来，暂无餐补数据
+                </p>
               ) : (
                 <p className={styles.mealEmptyNote}>
                   {String(selectedYear)} 年 {String(selectedMonth)} 月暂无餐补数据
@@ -560,24 +596,45 @@ export const ProfilePage: FC = () => {
 
         {/* Yearly Meal Subsidy Summary */}
         <div className={styles.yearlySection}>
-          <h3 className={styles.sectionTitle}>本年度餐补汇总</h3>
+          <div className={styles.calendarHeader}>
+            <h3 className={styles.sectionTitle}>餐补汇总</h3>
+            <select
+              className={styles.yearSelect}
+              value={selectedYear}
+              onChange={(e) => { setSelectedYear(Number(e.target.value)); }}
+            >
+              {availableYears.map((y) => (
+                <option key={y} value={y}>{String(y)} 年</option>
+              ))}
+            </select>
+          </div>
           <div className={styles.yearlyGrid}>
-            {profile.monthlyMealSubsidies.map((s) => (
-              <button
-                key={s.month}
-                type="button"
-                className={`${styles.yearlyCard} ${s.month === selectedMonth ? styles.yearlyCardActive : ''}`}
-                onClick={() => { setSelectedMonth(s.month); }}
-              >
-                <span className={styles.yearlyMonth}>{String(s.month)}月</span>
-                <span className={styles.yearlyAmount}>{String(s.payableAmount)}</span>
-                <span
-                  className={`${styles.yearlyStatus} ${s.isClaimed ? styles.yearlyClaimed : styles.yearlyUnclaimed}`}
+            {yearSubsidies.map((s) =>
+              s.isFuture ? (
+                <div
+                  key={s.month}
+                  className={`${styles.yearlyCard} ${styles.yearlyCardDisabled}`}
                 >
-                  {s.isClaimed ? '已申报' : '未申报'}
-                </span>
-              </button>
-            ))}
+                  <span className={styles.yearlyMonth}>{String(s.month)}月</span>
+                  <span className={styles.yearlyAmount}>—</span>
+                </div>
+              ) : (
+                <button
+                  key={s.month}
+                  type="button"
+                  className={`${styles.yearlyCard} ${s.month === selectedMonth ? styles.yearlyCardActive : ''}`}
+                  onClick={() => { setSelectedMonth(s.month); }}
+                >
+                  <span className={styles.yearlyMonth}>{String(s.month)}月</span>
+                  <span className={styles.yearlyAmount}>{String(s.payableAmount)}</span>
+                  <span
+                    className={`${styles.yearlyStatus} ${s.isClaimed ? styles.yearlyClaimed : styles.yearlyUnclaimed}`}
+                  >
+                    {s.isClaimed ? '已申报' : '未申报'}
+                  </span>
+                </button>
+              ),
+            )}
           </div>
           <div className={styles.yearlyTotals}>
             <span className={styles.yearlyTotalItem}>

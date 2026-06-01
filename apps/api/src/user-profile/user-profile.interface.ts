@@ -23,6 +23,5 @@ export interface IUserProfileService {
   calculateMonthlyMealSubsidies(
     leaveRecords: LeaveRecord[],
     currentYear: number,
-    currentMonth: number,
   ): MonthlyMealSubsidy[];
 }

@@ -24,14 +24,27 @@ export class UserProfileService implements IUserProfileService {
       return null;
     }
     const now = new Date();
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth() + 1;
     const profile = { ...user.profile };
-    profile.monthlyMealSubsidies = this.calculateMonthlyMealSubsidies(
-      profile.leaveRecords,
-      currentYear,
-      currentMonth,
+
+    const years = new Set<number>();
+    years.add(now.getFullYear());
+    for (const r of profile.leaveRecords) {
+      years.add(new Date(r.date).getFullYear());
+    }
+
+    const allSubsidies: MonthlyMealSubsidy[] = [];
+    for (const year of years) {
+      allSubsidies.push(
+        ...this.calculateMonthlyMealSubsidies(
+          profile.leaveRecords,
+          year,
+        ),
+      );
+    }
+    profile.monthlyMealSubsidies = allSubsidies.sort(
+      (a, b) => a.year - b.year || a.month - b.month,
     );
+
     return profile;
   }
 
@@ -56,23 +69,27 @@ export class UserProfileService implements IUserProfileService {
     year: number,
     month: number,
   ): MonthlyMealSubsidy | null {
-    const profile = this.getProfile(userId);
-    if (!profile) {
+    const user = this.authService.getUserById(userId);
+    if (!user) {
       this.logger.warn(`User not found: ${userId}`);
       return null;
     }
+    const subsidies = this.calculateMonthlyMealSubsidies(
+      user.profile.leaveRecords,
+      year,
+    );
     return (
-      profile.monthlyMealSubsidies.find(
-        (s) => s.year === year && s.month === month,
-      ) ?? null
+      subsidies.find((s) => s.month === month) ?? null
     );
   }
 
   calculateMonthlyMealSubsidies(
     leaveRecords: LeaveRecord[],
     currentYear: number,
-    currentMonth: number,
   ): MonthlyMealSubsidy[] {
+    const now = new Date();
+    const serverYear = now.getFullYear();
+    const serverMonth = now.getMonth() + 1;
     const result: MonthlyMealSubsidy[] = [];
 
     for (let month = 1; month <= 12; month++) {
@@ -92,7 +109,19 @@ export class UserProfileService implements IUserProfileService {
       const totalAmount = DEFAULT_WORKDAYS * DAILY_MEAL_AMOUNT;
       const deductedAmount = Math.round(fullDayLeaveCount * DAILY_MEAL_AMOUNT);
       const payableAmount = totalAmount - deductedAmount;
-      const isClaimed = month < currentMonth;
+
+      const isFuture =
+        currentYear > serverYear ||
+        (currentYear === serverYear && month > serverMonth);
+
+      let isClaimed: boolean;
+      if (currentYear < serverYear) {
+        isClaimed = true;
+      } else if (currentYear > serverYear) {
+        isClaimed = false;
+      } else {
+        isClaimed = month < serverMonth;
+      }
 
       result.push({
         year: currentYear,
@@ -105,6 +134,7 @@ export class UserProfileService implements IUserProfileService {
         deductedAmount,
         payableAmount,
         isClaimed,
+        isFuture,
       });
     }
 

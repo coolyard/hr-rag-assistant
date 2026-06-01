@@ -790,6 +790,12 @@
   box-shadow: 0 0 0 2px var(--accent-color);
 }
 
+.yearlyCardDisabled {
+  opacity: 0.4;
+  cursor: default;
+  pointer-events: none;
+}
+
 .yearlyMonth {
   font-size: 0.8rem;
   font-weight: 600;
