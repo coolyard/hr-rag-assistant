@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.2.0](https://github.com/coolyard/hr-rag-assistant/compare/v1.1.0...v1.2.0) (2026-06-01)
+
+
+### Features
+
+* HR 智能助手 v1.2.0 — 餐补计算 + 请假日历 + 幻觉校验 + 信心徽章 ([c1f60ed](https://github.com/coolyard/hr-rag-assistant/commit/c1f60edb9cc8e10aa2f37fe20fe7fb377d7dc6d7))
+* **meal-subsidy:** add leave calendar, monthly meal stats and yearly summary to Profile (Task-015) ([72d8624](https://github.com/coolyard/hr-rag-assistant/commit/72d8624fd7846499a0aadef3a5c14e51000ec7e7))
+* **meal-subsidy:** add leave-records and meal-subsidy API endpoints (Task-013) ([0df9d62](https://github.com/coolyard/hr-rag-assistant/commit/0df9d62e606de9e74d11cb2cc3b168f03f9c43cf))
+* **meal-subsidy:** extend RAG personal query detection and prompt injection (Task-014) ([8a4296f](https://github.com/coolyard/hr-rag-assistant/commit/8a4296f51348d411643449c51dbcd08a2f4883bd))
+* **meal-subsidy:** extend UserProfile model with leave records and meal subsidy calculation (Task-012) ([0890bb7](https://github.com/coolyard/hr-rag-assistant/commit/0890bb7e318553d86e666457fb3ad1579bd1904a))
+* **meal-subsidy:** implement meal subsidy calculation, leave calendar, and RAG personal query extensions ([6ad17f4](https://github.com/coolyard/hr-rag-assistant/commit/6ad17f490d5136d443f94fd0df367c26b60632b2))
+* **meal-subsidy:** support multi-year subsidy and future month flags ([4909236](https://github.com/coolyard/hr-rag-assistant/commit/49092366aba6c30f13b0fbd0de025486e021f41e))
+* **phase-2:** implement Layer 3 hallucination validation and Layer 4 confidence badges ([4f53620](https://github.com/coolyard/hr-rag-assistant/commit/4f536205b1e2dcd6650a891404344e43c39deaee))
+
+
+### Bug Fixes
+
+* **api:** add explicit string[] type annotations to prevent never[] inference ([e893d79](https://github.com/coolyard/hr-rag-assistant/commit/e893d79754f834b2254aaaa16bea9558b59d09e2))
+
 ## [1.1.0](https://github.com/coolyard/hr-rag-assistant/compare/v1.0.0...v1.1.0) (2026-05-21)
 
 
