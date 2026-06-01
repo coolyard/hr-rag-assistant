@@ -9,6 +9,8 @@ export interface AskStreamChunk {
   status?: string;
   followUps?: string[];
   sources?: SourceCitation[];
+  confidenceLevel?: 'high' | 'medium' | 'low';
+  hallucinationWarning?: string;
   error?: string;
   conversationId?: string;
 }

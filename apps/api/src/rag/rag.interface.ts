@@ -25,6 +25,7 @@ export interface StreamChunk {
   followUps?: string[];
   sources?: SourceCitation[];
   confidenceLevel?: 'high' | 'medium' | 'low';
+  hallucinationWarning?: string;
   error?: string;
 }
 

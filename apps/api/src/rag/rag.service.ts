@@ -11,6 +11,7 @@ import type {
   SourceCitation,
   StreamChunk,
 } from '@/rag/rag.interface';
+import { validateAnswer } from '@/rag/rag.validator';
 import { UserProfileService } from '@/user-profile/user-profile.service';
 import { VectorStoreService } from '@/vector/vector-store.service';
 
@@ -20,6 +21,7 @@ const MERGE_TOP_K = 3;
 const SIMILARITY_THRESHOLD = 0.5;
 const VECTOR_WEIGHT = 0.4;
 const KEYWORD_WEIGHT = 0.6;
+const HIGH_CONFIDENCE_THRESHOLD = 0.8;
 
 const SYSTEM_PROMPT_TEMPLATE = `你是企业 HR 助手，专门回答员工关于公司制度、政策和流程的问题。
 
@@ -112,7 +114,6 @@ export class RAGService {
     const prompt = this.buildPrompt(query, merged, history, userProfileText);
 
     const sources = this.buildSources(merged);
-    const confidenceLevel = this.getConfidenceLevel(merged[0].hybridScore);
 
     yield { token: '', done: false, status: '正在生成回答...' };
 
@@ -142,11 +143,20 @@ export class RAGService {
       this.logger.warn(`Follow-up generation failed: ${String(error)}`);
     }
 
+    const validation = validateAnswer(fullAnswer, merged);
+    const confidenceLevel = this.getConfidenceLevel(merged[0]?.hybridScore ?? 0);
+
     this.chatService.addAssistantMessage(conv.id, fullAnswer, sources);
     this.logger.log(
       `RAG orchestration complete for query "${query}": ${String(merged.length)} sources, confidence=${confidenceLevel}`,
     );
-    yield { token: '', done: true, sources, confidenceLevel };
+    yield {
+      token: '',
+      done: true,
+      sources,
+      confidenceLevel,
+      hallucinationWarning: validation.passed ? undefined : '回答包含未在文档中验证的数据，请核实',
+    };
   }
 
   private async vectorSearch(query: string, topK: number): Promise<RAGSearchResult[]> {
@@ -307,7 +317,7 @@ export class RAGService {
   }
 
   private getConfidenceLevel(hybridScore: number): 'high' | 'medium' | 'low' {
-    if (hybridScore > 0.8) {
+    if (hybridScore > HIGH_CONFIDENCE_THRESHOLD) {
       return 'high';
     }
     if (hybridScore >= SIMILARITY_THRESHOLD) {

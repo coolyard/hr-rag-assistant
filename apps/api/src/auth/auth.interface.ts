@@ -1,5 +1,27 @@
 export type UserRole = 'employee' | 'hr';
 
+export type LeaveType = 'annual' | 'sick' | 'personal' | 'marriage' | 'maternity';
+
+export interface LeaveRecord {
+  date: string;
+  type: LeaveType;
+  duration: number;
+}
+
+export interface MonthlyMealSubsidy {
+  year: number;
+  month: number;
+  totalWorkdays: number;
+  fullDayLeaveCount: number;
+  halfDayLeaveCount: number;
+  dailyAmount: number;
+  totalAmount: number;
+  deductedAmount: number;
+  payableAmount: number;
+  isClaimed: boolean;
+  isFuture: boolean;
+}
+
 export interface UserProfile {
   realName: string;
   department: string;
@@ -30,6 +52,8 @@ export interface UserProfile {
   birthdayBenefitStatus: 'claimed' | 'unclaimed';
   lastPromotionDate: string | null;
   nextEvaluationEligible: boolean;
+  leaveRecords: LeaveRecord[];
+  monthlyMealSubsidies: MonthlyMealSubsidy[];
 }
 
 export interface User {
@@ -73,11 +97,11 @@ export const EMPLOYEE_PROFILE: UserProfile = {
   hireDate: '2024-03-15',
   probationEndDate: '2024-06-15',
   isProbation: false,
-  annualLeaveTotal: 5,
-  annualLeaveUsed: 2,
-  annualLeaveRemaining: 3,
-  sickLeaveUsed: 1,
-  personalLeaveUsed: 0,
+  annualLeaveTotal: 20,
+  annualLeaveUsed: 14.5,
+  annualLeaveRemaining: 5.5,
+  sickLeaveUsed: 5,
+  personalLeaveUsed: 3,
   marriageLeaveUsed: 0,
   maternityLeaveUsed: 0,
   reimbursementTotal: 3250,
@@ -95,6 +119,34 @@ export const EMPLOYEE_PROFILE: UserProfile = {
   birthdayBenefitStatus: 'claimed',
   lastPromotionDate: null,
   nextEvaluationEligible: true,
+  leaveRecords: [
+    { date: '2025-01-10', type: 'annual', duration: 1 },
+    { date: '2025-02-18', type: 'sick', duration: 0.5 },
+    { date: '2025-03-05', type: 'annual', duration: 1 },
+    { date: '2025-04-15', type: 'personal', duration: 1 },
+    { date: '2025-04-22', type: 'personal', duration: 0.5 },
+    { date: '2025-05-20', type: 'annual', duration: 0.5 },
+    { date: '2025-06-03', type: 'sick', duration: 1 },
+    { date: '2025-08-11', type: 'annual', duration: 1 },
+    { date: '2025-08-12', type: 'annual', duration: 1 },
+    { date: '2025-09-25', type: 'sick', duration: 0.5 },
+    { date: '2025-10-08', type: 'annual', duration: 1 },
+    { date: '2025-10-09', type: 'annual', duration: 1 },
+    { date: '2025-10-10', type: 'annual', duration: 1 },
+    { date: '2025-10-11', type: 'annual', duration: 1 },
+    { date: '2025-11-14', type: 'personal', duration: 1 },
+    { date: '2026-01-26', type: 'annual', duration: 1 },
+    { date: '2026-01-27', type: 'annual', duration: 1 },
+    { date: '2026-01-28', type: 'annual', duration: 1 },
+    { date: '2026-02-02', type: 'annual', duration: 1 },
+    { date: '2026-02-03', type: 'annual', duration: 1 },
+    { date: '2026-03-16', type: 'sick', duration: 1 },
+    { date: '2026-04-08', type: 'personal', duration: 0.5 },
+    { date: '2026-05-05', type: 'annual', duration: 1 },
+    { date: '2026-05-19', type: 'sick', duration: 1 },
+    { date: '2026-06-01', type: 'sick', duration: 1 },
+  ],
+  monthlyMealSubsidies: [],
 };
 
 export const HR_PROFILE: UserProfile = {
@@ -105,11 +157,11 @@ export const HR_PROFILE: UserProfile = {
   hireDate: '2021-01-10',
   probationEndDate: '2021-04-10',
   isProbation: false,
-  annualLeaveTotal: 15,
-  annualLeaveUsed: 5,
-  annualLeaveRemaining: 10,
-  sickLeaveUsed: 2,
-  personalLeaveUsed: 1,
+  annualLeaveTotal: 20,
+  annualLeaveUsed: 13.5,
+  annualLeaveRemaining: 6.5,
+  sickLeaveUsed: 4,
+  personalLeaveUsed: 5,
   marriageLeaveUsed: 0,
   maternityLeaveUsed: 0,
   reimbursementTotal: 1800,
@@ -127,6 +179,33 @@ export const HR_PROFILE: UserProfile = {
   birthdayBenefitStatus: 'unclaimed',
   lastPromotionDate: '2023-12-20',
   nextEvaluationEligible: true,
+  leaveRecords: [
+    { date: '2025-01-08', type: 'annual', duration: 1 },
+    { date: '2025-02-14', type: 'annual', duration: 1 },
+    { date: '2025-03-20', type: 'sick', duration: 0.5 },
+    { date: '2025-04-10', type: 'personal', duration: 1 },
+    { date: '2025-05-06', type: 'annual', duration: 1 },
+    { date: '2025-05-28', type: 'annual', duration: 1 },
+    { date: '2025-06-12', type: 'sick', duration: 1 },
+    { date: '2025-07-15', type: 'annual', duration: 1 },
+    { date: '2025-09-08', type: 'annual', duration: 1 },
+    { date: '2025-09-09', type: 'annual', duration: 1 },
+    { date: '2025-10-13', type: 'personal', duration: 1 },
+    { date: '2025-10-14', type: 'personal', duration: 1 },
+    { date: '2025-10-15', type: 'personal', duration: 1 },
+    { date: '2025-11-28', type: 'sick', duration: 0.5 },
+    { date: '2025-12-22', type: 'annual', duration: 1 },
+    { date: '2026-01-19', type: 'annual', duration: 1 },
+    { date: '2026-01-20', type: 'annual', duration: 1 },
+    { date: '2026-01-21', type: 'annual', duration: 1 },
+    { date: '2026-01-22', type: 'annual', duration: 1 },
+    { date: '2026-03-09', type: 'sick', duration: 1 },
+    { date: '2026-03-10', type: 'sick', duration: 1 },
+    { date: '2026-04-06', type: 'personal', duration: 1 },
+    { date: '2026-05-12', type: 'annual', duration: 0.5 },
+    { date: '2026-06-01', type: 'annual', duration: 1 },
+  ],
+  monthlyMealSubsidies: [],
 };
 
 export const PRESET_USERS: User[] = [

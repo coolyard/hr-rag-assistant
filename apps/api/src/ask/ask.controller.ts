@@ -44,6 +44,8 @@ export class AskController {
           status: chunk.status,
           followUps: chunk.followUps,
           sources: chunk.sources,
+          confidenceLevel: chunk.confidenceLevel,
+          hallucinationWarning: chunk.hallucinationWarning,
           error: chunk.error,
           conversationId: body.conversationId,
         };

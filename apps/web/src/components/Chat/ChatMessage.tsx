@@ -2,14 +2,17 @@ import { type FC, useCallback, useState } from 'react';
 
 import type { SourceCitation } from '@/api/sse';
 import styles from '@/components/Chat/ChatMessage.module.css';
+import { ConfidenceBadge } from '@/components/Chat/ConfidenceBadge';
+import { HallucinationWarning } from '@/components/Chat/HallucinationWarning';
 import type { Message } from '@/hooks/useChat';
 import { renderMarkdown } from '@/utils/markdown';
 
 interface CitationCardProps {
   citation: SourceCitation;
+  confidenceLevel?: 'high' | 'medium' | 'low';
 }
 
-const CitationCard: FC<CitationCardProps> = ({ citation }) => {
+const CitationCard: FC<CitationCardProps> = ({ citation, confidenceLevel }) => {
   const [expanded, setExpanded] = useState(false);
 
   const toggle = useCallback(() => {
@@ -30,6 +33,7 @@ const CitationCard: FC<CitationCardProps> = ({ citation }) => {
     >
       <div className={styles.citationHeader}>
         <span className={styles.citationDoc}>{citation.documentTitle}</span>
+        <ConfidenceBadge level={confidenceLevel} />
         <span className={styles.citationSimilarity}>相似度 {similarityPct}%</span>
       </div>
       <div className={expanded ? styles.citationChunkExpanded : styles.citationChunk}>
@@ -79,11 +83,18 @@ export const ChatMessage: FC<ChatMessageProps> = ({ message, onFollowUp }) => {
         {message.status === 'error' && message.error && (
           <p className={styles.errorText}>{message.error}</p>
         )}
+        {message.status === 'complete' && message.hallucinationWarning && (
+          <HallucinationWarning />
+        )}
         {message.status === 'complete' && message.sources && message.sources.length > 0 && (
           <div className={styles.sourcesSection}>
             <p className={styles.sourcesLabel}>参考来源：</p>
             {message.sources.map((s, i) => (
-              <CitationCard key={`${s.documentName}-${String(i)}`} citation={s} />
+              <CitationCard
+                key={`${s.documentName}-${String(i)}`}
+                citation={s}
+                confidenceLevel={message.confidenceLevel}
+              />
             ))}
           </div>
         )}

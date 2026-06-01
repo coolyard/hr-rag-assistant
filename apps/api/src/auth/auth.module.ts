@@ -5,6 +5,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthController, MeController } from '@/auth/auth.controller';
 import { AuthGuard } from '@/auth/auth.guard';
 import { AuthService } from '@/auth/auth.service';
+import { UserProfileModule } from '@/user-profile/user-profile.module';
 
 const JWT_SECRET = process.env.JWT_SECRET ?? 'hr-rag-assistant-secret';
 
@@ -15,6 +16,7 @@ const JWT_SECRET = process.env.JWT_SECRET ?? 'hr-rag-assistant-secret';
       secret: JWT_SECRET,
       signOptions: { expiresIn: '7d' },
     }),
+    UserProfileModule,
   ],
   controllers: [AuthController, MeController],
   providers: [
