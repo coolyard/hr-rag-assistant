@@ -122,15 +122,36 @@ export class UserProfileService implements IUserProfileService {
       return true;
     }
 
-    const quantityPatterns = /(?:我|我的).*?(?:还剩|还有|用了|已用|剩余|多少|几天|几小时|多少钱)/;
+    const quantityPatterns =
+      /(?:我|我的).*?(?:还剩|还有|用了|已用|剩余|多少|几天|几小时|多少钱)/;
     if (quantityPatterns.test(lower)) {
       return true;
     }
 
-    const statusPatterns = /(?:我|我的).*?(?:可以|能不能|是否符合|有没有资格|还能|是否可以)/;
+    const mealSubsidyKeywords = /餐补|食补|饭贴|午餐补贴|餐饮补贴/;
+    if (firstPerson.test(lower) && mealSubsidyKeywords.test(lower)) {
+      return true;
+    }
+
+    const monthKeywords = /这个月|上个月|本月|上月|这几个月|今年/;
+    const leaveDayKeywords = /请了几天假|休了几天|请假天数/;
+    if (
+      firstPerson.test(lower) &&
+      monthKeywords.test(lower) &&
+      leaveDayKeywords.test(lower)
+    ) {
+      return true;
+    }
+
+    const specificMonthPattern =
+      /(?:我|我的).*?(?:1月|2月|3月|4月|5月|6月|7月|8月|9月|10月|11月|12月).*?(?:餐补|食补|饭贴|请假|休假)/;
+    if (specificMonthPattern.test(lower)) {
+      return true;
+    }
+
+    const statusPatterns =
+      /(?:我|我的).*?(?:可以|能不能|是否符合|有没有资格|还能|是否可以)/;
     return statusPatterns.test(lower);
-
-
   }
 
   formatForPrompt(profile: UserProfile): string {
@@ -144,7 +165,7 @@ export class UserProfileService implements IUserProfileService {
       unclaimed: '未领取',
     };
 
-    return `## 当前用户个人信息
+    const basePrompt = `## 当前用户个人信息
 以下是你（${profile.realName}，${profile.department} ${profile.position}，职级 ${profile.level}）的当前人事数据：
 
 ### 年假与请假
@@ -176,6 +197,63 @@ export class UserProfileService implements IUserProfileService {
 - 上次晋升日期：${profile.lastPromotionDate ?? '无'}
 - 是否可参加下次晋升评估：${profile.nextEvaluationEligible ? '是' : '否'}
 `;
+
+    return (
+      basePrompt +
+      '\n' +
+      this.formatLeaveRecords(profile.leaveRecords) +
+      '\n\n' +
+      this.formatMealSubsidies(profile.monthlyMealSubsidies)
+    );
+  }
+
+  private formatLeaveRecords(records: LeaveRecord[]): string {
+    if (records.length === 0) {
+      return '### 请假记录明细\n本年度暂无请假记录。';
+    }
+
+    const typeMap: Record<string, string> = {
+      annual: '年假',
+      sick: '病假',
+      personal: '事假',
+      marriage: '婚假',
+      maternity: '产假',
+    };
+
+    const lines = records.map((r) => {
+      const durationText = r.duration === 0.5 ? '半天' : '全天';
+      return `- ${r.date}：${typeMap[r.type]}（${durationText}）`;
+    });
+
+    return `### 请假记录明细\n本年度共请假 ${String(records.length)} 次：\n${lines.join('\n')}`;
+  }
+
+  private formatMealSubsidies(subsidies: MonthlyMealSubsidy[]): string {
+    if (subsidies.length === 0) {
+      return '### 月度餐补统计\n暂无月度餐补数据。';
+    }
+
+    const now = new Date();
+    const currentMonth = now.getMonth() + 1;
+    const currentSubsidy = subsidies.find((s) => s.month === currentMonth);
+
+    const lines = subsidies.map((s) => {
+      const status = s.isClaimed ? '已申报' : '未申报';
+      const halfDayNote =
+        s.halfDayLeaveCount > 0
+          ? `（含${String(s.halfDayLeaveCount)}个半天假，不扣餐补）`
+          : '';
+      return `- ${String(s.month)}月：工作日${String(s.totalWorkdays)}天，请假${String(s.fullDayLeaveCount)}天${halfDayNote}，应发${String(s.totalAmount)}元，扣除${String(s.deductedAmount)}元，实发${String(s.payableAmount)}元【${status}】`;
+    });
+
+    let summary = '';
+    if (currentSubsidy) {
+      summary = `\n\n本月（${String(currentMonth)}月）餐补：实发 ${String(currentSubsidy.payableAmount)} 元，${currentSubsidy.isClaimed ? '已申报' : '未申报'}。`;
+    }
+
+    const dailyAmount = String(subsidies[0]?.dailyAmount ?? 30);
+
+    return `### 月度餐补统计\n餐补规则：工作日每天 ${dailyAmount} 元，每月按 22 个工作日计算。全天请假扣除当天餐补，半天请假不扣除。\n\n${lines.join('\n')}${summary}`;
   }
 
   getAllUsers(): User[] {
