@@ -4,6 +4,25 @@ import { client } from '@/api/client';
 import { Navbar } from '@/components/Layout/Navbar';
 import styles from '@/pages/ProfilePage.module.css';
 
+interface LeaveRecord {
+  date: string;
+  type: 'annual' | 'sick' | 'personal' | 'marriage' | 'maternity';
+  duration: number;
+}
+
+interface MonthlyMealSubsidy {
+  year: number;
+  month: number;
+  totalWorkdays: number;
+  fullDayLeaveCount: number;
+  halfDayLeaveCount: number;
+  dailyAmount: number;
+  totalAmount: number;
+  deductedAmount: number;
+  payableAmount: number;
+  isClaimed: boolean;
+}
+
 interface UserProfile {
   realName: string;
   department: string;
@@ -34,6 +53,8 @@ interface UserProfile {
   birthdayBenefitStatus: 'claimed' | 'unclaimed';
   lastPromotionDate: string | null;
   nextEvaluationEligible: boolean;
+  leaveRecords: LeaveRecord[];
+  monthlyMealSubsidies: MonthlyMealSubsidy[];
 }
 
 interface MeResponse {
@@ -72,10 +93,40 @@ const birthdayStatusLabel: Record<string, string> = {
   unclaimed: '未领取',
 };
 
+const LEAVE_TYPE_LABEL: Record<string, string> = {
+  annual: '年假',
+  sick: '病假',
+  personal: '事假',
+  marriage: '婚假',
+  maternity: '产假',
+};
+
+const WEEKDAY_LABELS = ['日', '一', '二', '三', '四', '五', '六'];
+
+function generateCalendarDays(year: number, month: number): (number | null)[] {
+  const firstDay = new Date(year, month - 1, 1).getDay();
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const cells: (number | null)[] = [];
+  for (let i = 0; i < firstDay; i++) {
+    cells.push(null);
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    cells.push(d);
+  }
+  return cells;
+}
+
+function formatDateStr(year: number, month: number, day: number): string {
+  return `${String(year)}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
 export const ProfilePage: FC = () => {
+  const now = new Date();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [selectedYear, setSelectedYear] = useState<number>(now.getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState<number>(now.getMonth() + 1);
 
   const fetchProfile = useCallback(async () => {
     setLoading(true);
@@ -137,6 +188,30 @@ export const ProfilePage: FC = () => {
       </div>
     );
   }
+
+  const calendarDays = generateCalendarDays(selectedYear, selectedMonth);
+
+  const selectedMonthLeaveRecords = profile.leaveRecords.filter((r) => {
+    const d = new Date(r.date);
+    return d.getFullYear() === selectedYear && d.getMonth() + 1 === selectedMonth;
+  });
+
+  const selectedMonthSubsidy = profile.monthlyMealSubsidies.find(
+    (s) => s.year === selectedYear && s.month === selectedMonth,
+  ) ?? null;
+
+  const leaveMapByDate = new Map<string, LeaveRecord>();
+  for (const r of profile.leaveRecords) {
+    leaveMapByDate.set(r.date, r);
+  }
+
+  const claimedTotal = profile.monthlyMealSubsidies
+    .filter((s) => s.isClaimed)
+    .reduce((sum, s) => sum + s.payableAmount, 0);
+
+  const unclaimedTotal = profile.monthlyMealSubsidies
+    .filter((s) => !s.isClaimed)
+    .reduce((sum, s) => sum + s.payableAmount, 0);
 
   return (
     <div className={styles.page}>
@@ -318,6 +393,199 @@ export const ProfilePage: FC = () => {
               </span>
               <span className={styles.detailLabel}>下次晋升资格</span>
             </div>
+          </div>
+        </div>
+
+        {/* Calendar + Monthly Meal Subsidy */}
+        <div className={styles.calendarSection}>
+          <div className={styles.calendarHeader}>
+            <h3 className={styles.sectionTitle}>请假日历与餐补统计</h3>
+            <div className={styles.monthSelector}>
+              <select
+                className={styles.yearSelect}
+                value={selectedYear}
+                onChange={(e) => { setSelectedYear(Number(e.target.value)); }}
+              >
+                <option value={2025}>2025 年</option>
+                <option value={2026}>2026 年</option>
+              </select>
+              <select
+                className={styles.monthSelect}
+                value={selectedMonth}
+                onChange={(e) => { setSelectedMonth(Number(e.target.value)); }}
+              >
+                {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                  <option key={m} value={m}>{String(m)} 月</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className={styles.calendarLayout}>
+            {/* Calendar */}
+            <div className={styles.calendar}>
+              <div className={styles.calendarGrid}>
+                {WEEKDAY_LABELS.map((label) => (
+                  <div key={label} className={styles.dayHeader}>
+                    {label}
+                  </div>
+                ))}
+                {calendarDays.map((day, idx) => {
+                  if (day === null) {
+                    return <div key={idx} className={styles.calendarCell} />;
+                  }
+                  const dateStr = formatDateStr(selectedYear, selectedMonth, day);
+                  const record = leaveMapByDate.get(dateStr);
+                  const isToday =
+                    day === now.getDate() &&
+                    selectedMonth === now.getMonth() + 1 &&
+                    selectedYear === now.getFullYear();
+                  const isHalfDay = record?.duration === 0.5;
+                  return (
+                    <div
+                      key={idx}
+                      className={`${styles.calendarCell} ${isToday ? styles.todayCell : ''}`}
+                      data-tooltip={
+                        record
+                          ? `${dateStr}：${LEAVE_TYPE_LABEL[record.type]}（${isHalfDay ? '半天' : '全天'}）`
+                          : undefined
+                      }
+                    >
+                      <span
+                        className={`${styles.dayNumber} ${record ? styles.leaveDay : ''} ${record ? styles[`leaveType${record.type.charAt(0).toUpperCase() + record.type.slice(1)}`] : ''}`}
+                      >
+                        {day}
+                      </span>
+                      {record && (
+                        <span
+                          className={`${styles.leaveIndicator} ${isHalfDay ? styles.halfDayIndicator : styles.fullDayIndicator}`}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Legend */}
+              <div className={styles.legend}>
+                {(['annual', 'sick', 'personal', 'marriage', 'maternity'] as const).map((type) => (
+                  <span key={type} className={styles.legendItem}>
+                    <span
+                      className={`${styles.legendDot} ${styles[`leaveType${type.charAt(0).toUpperCase() + type.slice(1)}`]}`}
+                    />
+                    {LEAVE_TYPE_LABEL[type]}
+                  </span>
+                ))}
+                <span className={styles.legendItem}>
+                  <span className={`${styles.legendDot} ${styles.halfDayLegend}`} />
+                  半天假
+                </span>
+              </div>
+            </div>
+
+            {/* Monthly Meal Subsidy Card */}
+            <div className={styles.mealCard}>
+              <h4 className={styles.mealCardTitle}>
+                {String(selectedYear)} 年 {String(selectedMonth)} 月 餐补统计
+              </h4>
+              {selectedMonthSubsidy ? (
+                <>
+                  <div className={styles.mealStats}>
+                    <div className={styles.mealStatItem}>
+                      <span className={styles.mealStatLabel}>应发金额</span>
+                      <span className={styles.mealStatValueSecondary}>
+                        {String(selectedMonthSubsidy.totalAmount)} 元
+                      </span>
+                    </div>
+                    <div className={styles.mealStatItem}>
+                      <span className={styles.mealStatLabel}>扣除金额</span>
+                      <span
+                        className={`${styles.mealStatValue} ${selectedMonthSubsidy.deductedAmount > 0 ? styles.mealDeducted : ''}`}
+                      >
+                        -{String(selectedMonthSubsidy.deductedAmount)} 元
+                      </span>
+                    </div>
+                    <div className={styles.mealStatItem}>
+                      <span className={styles.mealStatLabel}>实发金额</span>
+                      <span className={`${styles.mealStatValue} ${styles.mealPayable}`}>
+                        {String(selectedMonthSubsidy.payableAmount)} 元
+                      </span>
+                    </div>
+                  </div>
+                  <div className={styles.mealClaimStatus}>
+                    状态：
+                    {selectedMonthSubsidy.isClaimed ? (
+                      <span className={styles.claimClaimed}>已申报</span>
+                    ) : (
+                      <span className={styles.claimUnclaimed}>未申报</span>
+                    )}
+                  </div>
+                  <div className={styles.mealLeaveDetail}>
+                    {selectedMonthLeaveRecords.length === 0 ? (
+                      <p className={styles.mealEmptyNote}>
+                        本月无请假记录，餐补全额发放 {String(selectedMonthSubsidy.totalAmount)} 元
+                      </p>
+                    ) : (
+                      <ul className={styles.mealLeaveList}>
+                        {selectedMonthLeaveRecords.map((r) => (
+                          <li key={r.date} className={styles.mealLeaveItem}>
+                            <span className={styles.mealLeaveDate}>{r.date}</span>
+                            <span className={styles.mealLeaveType}>
+                              {LEAVE_TYPE_LABEL[r.type]}
+                            </span>
+                            <span className={styles.mealLeaveDuration}>
+                              {r.duration === 0.5 ? '半天' : '全天'}
+                            </span>
+                            <span
+                              className={
+                                r.duration >= 1 ? styles.mealLeaveDeductTag : styles.mealLeaveNoDeductTag
+                              }
+                            >
+                              {r.duration >= 1 ? '扣款 30 元' : '不扣款'}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <p className={styles.mealEmptyNote}>
+                  {String(selectedYear)} 年 {String(selectedMonth)} 月暂无餐补数据
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Yearly Meal Subsidy Summary */}
+        <div className={styles.yearlySection}>
+          <h3 className={styles.sectionTitle}>本年度餐补汇总</h3>
+          <div className={styles.yearlyGrid}>
+            {profile.monthlyMealSubsidies.map((s) => (
+              <button
+                key={s.month}
+                type="button"
+                className={`${styles.yearlyCard} ${s.month === selectedMonth ? styles.yearlyCardActive : ''}`}
+                onClick={() => { setSelectedMonth(s.month); }}
+              >
+                <span className={styles.yearlyMonth}>{String(s.month)}月</span>
+                <span className={styles.yearlyAmount}>{String(s.payableAmount)}</span>
+                <span
+                  className={`${styles.yearlyStatus} ${s.isClaimed ? styles.yearlyClaimed : styles.yearlyUnclaimed}`}
+                >
+                  {s.isClaimed ? '已申报' : '未申报'}
+                </span>
+              </button>
+            ))}
+          </div>
+          <div className={styles.yearlyTotals}>
+            <span className={styles.yearlyTotalItem}>
+              已申报总额：<span className={styles.yearlyTotalValue}>{String(claimedTotal)} 元</span>
+            </span>
+            <span className={styles.yearlyTotalItem}>
+              未申报总额：<span className={styles.yearlyTotalValue}>{String(unclaimedTotal)} 元</span>
+            </span>
           </div>
         </div>
       </div>
