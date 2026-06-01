@@ -1,16 +1,114 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
-import type { User, UserProfile } from '@/auth/auth.interface';
+import type {
+  LeaveRecord,
+  MonthlyMealSubsidy,
+  User,
+  UserProfile,
+} from '@/auth/auth.interface';
 import { AuthService } from '@/auth/auth.service';
 import type { IUserProfileService } from '@/user-profile/user-profile.interface';
 
+const DAILY_MEAL_AMOUNT = 30;
+const DEFAULT_WORKDAYS = 22;
+
 @Injectable()
 export class UserProfileService implements IUserProfileService {
+  private readonly logger = new Logger(UserProfileService.name);
+
   constructor(private readonly authService: AuthService) {}
 
   getProfile(userId: string): UserProfile | null {
     const user = this.authService.getUserById(userId);
-    return user?.profile ?? null;
+    if (!user) {
+      return null;
+    }
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1;
+    const profile = { ...user.profile };
+    profile.monthlyMealSubsidies = this.calculateMonthlyMealSubsidies(
+      profile.leaveRecords,
+      currentYear,
+      currentMonth,
+    );
+    return profile;
+  }
+
+  getLeaveRecords(
+    userId: string,
+    year: number,
+    month: number,
+  ): LeaveRecord[] {
+    const profile = this.getProfile(userId);
+    if (!profile) {
+      this.logger.warn(`User not found: ${userId}`);
+      return [];
+    }
+    return profile.leaveRecords.filter((r) => {
+      const d = new Date(r.date);
+      return d.getFullYear() === year && d.getMonth() + 1 === month;
+    });
+  }
+
+  getMonthlyMealSubsidy(
+    userId: string,
+    year: number,
+    month: number,
+  ): MonthlyMealSubsidy | null {
+    const profile = this.getProfile(userId);
+    if (!profile) {
+      this.logger.warn(`User not found: ${userId}`);
+      return null;
+    }
+    return (
+      profile.monthlyMealSubsidies.find(
+        (s) => s.year === year && s.month === month,
+      ) ?? null
+    );
+  }
+
+  calculateMonthlyMealSubsidies(
+    leaveRecords: LeaveRecord[],
+    currentYear: number,
+    currentMonth: number,
+  ): MonthlyMealSubsidy[] {
+    const result: MonthlyMealSubsidy[] = [];
+
+    for (let month = 1; month <= 12; month++) {
+      const monthLeaves = leaveRecords.filter((r) => {
+        const d = new Date(r.date);
+        return d.getFullYear() === currentYear && d.getMonth() + 1 === month;
+      });
+
+      const fullDayLeaveCount = monthLeaves
+        .filter((r) => r.duration >= 1)
+        .reduce((sum, r) => sum + r.duration, 0);
+
+      const halfDayLeaveCount = monthLeaves.filter(
+        (r) => r.duration === 0.5,
+      ).length;
+
+      const totalAmount = DEFAULT_WORKDAYS * DAILY_MEAL_AMOUNT;
+      const deductedAmount = Math.round(fullDayLeaveCount * DAILY_MEAL_AMOUNT);
+      const payableAmount = totalAmount - deductedAmount;
+      const isClaimed = month < currentMonth;
+
+      result.push({
+        year: currentYear,
+        month,
+        totalWorkdays: DEFAULT_WORKDAYS,
+        fullDayLeaveCount,
+        halfDayLeaveCount,
+        dailyAmount: DAILY_MEAL_AMOUNT,
+        totalAmount,
+        deductedAmount,
+        payableAmount,
+        isClaimed,
+      });
+    }
+
+    return result;
   }
 
   isPersonalQuery(query: string): boolean {

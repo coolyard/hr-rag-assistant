@@ -1,5 +1,26 @@
 export type UserRole = 'employee' | 'hr';
 
+export type LeaveType = 'annual' | 'sick' | 'personal' | 'marriage' | 'maternity';
+
+export interface LeaveRecord {
+  date: string;
+  type: LeaveType;
+  duration: number;
+}
+
+export interface MonthlyMealSubsidy {
+  year: number;
+  month: number;
+  totalWorkdays: number;
+  fullDayLeaveCount: number;
+  halfDayLeaveCount: number;
+  dailyAmount: number;
+  totalAmount: number;
+  deductedAmount: number;
+  payableAmount: number;
+  isClaimed: boolean;
+}
+
 export interface UserProfile {
   realName: string;
   department: string;
@@ -30,6 +51,8 @@ export interface UserProfile {
   birthdayBenefitStatus: 'claimed' | 'unclaimed';
   lastPromotionDate: string | null;
   nextEvaluationEligible: boolean;
+  leaveRecords: LeaveRecord[];
+  monthlyMealSubsidies: MonthlyMealSubsidy[];
 }
 
 export interface User {
@@ -95,6 +118,16 @@ export const EMPLOYEE_PROFILE: UserProfile = {
   birthdayBenefitStatus: 'claimed',
   lastPromotionDate: null,
   nextEvaluationEligible: true,
+  leaveRecords: [
+    { date: '2025-01-10', type: 'annual', duration: 1 },
+    { date: '2025-02-18', type: 'sick', duration: 0.5 },
+    { date: '2025-03-05', type: 'annual', duration: 1 },
+    { date: '2025-04-15', type: 'personal', duration: 1 },
+    { date: '2025-04-22', type: 'personal', duration: 0.5 },
+    { date: '2025-05-20', type: 'annual', duration: 0.5 },
+    { date: '2025-06-03', type: 'sick', duration: 1 },
+  ],
+  monthlyMealSubsidies: [],
 };
 
 export const HR_PROFILE: UserProfile = {
@@ -127,6 +160,16 @@ export const HR_PROFILE: UserProfile = {
   birthdayBenefitStatus: 'unclaimed',
   lastPromotionDate: '2023-12-20',
   nextEvaluationEligible: true,
+  leaveRecords: [
+    { date: '2025-01-08', type: 'annual', duration: 1 },
+    { date: '2025-02-14', type: 'annual', duration: 1 },
+    { date: '2025-03-20', type: 'sick', duration: 0.5 },
+    { date: '2025-04-10', type: 'personal', duration: 1 },
+    { date: '2025-05-06', type: 'annual', duration: 1 },
+    { date: '2025-05-28', type: 'annual', duration: 1 },
+    { date: '2025-06-12', type: 'sick', duration: 1 },
+  ],
+  monthlyMealSubsidies: [],
 };
 
 export const PRESET_USERS: User[] = [
