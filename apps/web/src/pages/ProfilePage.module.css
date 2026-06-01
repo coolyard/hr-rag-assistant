@@ -364,3 +364,517 @@
     justify-content: center;
   }
 }
+
+/* ===== Calendar Section ===== */
+
+.calendarSection {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+
+.calendarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.monthSelector {
+  display: flex;
+  gap: 8px;
+}
+
+.yearSelect,
+.monthSelect {
+  padding: 6px 12px;
+  border: 1px solid var(--input-border);
+  border-radius: 6px;
+  background: var(--input-bg);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.yearSelect:focus,
+.monthSelect:focus {
+  outline: none;
+  border-color: var(--accent-color);
+}
+
+.calendarLayout {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 20px;
+}
+
+.calendar {
+  min-width: 0;
+}
+
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.dayHeader {
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  padding: 6px 0;
+}
+
+.calendarCell {
+  position: relative;
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  cursor: default;
+}
+
+.calendarCell[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+  z-index: 10;
+  pointer-events: none;
+}
+
+[data-theme='dark'] .calendarCell[data-tooltip]:hover::after {
+  background: #666;
+}
+
+.dayNumber {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.15s;
+}
+
+.todayCell .dayNumber {
+  font-weight: 700;
+  box-shadow: 0 0 0 2px var(--accent-color);
+}
+
+.leaveDay {
+  color: #333;
+}
+
+[data-theme='dark'] .leaveDay {
+  color: #fff;
+}
+
+/* Leave type backgrounds */
+.leaveTypeAnnual {
+  background: #FFF9C4;
+}
+
+[data-theme='dark'] .leaveTypeAnnual {
+  background: #F9A825;
+}
+
+.leaveTypeSick {
+  background: #BBDEFB;
+}
+
+[data-theme='dark'] .leaveTypeSick {
+  background: #1976D2;
+}
+
+.leaveTypePersonal {
+  background: #FFE0B2;
+}
+
+[data-theme='dark'] .leaveTypePersonal {
+  background: #EF6C00;
+}
+
+.leaveTypeMarriage {
+  background: #F8BBD0;
+}
+
+[data-theme='dark'] .leaveTypeMarriage {
+  background: #C2185B;
+}
+
+.leaveTypeMaternity {
+  background: #E1BEE7;
+}
+
+[data-theme='dark'] .leaveTypeMaternity {
+  background: #7B1FA2;
+}
+
+.leaveIndicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-top: 2px;
+}
+
+.fullDayIndicator {
+  background: #666;
+}
+
+[data-theme='dark'] .fullDayIndicator {
+  background: #ccc;
+}
+
+.halfDayIndicator {
+  background: transparent;
+  border: 2px dashed #666;
+  border-radius: 50%;
+  width: 8px;
+  height: 8px;
+}
+
+[data-theme='dark'] .halfDayIndicator {
+  border-color: #ccc;
+}
+
+/* Legend */
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.legendDot {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.halfDayLegend {
+  width: 14px;
+  height: 14px;
+  border: 2px dashed #666;
+  border-radius: 50%;
+  background: transparent;
+}
+
+[data-theme='dark'] .halfDayLegend {
+  border-color: #ccc;
+}
+
+/* ===== Meal Subsidy Card ===== */
+
+.mealCard {
+  background: var(--hover-bg);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.mealCardTitle {
+  margin: 0 0 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.mealStats {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.mealStatItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mealStatLabel {
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+}
+
+.mealStatValue {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.mealStatValueSecondary {
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--text-tertiary);
+}
+
+.mealDeducted {
+  color: #d32f2f;
+}
+
+[data-theme='dark'] .mealDeducted {
+  color: #ef5350;
+}
+
+.mealPayable {
+  color: #388e3c;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+[data-theme='dark'] .mealPayable {
+  color: #66bb6a;
+}
+
+.mealClaimStatus {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.claimClaimed {
+  color: #388e3c;
+  font-weight: 600;
+}
+
+[data-theme='dark'] .claimClaimed {
+  color: #66bb6a;
+}
+
+.claimUnclaimed {
+  color: #d32f2f;
+  font-weight: 600;
+}
+
+[data-theme='dark'] .claimUnclaimed {
+  color: #ef5350;
+}
+
+.mealLeaveDetail {
+  border-top: 1px solid var(--border-color);
+  padding-top: 12px;
+}
+
+.mealEmptyNote {
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+  margin: 0;
+}
+
+.mealLeaveList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.mealLeaveItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.mealLeaveItem:last-child {
+  border-bottom: none;
+}
+
+.mealLeaveDate {
+  font-weight: 500;
+  color: var(--text-primary);
+  min-width: 80px;
+}
+
+.mealLeaveType {
+  min-width: 36px;
+}
+
+.mealLeaveDuration {
+  min-width: 32px;
+}
+
+.mealLeaveDeductTag {
+  margin-left: auto;
+  color: #d32f2f;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+[data-theme='dark'] .mealLeaveDeductTag {
+  color: #ef5350;
+}
+
+.mealLeaveNoDeductTag {
+  margin-left: auto;
+  color: #388e3c;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+[data-theme='dark'] .mealLeaveNoDeductTag {
+  color: #66bb6a;
+}
+
+/* ===== Yearly Summary ===== */
+
+.yearlySection {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+
+.yearlyGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.yearlyCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--card-bg);
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  font-family: inherit;
+}
+
+.yearlyCard:hover {
+  border-color: var(--accent-color);
+}
+
+.yearlyCardActive {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px var(--accent-color);
+}
+
+.yearlyCardDisabled {
+  opacity: 0.4;
+  cursor: default;
+  pointer-events: none;
+}
+
+.yearlyMonth {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.yearlyAmount {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.yearlyStatus {
+  font-size: 0.65rem;
+  font-weight: 500;
+}
+
+.yearlyClaimed {
+  color: #388e3c;
+}
+
+[data-theme='dark'] .yearlyClaimed {
+  color: #66bb6a;
+}
+
+.yearlyUnclaimed {
+  color: #d32f2f;
+}
+
+[data-theme='dark'] .yearlyUnclaimed {
+  color: #ef5350;
+}
+
+.yearlyTotals {
+  display: flex;
+  gap: 24px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+}
+
+.yearlyTotalItem {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.yearlyTotalValue {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ===== Calendar responsive ===== */
+
+@media (max-width: 1023px) {
+  .calendarLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .yearlyGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .yearlyGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .yearlyTotals {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .calendarCell[data-tooltip]:hover::after {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+  }
+
+  .mealLeaveDate {
+    min-width: 70px;
+    font-size: 0.75rem;
+  }
+}
