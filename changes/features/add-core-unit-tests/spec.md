@@ -32,22 +32,22 @@
 
 ### 1.4 测试优先级矩阵
 
-| 优先级 | 模块 | 类型 | 测试内容 | 行覆盖率目标 |
-|--------|------|------|---------|------------|
-| P0 | rag.service.ts | 纯逻辑 + DI | shouldReject、mergeResults、buildPrompt、getConfidenceLevel | > 90% |
-| P0 | rag.validator.ts | 纯函数 | validateAnswer 幻觉检测 | 100% |
-| P0 | keyword-search.service.ts | 纯逻辑 | 关键词匹配、分数计算、边界情况 | > 90% |
-| P0 | vector-store.service.ts | 纯逻辑 | cosineSimilarity、add/search/clear | > 90% |
-| P0 | useChat.ts hook | 状态机 | 消息状态转换、SSE 事件处理 | > 80% |
-| P0 | ChatMessage.tsx | 组件渲染 | 各状态渲染快照、事件回调 | > 80% |
-| P1 | chat.service.ts | DI 逻辑 | 对话 CRUD、历史管理 | > 85% |
-| P1 | auth.service.ts | DI 逻辑 | 用户验证、JWT 签发、角色检查 | > 85% |
-| P1 | DocumentCard.tsx | 组件渲染 | 分类色映射、点击交互 | > 80% |
-| P1 | markdown.ts | 纯函数 | 渲染安全性、格式转换 | 100% |
-| P2 | embed.service.ts | DI + HTTP | Embedding 调用封装 | > 70% |
-| P2 | llm.service.ts | DI + HTTP | LLM 调用封装 | > 70% |
-| P2 | DocumentUploader.tsx | 组件渲染 | 文件校验、上传状态 | > 70% |
-| P2 | user-profile.service.ts | 纯逻辑 | isPersonalQuery、formatForPrompt | > 80% |
+| 优先级 | 模块                      | 类型        | 测试内容                                                    | 行覆盖率目标 |
+| ------ | ------------------------- | ----------- | ----------------------------------------------------------- | ------------ |
+| P0     | rag.service.ts            | 纯逻辑 + DI | shouldReject、mergeResults、buildPrompt、getConfidenceLevel | > 90%        |
+| P0     | rag.validator.ts          | 纯函数      | validateAnswer 幻觉检测                                     | 100%         |
+| P0     | keyword-search.service.ts | 纯逻辑      | 关键词匹配、分数计算、边界情况                              | > 90%        |
+| P0     | vector-store.service.ts   | 纯逻辑      | cosineSimilarity、add/search/clear                          | > 90%        |
+| P0     | useChat.ts hook           | 状态机      | 消息状态转换、SSE 事件处理                                  | > 80%        |
+| P0     | ChatMessage.tsx           | 组件渲染    | 各状态渲染快照、事件回调                                    | > 80%        |
+| P1     | chat.service.ts           | DI 逻辑     | 对话 CRUD、历史管理                                         | > 85%        |
+| P1     | auth.service.ts           | DI 逻辑     | 用户验证、JWT 签发、角色检查                                | > 85%        |
+| P1     | DocumentCard.tsx          | 组件渲染    | 分类色映射、点击交互                                        | > 80%        |
+| P1     | markdown.ts               | 纯函数      | 渲染安全性、格式转换                                        | 100%         |
+| P2     | embed.service.ts          | DI + HTTP   | Embedding 调用封装                                          | > 70%        |
+| P2     | llm.service.ts            | DI + HTTP   | LLM 调用封装                                                | > 70%        |
+| P2     | DocumentUploader.tsx      | 组件渲染    | 文件校验、上传状态                                          | > 70%        |
+| P2     | user-profile.service.ts   | 纯逻辑      | isPersonalQuery、formatForPrompt                            | > 80%        |
 
 ---
 
@@ -55,13 +55,13 @@
 
 ### 2.1 测试框架选择
 
-| 项目 | 选择 | 原因 |
-|------|------|------|
-| Runner | Jest 29 | NestJS 原生支持，社区成熟 |
-| NestJS Testing | @nestjs/testing | NestJS 官方测试工具，支持 DI Mock |
-| Mock | jest-mock (内置) | 足够满足当前需求 |
-| Config | jest.config.ts | TypeScript 友好 |
-| Path Alias | moduleNameMapper | 匹配 `@/` 路径别名 |
+| 项目           | 选择             | 原因                              |
+| -------------- | ---------------- | --------------------------------- |
+| Runner         | Jest 29          | NestJS 原生支持，社区成熟         |
+| NestJS Testing | @nestjs/testing  | NestJS 官方测试工具，支持 DI Mock |
+| Mock           | jest-mock (内置) | 足够满足当前需求                  |
+| Config         | jest.config.ts   | TypeScript 友好                   |
+| Path Alias     | moduleNameMapper | 匹配 `@/` 路径别名                |
 
 ### 2.2 测试文件结构
 
@@ -214,14 +214,14 @@ describe('AuthService', () => {
 
 ### 3.1 测试框架选择
 
-| 项目 | 选择 | 原因 |
-|------|------|------|
-| Runner | Vitest 3 | Vite 原生集成，零配置启动 |
-| DOM | @testing-library/react | React 组件测试标准库 |
-| Hooks | @testing-library/react-hooks | 自定义 Hook 测试 |
-| Mock | vitest-mock (内置) | vi.fn()/vi.spyOn() |
-| Path Alias | vite.config.ts 全局 resolve.alias | 与生产构建一致 |
-| CSS Modules | identity-obj-proxy | 避免 CSS Module 编译错误 |
+| 项目        | 选择                              | 原因                      |
+| ----------- | --------------------------------- | ------------------------- |
+| Runner      | Vitest 3                          | Vite 原生集成，零配置启动 |
+| DOM         | @testing-library/react            | React 组件测试标准库      |
+| Hooks       | @testing-library/react-hooks      | 自定义 Hook 测试          |
+| Mock        | vitest-mock (内置)                | vi.fn()/vi.spyOn()        |
+| Path Alias  | vite.config.ts 全局 resolve.alias | 与生产构建一致            |
+| CSS Modules | identity-obj-proxy                | 避免 CSS Module 编译错误  |
 
 ### 3.2 测试文件结构
 
@@ -317,13 +317,13 @@ describe('renderMarkdown', () => {
     "@nestjs/testing": "^11.1.18",
     "jest": "^29.7.0",
     "ts-jest": "^29.3.0",
-    "@types/jest": "^29.5.14"
+    "@types/jest": "^29.5.14",
   },
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
-  }
+    "test:coverage": "jest --coverage",
+  },
 }
 ```
 
@@ -364,13 +364,13 @@ export default config;
     "@testing-library/jest-dom": "^6.6.0",
     "@testing-library/user-event": "^14.6.0",
     "jsdom": "^26.0.0",
-    "identity-obj-proxy": "^3.0.0"
+    "identity-obj-proxy": "^3.0.0",
   },
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
-  }
+    "test:coverage": "vitest run --coverage",
+  },
 }
 ```
 
@@ -393,12 +393,7 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
       include: ['src/**/*.{ts,tsx}'],
-      exclude: [
-        'src/**/*.test.*',
-        'src/**/*.d.ts',
-        'src/main.tsx',
-        'src/vite-env.d.ts',
-      ],
+      exclude: ['src/**/*.test.*', 'src/**/*.d.ts', 'src/main.tsx', 'src/vite-env.d.ts'],
     },
   },
   resolve: {
@@ -421,8 +416,8 @@ import '@testing-library/jest-dom';
 {
   "scripts": {
     "test": "pnpm --recursive test",
-    "test:coverage": "pnpm --recursive test:coverage"
-  }
+    "test:coverage": "pnpm --recursive test:coverage",
+  },
 }
 ```
 
@@ -501,6 +496,6 @@ add-core-unit-tests
 
 ## 7. Spec 演进记录
 
-| 日期 | 版本 | 变更内容 | 变更人 |
-|------|------|---------|--------|
-| 2026-06-09 | v1.0 | 初始版本，定义测试范围、框架、用例和验收标准 | — |
+| 日期       | 版本 | 变更内容                                     | 变更人 |
+| ---------- | ---- | -------------------------------------------- | ------ |
+| 2026-06-09 | v1.0 | 初始版本，定义测试范围、框架、用例和验收标准 | —      |

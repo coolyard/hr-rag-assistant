@@ -13,6 +13,7 @@
 ## 验收标准
 
 ### 后端
+
 - [ ] `pnpm --filter api test` 成功运行，Jest 发现并执行所有 `.spec.ts` 文件
 - [ ] `pnpm --filter api test:coverage` 显示覆盖率报告，核心模块 > 80%
 - [ ] RAGService P0 测试覆盖：mergeResults、shouldReject、getConfidenceLevel、buildPrompt
@@ -24,6 +25,7 @@
 - [ ] UserProfileService 个人数据测试：isPersonalQuery 判断、profile 获取
 
 ### 前端
+
 - [ ] `pnpm --filter web test` 成功运行，Vitest 发现并执行所有 `.test.tsx` 文件
 - [ ] ChatMessage 组件测试：用户气泡、加载态、流式态、完成态、Error 态
 - [ ] ConfidenceBadge 组件测试：三色标签渲染
@@ -34,6 +36,7 @@
 - [ ] renderMarkdown 工具函数测试：加粗/列表/代码渲染、XSS 转义
 
 ### CI
+
 - [ ] `.github/workflows/ci.yml` 包含 lint / format:check / test 三步
 - [ ] `pnpm test` 根目录可同时触发两端测试
 

@@ -25,7 +25,9 @@
   font-size: 0.9rem;
   color: var(--text-secondary);
   text-decoration: none;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .navLink:hover {

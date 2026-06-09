@@ -96,9 +96,7 @@ export class DocumentController {
       throw new NotFoundException('文档不存在');
     }
 
-    const docResults = this.vectorStore
-      .getAll()
-      .filter((r) => r.documentName === filename);
+    const docResults = this.vectorStore.getAll().filter((r) => r.documentName === filename);
     const title = docResults.length > 0 ? docResults[0].documentTitle : filename;
 
     return { id, filename, title, content };

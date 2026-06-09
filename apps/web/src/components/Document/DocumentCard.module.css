@@ -2,7 +2,9 @@
   border-radius: 12px;
   padding: 20px;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
   display: flex;
   flex-direction: column;
   gap: 8px;

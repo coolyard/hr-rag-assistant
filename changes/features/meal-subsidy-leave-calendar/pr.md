@@ -9,6 +9,7 @@
 ### Task-012: 扩展数据模型与预置数据 + 餐补计算引擎
 
 **后端修改 — `apps/api/src/auth/auth.interface.ts`**
+
 - 新增 `LeaveType` 类型、`LeaveRecord` 接口（date / type / duration）
 - 新增 `MonthlyMealSubsidy` 接口（12 字段: year ~ isFuture）
 - `UserProfile` 扩展 `leaveRecords: LeaveRecord[]` 和 `monthlyMealSubsidies: MonthlyMealSubsidy[]`
@@ -17,6 +18,7 @@
 - 同步更新 `annualLeaveUsed / sickLeaveUsed / personalLeaveUsed` 统计字段
 
 **后端新增 — `apps/api/src/user-profile/user-profile.service.ts`**
+
 - `calculateMonthlyMealSubsidies()` — 按月循环生成 1-12 月餐补统计
   - 每月默认 22 个工作日，每日 30 元
   - 全天请假（duration ≥ 1）扣除当天餐补；半天请假（duration = 0.5）不扣
@@ -27,11 +29,13 @@
 - `getProfile()` 修改 — 动态计算并注入所有年份的 `monthlyMealSubsidies`
 
 **后端修改 — `apps/api/src/user-profile/user-profile.interface.ts`**
+
 - `IUserProfileService` 新增 `getLeaveRecords`、`getMonthlyMealSubsidy`、`calculateMonthlyMealSubsidies`
 
 ### Task-013: 后端接口扩展
 
 **后端修改 — `apps/api/src/auth/auth.controller.ts`**
+
 - `MeController` 注入 `UserProfileService`
 - `GET /api/me` — 改用 `UserProfileService.getProfile()` 确保动态餐补数据注入
 - `GET /api/me/leave-records?year=&month=` — 返回当月请假列表 + 汇总（fullDayCount / halfDayCount / totalDeduction）
@@ -39,11 +43,13 @@
 - year/month 参数可选（默认当年当月），month 校验 1-12（400），用户不存在（404）
 
 **后端修改 — `apps/api/src/auth/auth.module.ts`**
+
 - 导入 `UserProfileModule` 以支持 `MeController` 注入 `UserProfileService`
 
 ### Task-014: RAG Prompt 注入扩展
 
 **后端修改 — `apps/api/src/user-profile/user-profile.service.ts`**
+
 - `isPersonalQuery()` 新增 3 条识别规则:
   - 第一人称 + 餐补同义词 (`/餐补|食补|饭贴|午餐补贴|餐饮补贴/`)
   - 第一人称 + 月份关键词 + 请假天数关键词 (`请了几天假|休了几天|请假天数`)
@@ -53,11 +59,13 @@
   - `formatMealSubsidies()` — 月度餐补统计（1-12 月应发/扣除/实发/申报状态 + 规则说明 + 本月摘要）
 
 **后端修改 — `apps/api/src/rag/keyword-search.service.ts`**
+
 - `HR_KEYWORDS` 新增 5 个条目: `餐补`、`食补`、`饭贴`、`午餐补贴`、`餐饮补贴`
 
 ### Task-015: 前端 Profile 页面扩展
 
 **前端修改 — `apps/web/src/pages/ProfilePage.tsx`**
+
 - 新增 `LeaveRecord` / `MonthlyMealSubsidy` 接口（含 `isFuture`）
 - 日历组件: 年/月下拉选择器（默认服务器当月），7 列网格，5 种请假类型着色
   - 年假 = 黄、病假 = 蓝、事假 = 橙、婚假 = 粉、产假 = 紫
@@ -70,6 +78,7 @@
 - 数据来源: `GET /api/me` 的 `profile.leaveRecords` 和 `profile.monthlyMealSubsidies`
 
 **前端新增样式 — `apps/web/src/pages/ProfilePage.module.css`**
+
 - 日历区域: `.calendarSection` / `.calendarGrid` / `.calendarCell` / `.dayHeader` / `.dayNumber`
 - 5 种请假类型颜色类（`.leaveTypeAnnual` ~ `.leaveTypeMaternity`）+ 深色模式变体
 - `.halfDayIndicator` 虚线圆圈 + `.fullDayIndicator` 实心圆点
@@ -118,13 +127,13 @@ GET /api/me/meal-subsidy?year=2025&month=1
 
 ### 个人问题识别（餐补/请假扩展）
 
-| 用户问题 | isPersonalQuery | 处理方式 |
-|---------|:---:|------|
-| "我这个月的餐补是多少？" | true | 注入餐补数据，回答实发金额 |
-| "我这个月的饭贴是多少？" | true | 同义词"饭贴"匹配，注入餐补数据 |
-| "我上个月请了几天假？" | true | 注入请假记录，回答上月请假明细 |
-| "我 4 月请了几天假？" | true | 具体月份 + 请假 匹配 |
-| "餐补制度是什么？" | false | 纯 RAG 检索，不注入个人数据 |
+| 用户问题                 | isPersonalQuery | 处理方式                       |
+| ------------------------ | :-------------: | ------------------------------ |
+| "我这个月的餐补是多少？" |      true       | 注入餐补数据，回答实发金额     |
+| "我这个月的饭贴是多少？" |      true       | 同义词"饭贴"匹配，注入餐补数据 |
+| "我上个月请了几天假？"   |      true       | 注入请假记录，回答上月请假明细 |
+| "我 4 月请了几天假？"    |      true       | 具体月份 + 请假 匹配           |
+| "餐补制度是什么？"       |      false      | 纯 RAG 检索，不注入个人数据    |
 
 ## Verification
 

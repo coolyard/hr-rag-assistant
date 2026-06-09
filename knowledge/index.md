@@ -8,15 +8,15 @@
 
 ## 知识索引（按关键词触发）
 
-| 关键词   | 知识文件             | 状态     | 内容概要                                                                                                                            |
-| -------- | -------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| 关键词   | 知识文件             | 状态      | 内容概要                                                                                                                                                    |
+| -------- | -------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Ollama   | `ollama-setup.md`    | ✅ 已沉淀 | 重试指数退避（`embed.service.ts:64-88`）、文本预处理（去 Markdown 符号 + 截断 4000 字符）、维度校验（768）、AbortSignal.timeout 超时、Streaming JSON 行解析 |
-| NestJS   | `nestjs-patterns.md` | ✅ 已沉淀 | AppModule → 10 子模块组织、全局 AuthGuard + @Public() 装饰器、Token DI（`LLM_CONFIG`/`EMBEDDING_CONFIG`）、OnModuleInit 文档加载、AsyncGenerator 流式 |
-| RAG      | `rag-tuning.md`      | ✅ 已沉淀 | 混合检索权重（向量 0.4 + 关键词 0.6）、阈值 0.5、四级拒绝策略、Token 估算（CJK=1/ASCII=0.5）、三级上下文压缩、追问生成、用户画像注入 |
-| SSE      | `sse-patterns.md`    | ✅ 已沉淀 | SSE 响应头（`X-Accel-Buffering: no`）、15s 心跳 + `req.on('close')` 清理、前端 `ReadableStream` + buffer 解析 + `requestAnimationFrame` 批量渲染 |
-| Theme    | `theme-css.md`       | ✅ 已沉淀 | CSS Variables 三模式（light/dark/system）、`prefers-color-scheme` 媒体查询、localStorage 持久化、CSS Modules 组件隔离          |
-| 文件上传 | `upload-patterns.md` | ✅ 已沉淀 | Multer multipart、`.md` 扩展名白名单、1MB 限制、上传后全量索引重建（清空 → 加载 → 批量 Embedding）、HR 角色限制               |
-| Git      | `git-workflow.md`    | ✅ 已沉淀 | release-please + GitHub Actions CI/CD、Conventional Commits 规范、SDAD 开发流程                                                   |
+| NestJS   | `nestjs-patterns.md` | ✅ 已沉淀 | AppModule → 10 子模块组织、全局 AuthGuard + @Public() 装饰器、Token DI（`LLM_CONFIG`/`EMBEDDING_CONFIG`）、OnModuleInit 文档加载、AsyncGenerator 流式       |
+| RAG      | `rag-tuning.md`      | ✅ 已沉淀 | 混合检索权重（向量 0.4 + 关键词 0.6）、阈值 0.5、四级拒绝策略、Token 估算（CJK=1/ASCII=0.5）、三级上下文压缩、追问生成、用户画像注入                        |
+| SSE      | `sse-patterns.md`    | ✅ 已沉淀 | SSE 响应头（`X-Accel-Buffering: no`）、15s 心跳 + `req.on('close')` 清理、前端 `ReadableStream` + buffer 解析 + `requestAnimationFrame` 批量渲染            |
+| Theme    | `theme-css.md`       | ✅ 已沉淀 | CSS Variables 三模式（light/dark/system）、`prefers-color-scheme` 媒体查询、localStorage 持久化、CSS Modules 组件隔离                                       |
+| 文件上传 | `upload-patterns.md` | ✅ 已沉淀 | Multer multipart、`.md` 扩展名白名单、1MB 限制、上传后全量索引重建（清空 → 加载 → 批量 Embedding）、HR 角色限制                                             |
+| Git      | `git-workflow.md`    | ✅ 已沉淀 | release-please + GitHub Actions CI/CD、Conventional Commits 规范、SDAD 开发流程                                                                             |
 
 ---
 
@@ -45,6 +45,7 @@ NestJS 端（`ask.controller.ts:22-26`）设置 `X-Accel-Buffering: no`（禁用
 ### 6. RAG 四级拒绝策略
 
 `rag.service.ts:197-228`：
+
 1. **阈值过滤** — 最高 hybridScore < 0.5 且无个人数据，直接拒绝
 2. **关键词兜底** — 无关键词匹配且向量最高分 < 0.5，拒绝
 3. **隐私保护** — 匹配 `([人名]的(工资|薪资))` 等正则，拒绝
@@ -58,6 +59,7 @@ NestJS 端（`ask.controller.ts:22-26`）设置 `X-Accel-Buffering: no`（禁用
 ### 8. 个人数据查询检测
 
 `user-profile.service.ts:16-35`：三步正则检测：
+
 - 第一人称（`我|我的|本人`） + HR 关键词（`年假|报销|考勤|工资` 等）
 - 数量模式（`还剩|还有|用了|多少|几天`）
 - 状态模式（`可以|能不能|是否符合|有没有资格`）
@@ -82,11 +84,11 @@ NestJS 端（`ask.controller.ts:22-26`）设置 `X-Accel-Buffering: no`（禁用
 
 ## 架构决策速查
 
-| 决策   | 文件                     | 要点                                                                                                    |
-| ------ | ------------------------ | ------------------------------------------------------------------------------------------------------- |
-| ADR-001 | `ARCHITECTURE.md:108-112` | NestJS 而非 Express — 模块化、DI、可测试性                                                              |
-| ADR-002 | `ARCHITECTURE.md:114-120` | Ollama 本地模型而非云端 API — Demo 零注册零费用；LLM/Embedding 通过接口抽象，可一键切换                  |
-| ADR-003 | `ARCHITECTURE.md:122-128` | In-Memory VectorStore 而非 Chroma — 当前 50-100 片段足够；`IVectorStore` 接口预留扩展点                  |
-| ADR-004 | `ARCHITECTURE.md:130-135` | 内存用户表 + JWT 而非数据库 — MVP 仅需区分 employee/hr 两种角色                                         |
-| ADR-005 | `ARCHITECTURE.md:137-142` | 自研 RAG Pipeline 而非 LangChain — 精细控制检索阈值、Prompt、混合检索权重，可控性优于抽象层             |
-| ADR-008 | `ARCHITECTURE.md:157-162` | `.md` 文件上传 + 自动索引重建 — 用户可扩展知识库，PDF/Word 超出 MVP 范围                               |
+| 决策    | 文件                      | 要点                                                                                        |
+| ------- | ------------------------- | ------------------------------------------------------------------------------------------- |
+| ADR-001 | `ARCHITECTURE.md:108-112` | NestJS 而非 Express — 模块化、DI、可测试性                                                  |
+| ADR-002 | `ARCHITECTURE.md:114-120` | Ollama 本地模型而非云端 API — Demo 零注册零费用；LLM/Embedding 通过接口抽象，可一键切换     |
+| ADR-003 | `ARCHITECTURE.md:122-128` | In-Memory VectorStore 而非 Chroma — 当前 50-100 片段足够；`IVectorStore` 接口预留扩展点     |
+| ADR-004 | `ARCHITECTURE.md:130-135` | 内存用户表 + JWT 而非数据库 — MVP 仅需区分 employee/hr 两种角色                             |
+| ADR-005 | `ARCHITECTURE.md:137-142` | 自研 RAG Pipeline 而非 LangChain — 精细控制检索阈值、Prompt、混合检索权重，可控性优于抽象层 |
+| ADR-008 | `ARCHITECTURE.md:157-162` | `.md` 文件上传 + 自动索引重建 — 用户可扩展知识库，PDF/Word 超出 MVP 范围                    |

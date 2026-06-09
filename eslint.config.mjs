@@ -11,7 +11,15 @@ const __dirname = dirname(__filename);
 
 export default tseslint.config(
   {
-    ignores: ['**/dist/**', '**/build/**', '**/node_modules/**', '.claude/**', '.idea/**'],
+    ignores: [
+      '**/dist/**',
+      '**/build/**',
+      '**/node_modules/**',
+      '.claude/**',
+      '.idea/**',
+      '**/jest.config.ts',
+      '**/vitest.config.ts',
+    ],
   },
   {
     files: ['apps/api/**/*.ts'],

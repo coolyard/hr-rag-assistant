@@ -28,7 +28,7 @@
   "@nestjs/testing": "^11.1.18",
   "jest": "^29.7.0",
   "ts-jest": "^29.3.0",
-  "@types/jest": "^29.5.14"
+  "@types/jest": "^29.5.14",
 }
 ```
 
@@ -38,7 +38,7 @@
 {
   "test": "jest",
   "test:watch": "jest --watch",
-  "test:coverage": "jest --coverage"
+  "test:coverage": "jest --coverage",
 }
 ```
 
@@ -95,7 +95,7 @@ describe('VectorStoreService', () => {
 
   describe('cosineSimilarity', () => {
     // 通过调用 add + search 间接测试 cosineSimilarity
-    
+
     it('相同向量应返回 1', () => {
       const vec = new Array(768).fill(0.1);
       service.add('test-1', vec, createMockMeta('test-1', '内容1'));
@@ -113,7 +113,11 @@ describe('VectorStoreService', () => {
 
     it('应返回 topK 个结果', () => {
       for (let i = 0; i < 5; i++) {
-        service.add(`item-${i}`, new Array(768).fill(i === 0 ? 0.9 : 0.1), createMockMeta(`item-${i}`, `内容${i}`));
+        service.add(
+          `item-${i}`,
+          new Array(768).fill(i === 0 ? 0.9 : 0.1),
+          createMockMeta(`item-${i}`, `内容${i}`),
+        );
       }
       const query = new Array(768).fill(0.9);
       const results = service.search(query, 3);
@@ -189,10 +193,7 @@ function createMockMeta(id: string, content: string) {
 import { validateAnswer } from '@/rag/rag.validator';
 
 describe('validateAnswer', () => {
-  const chunks = [
-    { content: '年假可休 5 天，2024年可休' },
-    { content: '报销额度 80%' },
-  ];
+  const chunks = [{ content: '年假可休 5 天，2024年可休' }, { content: '报销额度 80%' }];
 
   it('当回答中的数字都在 chunks 中存在时应通过', () => {
     const result = validateAnswer('年假可休 5 天', chunks);
@@ -225,7 +226,12 @@ import type { SearchResult } from '@/vector/vector.interface';
 describe('KeywordSearchService', () => {
   let service: KeywordSearchService;
 
-  const createMockChunk = (id: string, content: string, heading: string, categoryName: string): SearchResult => ({
+  const createMockChunk = (
+    id: string,
+    content: string,
+    heading: string,
+    categoryName: string,
+  ): SearchResult => ({
     chunkId: id,
     content,
     documentName: 'test.md',
@@ -271,9 +277,7 @@ describe('KeywordSearchService', () => {
   });
 
   it('无匹配关键词时应返回分数为 0 的结果', () => {
-    const chunks = [
-      createMockChunk('1', '没有任何匹配内容', '## 无关', '其他'),
-    ];
+    const chunks = [createMockChunk('1', '没有任何匹配内容', '## 无关', '其他')];
     const results = service.search('人工智能', chunks, 1);
     expect(results[0].normalizedScore).toBe(0);
   });
@@ -310,7 +314,9 @@ describe('AuthService', () => {
           provide: JwtService,
           useValue: {
             sign: vi.fn().mockReturnValue('mock-token'),
-            verify: vi.fn().mockReturnValue({ username: 'employee', sub: 'user-1', role: 'employee' }),
+            verify: vi
+              .fn()
+              .mockReturnValue({ username: 'employee', sub: 'user-1', role: 'employee' }),
           },
         },
       ],
@@ -542,7 +548,7 @@ pnpm --filter api test
   "@testing-library/jest-dom": "^6.6.0",
   "@testing-library/user-event": "^14.6.0",
   "jsdom": "^26.0.0",
-  "identity-obj-proxy": "^3.0.0"
+  "identity-obj-proxy": "^3.0.0",
 }
 ```
 
@@ -552,7 +558,7 @@ pnpm --filter api test
 {
   "test": "vitest run",
   "test:watch": "vitest",
-  "test:coverage": "vitest run --coverage"
+  "test:coverage": "vitest run --coverage",
 }
 ```
 
@@ -581,12 +587,7 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
       include: ['src/**/*.{ts,tsx}'],
-      exclude: [
-        'src/**/*.test.*',
-        'src/**/*.d.ts',
-        'src/main.tsx',
-        'src/vite-env.d.ts',
-      ],
+      exclude: ['src/**/*.test.*', 'src/**/*.d.ts', 'src/main.tsx', 'src/vite-env.d.ts'],
     },
   },
   resolve: {
@@ -613,7 +614,7 @@ import '@testing-library/jest-dom';
 
 在 `apps/web/src/utils/` 目录新建 `markdown.test.ts`：
 
-```typescript
+````typescript
 import { describe, it, expect } from 'vitest';
 import { renderMarkdown } from '@/utils/markdown';
 
@@ -645,7 +646,7 @@ describe('renderMarkdown', () => {
     expect(renderMarkdown('')).toBe('');
   });
 });
-```
+````
 
 ### 4.2 DocumentCard 组件测试
 
@@ -848,7 +849,7 @@ describe('DocumentUploader', () => {
 ```jsonc
 {
   "test": "pnpm --recursive test",
-  "test:coverage": "pnpm --recursive test:coverage"
+  "test:coverage": "pnpm --recursive test:coverage",
 }
 ```
 

@@ -131,7 +131,7 @@
   color: #388e3c;
 }
 
-[data-theme="dark"] .successGreen {
+[data-theme='dark'] .successGreen {
   color: #66bb6a;
 }
 
@@ -139,7 +139,7 @@
   color: #f57c00;
 }
 
-[data-theme="dark"] .warningOrange {
+[data-theme='dark'] .warningOrange {
   color: #ffa726;
 }
 
@@ -147,7 +147,7 @@
   color: #d32f2f;
 }
 
-[data-theme="dark"] .warningRed {
+[data-theme='dark'] .warningRed {
   color: #ef5350;
 }
 
@@ -155,7 +155,7 @@
   color: #1976d2;
 }
 
-[data-theme="dark"] .infoBlue {
+[data-theme='dark'] .infoBlue {
   color: #42a5f5;
 }
 
@@ -174,7 +174,7 @@
   color: #388e3c;
 }
 
-[data-theme="dark"] .pillSuccess {
+[data-theme='dark'] .pillSuccess {
   background: rgba(102, 187, 106, 0.15);
   color: #66bb6a;
 }
@@ -184,7 +184,7 @@
   color: #f57c00;
 }
 
-[data-theme="dark"] .pillWarning {
+[data-theme='dark'] .pillWarning {
   background: rgba(255, 167, 38, 0.15);
   color: #ffa726;
 }
@@ -489,43 +489,43 @@
 
 /* Leave type backgrounds */
 .leaveTypeAnnual {
-  background: #FFF9C4;
+  background: #fff9c4;
 }
 
 [data-theme='dark'] .leaveTypeAnnual {
-  background: #F9A825;
+  background: #f9a825;
 }
 
 .leaveTypeSick {
-  background: #BBDEFB;
+  background: #bbdefb;
 }
 
 [data-theme='dark'] .leaveTypeSick {
-  background: #1976D2;
+  background: #1976d2;
 }
 
 .leaveTypePersonal {
-  background: #FFE0B2;
+  background: #ffe0b2;
 }
 
 [data-theme='dark'] .leaveTypePersonal {
-  background: #EF6C00;
+  background: #ef6c00;
 }
 
 .leaveTypeMarriage {
-  background: #F8BBD0;
+  background: #f8bbd0;
 }
 
 [data-theme='dark'] .leaveTypeMarriage {
-  background: #C2185B;
+  background: #c2185b;
 }
 
 .leaveTypeMaternity {
-  background: #E1BEE7;
+  background: #e1bee7;
 }
 
 [data-theme='dark'] .leaveTypeMaternity {
-  background: #7B1FA2;
+  background: #7b1fa2;
 }
 
 .leaveIndicator {
@@ -777,7 +777,9 @@
   border-radius: 8px;
   background: var(--card-bg);
   cursor: pointer;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
   font-family: inherit;
 }
 
