@@ -1,13 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpException,
-  HttpStatus,
-  Post,
-  Query,
-  Req,
-} from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Post, Query, Req } from '@nestjs/common';
 import type { Request } from 'express';
 
 import type { LoginRequest, LoginResponse, UserPayload } from '@/auth/auth.interface';
@@ -67,16 +58,8 @@ export class MeController {
     const resolvedYear = year ? Number(year) : currentYear;
     const resolvedMonth = month ? Number(month) : currentMonth;
 
-    if (
-      isNaN(resolvedYear) ||
-      isNaN(resolvedMonth) ||
-      resolvedMonth < 1 ||
-      resolvedMonth > 12
-    ) {
-      throw new HttpException(
-        'Invalid year or month parameter',
-        HttpStatus.BAD_REQUEST,
-      );
+    if (isNaN(resolvedYear) || isNaN(resolvedMonth) || resolvedMonth < 1 || resolvedMonth > 12) {
+      throw new HttpException('Invalid year or month parameter', HttpStatus.BAD_REQUEST);
     }
 
     const records = this.userProfileService.getLeaveRecords(
@@ -121,16 +104,8 @@ export class MeController {
     const resolvedYear = year ? Number(year) : currentYear;
     const resolvedMonth = month ? Number(month) : currentMonth;
 
-    if (
-      isNaN(resolvedYear) ||
-      isNaN(resolvedMonth) ||
-      resolvedMonth < 1 ||
-      resolvedMonth > 12
-    ) {
-      throw new HttpException(
-        'Invalid year or month parameter',
-        HttpStatus.BAD_REQUEST,
-      );
+    if (isNaN(resolvedYear) || isNaN(resolvedMonth) || resolvedMonth < 1 || resolvedMonth > 12) {
+      throw new HttpException('Invalid year or month parameter', HttpStatus.BAD_REQUEST);
     }
 
     const subsidy = this.userProfileService.getMonthlyMealSubsidy(

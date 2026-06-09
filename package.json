@@ -10,7 +10,9 @@
     "preview": "pnpm build && pnpm start",
     "lint": "eslint .",
     "format": "prettier --write \"**/*.{ts,tsx,js,mjs,cjs,json,css,html,md}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,js,mjs,cjs,json,css,html,md}\""
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,mjs,cjs,json,css,html,md}\"",
+    "test": "pnpm --recursive test",
+    "test:coverage": "pnpm --recursive test:coverage"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",

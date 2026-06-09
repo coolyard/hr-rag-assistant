@@ -151,8 +151,7 @@ export const ProfilePage: FC = () => {
     const d = new Date();
     const srvYear = d.getFullYear();
     const srvMonth = d.getMonth() + 1;
-    const maxMonth =
-      selectedYear > srvYear ? 0 : selectedYear === srvYear ? srvMonth : 12;
+    const maxMonth = selectedYear > srvYear ? 0 : selectedYear === srvYear ? srvMonth : 12;
     if (selectedMonth > maxMonth && maxMonth > 0) {
       setSelectedMonth(maxMonth);
     }
@@ -192,7 +191,13 @@ export const ProfilePage: FC = () => {
         <div className={styles.container}>
           <div className={styles.errorState}>
             <p className={styles.errorText}>加载失败，请刷新重试</p>
-            <button className={styles.retryButton} onClick={() => { void fetchProfile(); }} type="button">
+            <button
+              className={styles.retryButton}
+              onClick={() => {
+                void fetchProfile();
+              }}
+              type="button"
+            >
               刷新
             </button>
           </div>
@@ -208,9 +213,10 @@ export const ProfilePage: FC = () => {
     return d.getFullYear() === selectedYear && d.getMonth() + 1 === selectedMonth;
   });
 
-  const selectedMonthSubsidy = profile.monthlyMealSubsidies.find(
-    (s) => s.year === selectedYear && s.month === selectedMonth,
-  ) ?? null;
+  const selectedMonthSubsidy =
+    profile.monthlyMealSubsidies.find(
+      (s) => s.year === selectedYear && s.month === selectedMonth,
+    ) ?? null;
 
   const leaveMapByDate = new Map<string, LeaveRecord>();
   for (const r of profile.leaveRecords) {
@@ -224,9 +230,7 @@ export const ProfilePage: FC = () => {
     ]),
   ].sort();
 
-  const yearSubsidies = profile.monthlyMealSubsidies.filter(
-    (s) => s.year === selectedYear,
-  );
+  const yearSubsidies = profile.monthlyMealSubsidies.filter((s) => s.year === selectedYear);
 
   const serverYear = now.getFullYear();
   const serverMonth = now.getMonth() + 1;
@@ -337,7 +341,8 @@ export const ProfilePage: FC = () => {
               </div>
             </div>
             <div className={styles.summaryPill}>
-              本月迟到 {String(profile.lateCountThisMonth)} 次 · 调休 {String(profile.overtimeBalanceHours)}h
+              本月迟到 {String(profile.lateCountThisMonth)} 次 · 调休{' '}
+              {String(profile.overtimeBalanceHours)}h
             </div>
           </div>
 
@@ -397,7 +402,9 @@ export const ProfilePage: FC = () => {
           <h3 className={styles.sectionTitle}>补贴明细</h3>
           <div className={styles.detailRow}>
             <div className={styles.detailItem}>
-              <span className={styles.detailValue}>{String(profile.communicationSubsidy)} 元/月</span>
+              <span className={styles.detailValue}>
+                {String(profile.communicationSubsidy)} 元/月
+              </span>
               <span className={styles.detailLabel}>通讯补贴</span>
             </div>
             <div className={styles.detailItem}>
@@ -410,9 +417,7 @@ export const ProfilePage: FC = () => {
             </div>
             {profile.lastPromotionDate && (
               <div className={styles.detailItem}>
-                <span className={styles.detailValue}>
-                  {formatDate(profile.lastPromotionDate)}
-                </span>
+                <span className={styles.detailValue}>{formatDate(profile.lastPromotionDate)}</span>
                 <span className={styles.detailLabel}>上次晋升</span>
               </div>
             )}
@@ -433,21 +438,29 @@ export const ProfilePage: FC = () => {
               <select
                 className={styles.yearSelect}
                 value={selectedYear}
-                onChange={(e) => { setSelectedYear(Number(e.target.value)); }}
+                onChange={(e) => {
+                  setSelectedYear(Number(e.target.value));
+                }}
               >
                 {availableYears.map((y) => (
-                  <option key={y} value={y}>{String(y)} 年</option>
+                  <option key={y} value={y}>
+                    {String(y)} 年
+                  </option>
                 ))}
               </select>
               <select
                 className={styles.monthSelect}
                 value={selectedMonth}
-                onChange={(e) => { setSelectedMonth(Number(e.target.value)); }}
+                onChange={(e) => {
+                  setSelectedMonth(Number(e.target.value));
+                }}
               >
                 {Array.from({ length: 12 }, (_, i) => i + 1)
                   .filter((m) => m <= maxSelectableMonth)
                   .map((m) => (
-                    <option key={m} value={m}>{String(m)} 月</option>
+                    <option key={m} value={m}>
+                      {String(m)} 月
+                    </option>
                   ))}
               </select>
             </div>
@@ -562,15 +575,15 @@ export const ProfilePage: FC = () => {
                         {selectedMonthLeaveRecords.map((r) => (
                           <li key={r.date} className={styles.mealLeaveItem}>
                             <span className={styles.mealLeaveDate}>{r.date}</span>
-                            <span className={styles.mealLeaveType}>
-                              {LEAVE_TYPE_LABEL[r.type]}
-                            </span>
+                            <span className={styles.mealLeaveType}>{LEAVE_TYPE_LABEL[r.type]}</span>
                             <span className={styles.mealLeaveDuration}>
                               {r.duration === 0.5 ? '半天' : '全天'}
                             </span>
                             <span
                               className={
-                                r.duration >= 1 ? styles.mealLeaveDeductTag : styles.mealLeaveNoDeductTag
+                                r.duration >= 1
+                                  ? styles.mealLeaveDeductTag
+                                  : styles.mealLeaveNoDeductTag
                               }
                             >
                               {r.duration >= 1 ? '扣款 30 元' : '不扣款'}
@@ -601,20 +614,21 @@ export const ProfilePage: FC = () => {
             <select
               className={styles.yearSelect}
               value={selectedYear}
-              onChange={(e) => { setSelectedYear(Number(e.target.value)); }}
+              onChange={(e) => {
+                setSelectedYear(Number(e.target.value));
+              }}
             >
               {availableYears.map((y) => (
-                <option key={y} value={y}>{String(y)} 年</option>
+                <option key={y} value={y}>
+                  {String(y)} 年
+                </option>
               ))}
             </select>
           </div>
           <div className={styles.yearlyGrid}>
             {yearSubsidies.map((s) =>
               s.isFuture ? (
-                <div
-                  key={s.month}
-                  className={`${styles.yearlyCard} ${styles.yearlyCardDisabled}`}
-                >
+                <div key={s.month} className={`${styles.yearlyCard} ${styles.yearlyCardDisabled}`}>
                   <span className={styles.yearlyMonth}>{String(s.month)}月</span>
                   <span className={styles.yearlyAmount}>—</span>
                 </div>
@@ -623,7 +637,9 @@ export const ProfilePage: FC = () => {
                   key={s.month}
                   type="button"
                   className={`${styles.yearlyCard} ${s.month === selectedMonth ? styles.yearlyCardActive : ''}`}
-                  onClick={() => { setSelectedMonth(s.month); }}
+                  onClick={() => {
+                    setSelectedMonth(s.month);
+                  }}
                 >
                   <span className={styles.yearlyMonth}>{String(s.month)}月</span>
                   <span className={styles.yearlyAmount}>{String(s.payableAmount)}</span>
@@ -641,7 +657,8 @@ export const ProfilePage: FC = () => {
               已申报总额：<span className={styles.yearlyTotalValue}>{String(claimedTotal)} 元</span>
             </span>
             <span className={styles.yearlyTotalItem}>
-              未申报总额：<span className={styles.yearlyTotalValue}>{String(unclaimedTotal)} 元</span>
+              未申报总额：
+              <span className={styles.yearlyTotalValue}>{String(unclaimedTotal)} 元</span>
             </span>
           </div>
         </div>

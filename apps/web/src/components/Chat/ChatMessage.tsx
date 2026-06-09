@@ -83,9 +83,7 @@ export const ChatMessage: FC<ChatMessageProps> = ({ message, onFollowUp }) => {
         {message.status === 'error' && message.error && (
           <p className={styles.errorText}>{message.error}</p>
         )}
-        {message.status === 'complete' && message.hallucinationWarning && (
-          <HallucinationWarning />
-        )}
+        {message.status === 'complete' && message.hallucinationWarning && <HallucinationWarning />}
         {message.status === 'complete' && message.sources && message.sources.length > 0 && (
           <div className={styles.sourcesSection}>
             <p className={styles.sourcesLabel}>参考来源：</p>

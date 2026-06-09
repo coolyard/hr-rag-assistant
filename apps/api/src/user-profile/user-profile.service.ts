@@ -1,11 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 
-import type {
-  LeaveRecord,
-  MonthlyMealSubsidy,
-  User,
-  UserProfile,
-} from '@/auth/auth.interface';
+import type { LeaveRecord, MonthlyMealSubsidy, User, UserProfile } from '@/auth/auth.interface';
 import { AuthService } from '@/auth/auth.service';
 import type { IUserProfileService } from '@/user-profile/user-profile.interface';
 
@@ -34,12 +29,7 @@ export class UserProfileService implements IUserProfileService {
 
     const allSubsidies: MonthlyMealSubsidy[] = [];
     for (const year of years) {
-      allSubsidies.push(
-        ...this.calculateMonthlyMealSubsidies(
-          profile.leaveRecords,
-          year,
-        ),
-      );
+      allSubsidies.push(...this.calculateMonthlyMealSubsidies(profile.leaveRecords, year));
     }
     profile.monthlyMealSubsidies = allSubsidies.sort(
       (a, b) => a.year - b.year || a.month - b.month,
@@ -48,11 +38,7 @@ export class UserProfileService implements IUserProfileService {
     return profile;
   }
 
-  getLeaveRecords(
-    userId: string,
-    year: number,
-    month: number,
-  ): LeaveRecord[] {
+  getLeaveRecords(userId: string, year: number, month: number): LeaveRecord[] {
     const profile = this.getProfile(userId);
     if (!profile) {
       this.logger.warn(`User not found: ${userId}`);
@@ -64,23 +50,14 @@ export class UserProfileService implements IUserProfileService {
     });
   }
 
-  getMonthlyMealSubsidy(
-    userId: string,
-    year: number,
-    month: number,
-  ): MonthlyMealSubsidy | null {
+  getMonthlyMealSubsidy(userId: string, year: number, month: number): MonthlyMealSubsidy | null {
     const user = this.authService.getUserById(userId);
     if (!user) {
       this.logger.warn(`User not found: ${userId}`);
       return null;
     }
-    const subsidies = this.calculateMonthlyMealSubsidies(
-      user.profile.leaveRecords,
-      year,
-    );
-    return (
-      subsidies.find((s) => s.month === month) ?? null
-    );
+    const subsidies = this.calculateMonthlyMealSubsidies(user.profile.leaveRecords, year);
+    return subsidies.find((s) => s.month === month) ?? null;
   }
 
   calculateMonthlyMealSubsidies(
@@ -102,17 +79,14 @@ export class UserProfileService implements IUserProfileService {
         .filter((r) => r.duration >= 1)
         .reduce((sum, r) => sum + r.duration, 0);
 
-      const halfDayLeaveCount = monthLeaves.filter(
-        (r) => r.duration === 0.5,
-      ).length;
+      const halfDayLeaveCount = monthLeaves.filter((r) => r.duration === 0.5).length;
 
       const totalAmount = DEFAULT_WORKDAYS * DAILY_MEAL_AMOUNT;
       const deductedAmount = Math.round(fullDayLeaveCount * DAILY_MEAL_AMOUNT);
       const payableAmount = totalAmount - deductedAmount;
 
       const isFuture =
-        currentYear > serverYear ||
-        (currentYear === serverYear && month > serverMonth);
+        currentYear > serverYear || (currentYear === serverYear && month > serverMonth);
 
       let isClaimed: boolean;
       if (currentYear < serverYear) {
@@ -152,8 +126,7 @@ export class UserProfileService implements IUserProfileService {
       return true;
     }
 
-    const quantityPatterns =
-      /(?:我|我的).*?(?:还剩|还有|用了|已用|剩余|多少|几天|几小时|多少钱)/;
+    const quantityPatterns = /(?:我|我的).*?(?:还剩|还有|用了|已用|剩余|多少|几天|几小时|多少钱)/;
     if (quantityPatterns.test(lower)) {
       return true;
     }
@@ -165,11 +138,7 @@ export class UserProfileService implements IUserProfileService {
 
     const monthKeywords = /这个月|上个月|本月|上月|这几个月|今年/;
     const leaveDayKeywords = /请了几天假|休了几天|请假天数/;
-    if (
-      firstPerson.test(lower) &&
-      monthKeywords.test(lower) &&
-      leaveDayKeywords.test(lower)
-    ) {
+    if (firstPerson.test(lower) && monthKeywords.test(lower) && leaveDayKeywords.test(lower)) {
       return true;
     }
 
@@ -179,8 +148,7 @@ export class UserProfileService implements IUserProfileService {
       return true;
     }
 
-    const statusPatterns =
-      /(?:我|我的).*?(?:可以|能不能|是否符合|有没有资格|还能|是否可以)/;
+    const statusPatterns = /(?:我|我的).*?(?:可以|能不能|是否符合|有没有资格|还能|是否可以)/;
     return statusPatterns.test(lower);
   }
 
@@ -270,9 +238,7 @@ export class UserProfileService implements IUserProfileService {
     const lines = subsidies.map((s) => {
       const status = s.isClaimed ? '已申报' : '未申报';
       const halfDayNote =
-        s.halfDayLeaveCount > 0
-          ? `（含${String(s.halfDayLeaveCount)}个半天假，不扣餐补）`
-          : '';
+        s.halfDayLeaveCount > 0 ? `（含${String(s.halfDayLeaveCount)}个半天假，不扣餐补）` : '';
       return `- ${String(s.month)}月：工作日${String(s.totalWorkdays)}天，请假${String(s.fullDayLeaveCount)}天${halfDayNote}，应发${String(s.totalAmount)}元，扣除${String(s.deductedAmount)}元，实发${String(s.payableAmount)}元【${status}】`;
     });
 
