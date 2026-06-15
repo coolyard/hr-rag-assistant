@@ -19,6 +19,8 @@ export default tseslint.config(
       '.idea/**',
       '**/jest.config.ts',
       '**/vitest.config.ts',
+      'apps/web/e2e/**',
+      'apps/web/playwright.config.ts',
     ],
   },
   {

@@ -131,3 +131,9 @@ ollama-models/
 # package-lock.json
 # yarn.lock
 # pnpm-lock.yaml
+
+# ============================================================
+# Playwright E2E test artifacts
+# ============================================================
+test-results/
+playwright-report/
