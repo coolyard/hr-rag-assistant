@@ -7,6 +7,7 @@ export interface AskStreamChunk {
   chunk: string;
   done: boolean;
   status?: string;
+  reasoning?: string;
   followUps?: string[];
   sources?: SourceCitation[];
   confidenceLevel?: 'high' | 'medium' | 'low';

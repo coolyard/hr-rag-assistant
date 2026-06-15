@@ -14,6 +14,7 @@ export interface Message {
   hallucinationWarning?: string;
   status?: 'sending' | 'streaming' | 'complete' | 'error';
   error?: string;
+  reasoning?: string;
 }
 
 function generateId(prefix: string): string {
@@ -103,6 +104,16 @@ export function useChat() {
             setMessages((prev) =>
               prev.map((m) =>
                 m.id === assistantMsg.id ? { ...m, followUps: chunk.followUps } : m,
+              ),
+            );
+          }
+
+          if (chunk.reasoning) {
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === assistantMsg.id
+                  ? { ...m, reasoning: (m.reasoning ?? '') + (chunk.reasoning ?? '') }
+                  : m,
               ),
             );
           }

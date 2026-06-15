@@ -1,4 +1,4 @@
-import { type FC, useCallback, useState } from 'react';
+import { type FC, useCallback, useEffect, useState } from 'react';
 
 import type { SourceCitation } from '@/api/sse';
 import styles from '@/components/Chat/ChatMessage.module.css';
@@ -43,6 +43,62 @@ const CitationCard: FC<CitationCardProps> = ({ citation, confidenceLevel }) => {
   );
 };
 
+interface ThinkingSectionProps {
+  reasoning: string;
+  isStreaming: boolean;
+}
+
+const ThinkingSection: FC<ThinkingSectionProps> = ({ reasoning, isStreaming }) => {
+  const [expanded, setExpanded] = useState(isStreaming);
+
+  useEffect(() => {
+    if (isStreaming) {
+      setExpanded(true);
+    }
+  }, [isStreaming]);
+
+  useEffect(() => {
+    if (!isStreaming && expanded) {
+      const timer = setTimeout(() => {
+        setExpanded(false);
+      }, 3000);
+      return () => {
+        clearTimeout(timer);
+      };
+    }
+  }, [isStreaming, expanded]);
+
+  const toggle = useCallback(() => {
+    setExpanded((prev) => !prev);
+  }, []);
+
+  if (reasoning.length === 0) {
+    return null;
+  }
+
+  const chevron = expanded ? '▾' : '▸';
+
+  return (
+    <div className={styles.thinkingSection}>
+      <div
+        className={styles.thinkingHeader}
+        onClick={toggle}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') toggle();
+        }}
+      >
+        <span className={styles.thinkingChevron}>{chevron}</span>
+        <span className={styles.thinkingLabel}>{isStreaming ? '思考中...' : '思考过程'}</span>
+      </div>
+      <div className={expanded ? styles.thinkingContentExpanded : styles.thinkingContent}>
+        <p className={styles.thinkingText}>{reasoning}</p>
+      </div>
+    </div>
+  );
+};
+
 interface ChatMessageProps {
   message: Message;
   onFollowUp?: (question: string) => void;
@@ -66,6 +122,12 @@ export const ChatMessage: FC<ChatMessageProps> = ({ message, onFollowUp }) => {
   return (
     <div className={styles.assistantRow}>
       <div className={styles.assistantBubble}>
+        {message.reasoning && (
+          <ThinkingSection
+            reasoning={message.reasoning}
+            isStreaming={message.status === 'sending' || message.status === 'streaming'}
+          />
+        )}
         {isLoading && !hasContent && (
           <div className={styles.loadingDots}>
             <span className={styles.dot}>●</span>

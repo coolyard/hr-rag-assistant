@@ -111,7 +111,7 @@ const data: AskStreamChunk = {
   chunk: chunk.token,
   done: chunk.done,
   status: chunk.status,
-  reasoning: chunk.reasoning,        // 新增
+  reasoning: chunk.reasoning, // 新增
   followUps: chunk.followUps,
   sources: chunk.sources,
   confidenceLevel: chunk.confidenceLevel,
@@ -161,9 +161,7 @@ cd apps/api && npx tsc --noEmit
 if (chunk.reasoning) {
   setMessages((prev) =>
     prev.map((m) =>
-      m.id === assistantMsg.id
-        ? { ...m, reasoning: ((m.reasoning ?? '') + chunk.reasoning!) }
-        : m,
+      m.id === assistantMsg.id ? { ...m, reasoning: (m.reasoning ?? '') + chunk.reasoning! } : m,
     ),
   );
 }
@@ -228,12 +226,12 @@ const ThinkingSection: FC<ThinkingSectionProps> = ({ reasoning, isStreaming }) =
         onClick={toggle}
         role="button"
         tabIndex={0}
-        onKeyDown={(e) => { if (e.key === 'Enter') toggle(); }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') toggle();
+        }}
       >
         <span className={styles.thinkingChevron}>{chevron}</span>
-        <span className={styles.thinkingLabel}>
-          {isStreaming ? '思考中...' : '思考过程'}
-        </span>
+        <span className={styles.thinkingLabel}>{isStreaming ? '思考中...' : '思考过程'}</span>
       </div>
       <div className={expanded ? styles.thinkingContentExpanded : styles.thinkingContent}>
         <p className={styles.thinkingText}>{reasoning}</p>
@@ -250,12 +248,14 @@ const ThinkingSection: FC<ThinkingSectionProps> = ({ reasoning, isStreaming }) =
 在 assistant 分支中，在 `assistantBubble` div 内部、laoding dots 之前，插入：
 
 ```tsx
-{message.reasoning && (
-  <ThinkingSection
-    reasoning={message.reasoning}
-    isStreaming={message.status === 'sending' || message.status === 'streaming'}
-  />
-)}
+{
+  message.reasoning && (
+    <ThinkingSection
+      reasoning={message.reasoning}
+      isStreaming={message.status === 'sending' || message.status === 'streaming'}
+    />
+  );
+}
 ```
 
 ### T-06：ChatMessage.module.css 新增思考过程样式
@@ -301,7 +301,9 @@ const ThinkingSection: FC<ThinkingSectionProps> = ({ reasoning, isStreaming }) =
   max-height: 0;
   opacity: 0;
   overflow: hidden;
-  transition: max-height 0.2s ease, opacity 0.2s ease;
+  transition:
+    max-height 0.2s ease,
+    opacity 0.2s ease;
 }
 
 .thinkingContentExpanded {
@@ -313,7 +315,9 @@ const ThinkingSection: FC<ThinkingSectionProps> = ({ reasoning, isStreaming }) =
   background: var(--bg-secondary);
   border-left: 2px solid var(--accent-color);
   border-radius: 0 6px 6px 0;
-  transition: max-height 0.2s ease, opacity 0.2s ease;
+  transition:
+    max-height 0.2s ease,
+    opacity 0.2s ease;
 }
 
 .thinkingText {
@@ -383,6 +387,7 @@ function buildSSEResponse(): string {
 ```
 
 > 注意：在 `buildSSEResponse` 顶部要导入 `MOCK_REASONING_CHUNKS`：
+>
 > ```typescript
 > import { ..., MOCK_REASONING_CHUNKS } from '../fixtures/test-data';
 > ```

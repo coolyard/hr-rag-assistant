@@ -3,6 +3,7 @@ import {
   MOCK_DOCUMENTS,
   MOCK_DOCUMENT_CONTENT,
   MOCK_PROFILE,
+  MOCK_REASONING_CHUNKS,
   MOCK_SSE_CHUNKS,
   MOCK_SSE_SOURCES,
   MOCK_SSE_FOLLOWUPS,
@@ -15,6 +16,11 @@ import { MOCK_TOKENS } from '../utils/jwt';
  */
 function buildSSEResponse(): string {
   let sseData = '';
+  // 先发送 reasoning 片段（思考过程）
+  for (const reasoning of MOCK_REASONING_CHUNKS) {
+    sseData += `data: ${JSON.stringify({ chunk: '', done: false, reasoning })}\n\n`;
+  }
+  // 再发送内容 chunk（回答正文）
   for (const chunk of MOCK_SSE_CHUNKS) {
     sseData += `data: ${JSON.stringify({ chunk, done: false })}\n\n`;
   }

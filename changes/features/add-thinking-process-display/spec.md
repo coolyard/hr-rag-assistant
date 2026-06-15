@@ -61,7 +61,7 @@ export interface StreamChunk {
   token: string;
   done: boolean;
   status?: string;
-  reasoning?: string;        // 新增：思考过程文本片段
+  reasoning?: string; // 新增：思考过程文本片段
   followUps?: string[];
   sources?: SourceCitation[];
   confidenceLevel?: 'high' | 'medium' | 'low';
@@ -77,7 +77,7 @@ export interface AskStreamChunk {
   chunk: string;
   done: boolean;
   status?: string;
-  reasoning?: string;        // 新增：思考过程文本片段
+  reasoning?: string; // 新增：思考过程文本片段
   followUps?: string[];
   sources?: SourceCitation[];
   confidenceLevel?: 'high' | 'medium' | 'low';
@@ -92,7 +92,7 @@ export interface AskStreamChunk {
 ```typescript
 export interface AskStreamChunk {
   // 现有字段不变...
-  reasoning?: string;        // 新增：思考过程文本片段
+  reasoning?: string; // 新增：思考过程文本片段
 }
 ```
 
@@ -110,7 +110,7 @@ export interface Message {
   hallucinationWarning?: string;
   status?: 'sending' | 'streaming' | 'complete' | 'error';
   error?: string;
-  reasoning?: string;        // 新增：完整的思考过程文本
+  reasoning?: string; // 新增：完整的思考过程文本
 }
 ```
 
@@ -133,13 +133,13 @@ ChatMessage (assistant)
 
 ### 2.4 UI 行为规范
 
-| 状态 | 行为 |
-|------|------|
+| 状态                           | 行为                                                 |
+| ------------------------------ | ---------------------------------------------------- |
 | 思考中（reasoning 流式输入中） | 默认展开，实时滚动显示最新内容，头部显示 "思考中..." |
-| 思考完成，回答生成中 | 保持展开，头部显示 "✓ 思考完成" |
-| 回答也完成 | 自动折叠，头部显示 "✓ 思考过程" |
-| 用户点击头部 | 切换展开/折叠状态 |
-| 没有 reasoning 内容 | 不渲染思考过程区域（向后兼容） |
+| 思考完成，回答生成中           | 保持展开，头部显示 "✓ 思考完成"                      |
+| 回答也完成                     | 自动折叠，头部显示 "✓ 思考过程"                      |
+| 用户点击头部                   | 切换展开/折叠状态                                    |
+| 没有 reasoning 内容            | 不渲染思考过程区域（向后兼容）                       |
 
 ### 2.5 视觉设计
 
@@ -156,42 +156,47 @@ ChatMessage (assistant)
 
 ## 3. 实现任务分解
 
-| Task ID | 描述 | 涉及文件 |
-|---------|------|----------|
-| T-01 | 后端接口层：`StreamChunk` / `AskStreamChunk` 增加 `reasoning` 字段 | `rag.interface.ts`, `ask.interface.ts` |
-| T-02 | 后端业务层：`rag.service.ts` orchestrate 各阶段 yield reasoning | `rag.service.ts` |
-| T-03 | 后端传输层：`ask.controller.ts` 传递 `reasoning` 到 SSE | `ask.controller.ts` |
-| T-04 | 前端类型层：`sse.ts` 和 `useChat.ts` 的 Message/AskStreamChunk 增加 reasoning | `sse.ts`, `useChat.ts` |
-| T-05 | 前端组件：`ChatMessage.tsx` 新增 ThinkingSection，包含折叠展开交互 | `ChatMessage.tsx` |
-| T-06 | 前端样式：`ChatMessage.module.css` 新增思考过程 CSS 样式 | `ChatMessage.module.css` |
-| T-07 | E2E Mock 更新：`test-data.ts` / `api-handlers.ts` 增加 reasoning mock 数据 | `test-data.ts`, `api-handlers.ts` |
-| T-08 | E2E 测试更新：新增 5 个思考过程测试用例，更新 chat spec | `chat.spec.ts`, 新增 `thinking.spec.ts` |
+| Task ID | 描述                                                                          | 涉及文件                                |
+| ------- | ----------------------------------------------------------------------------- | --------------------------------------- |
+| T-01    | 后端接口层：`StreamChunk` / `AskStreamChunk` 增加 `reasoning` 字段            | `rag.interface.ts`, `ask.interface.ts`  |
+| T-02    | 后端业务层：`rag.service.ts` orchestrate 各阶段 yield reasoning               | `rag.service.ts`                        |
+| T-03    | 后端传输层：`ask.controller.ts` 传递 `reasoning` 到 SSE                       | `ask.controller.ts`                     |
+| T-04    | 前端类型层：`sse.ts` 和 `useChat.ts` 的 Message/AskStreamChunk 增加 reasoning | `sse.ts`, `useChat.ts`                  |
+| T-05    | 前端组件：`ChatMessage.tsx` 新增 ThinkingSection，包含折叠展开交互            | `ChatMessage.tsx`                       |
+| T-06    | 前端样式：`ChatMessage.module.css` 新增思考过程 CSS 样式                      | `ChatMessage.module.css`                |
+| T-07    | E2E Mock 更新：`test-data.ts` / `api-handlers.ts` 增加 reasoning mock 数据    | `test-data.ts`, `api-handlers.ts`       |
+| T-08    | E2E 测试更新：新增 5 个思考过程测试用例，更新 chat spec                       | `chat.spec.ts`, 新增 `thinking.spec.ts` |
 
 ---
 
 ## 4. 测试用例（E2E 新增）
 
 ### TC-REASON-01：思考过程区域渲染
+
 - **前置**：Employee 登录，进入 Chat 页面
 - **步骤**：发送一条消息
 - **预期**：助手消息气泡中出现"思考过程"可折叠区域
 
 ### TC-REASON-02：思考中默认展开
+
 - **前置**：Employee 登录
 - **步骤**：发送消息
 - **预期**：思考过程区域默认展开，内容实时更新（不是空白的）
 
 ### TC-REASON-03：思考完成后可折叠
+
 - **前置**：Employee 登录
 - **步骤**：发送消息 → 等待流式完成
 - **预期**：回答完成后，思考过程区域折叠，显示"思考过程"头部
 
 ### TC-REASON-04：点击切换展开/折叠
+
 - **前置**：回答已完成（折叠状态）
 - **步骤**：点击"思考过程"头部
 - **预期**：区域展开 → 再次点击 → 区域折叠
 
 ### TC-REASON-05：思考过程不影响现有功能
+
 - **前置**：发送消息
 - **步骤**：验证消息正文、来源引用、猜你想问均正常渲染
 - **预期**：所有现有功能（来源引用、猜你想问按钮、Markdown 渲染）不受影响
