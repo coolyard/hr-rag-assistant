@@ -86,7 +86,7 @@ const AuthenticatedLayout: FC = () => {
       <main className={styles.mainContent}>
         <Routes>
           <Route path="/" element={<Navigate to="/chat" replace />} />
-          <Route path="/chat" element={<ChatPage activeConvId={activeConvId} />} />
+          <Route path="/chat" element={<ChatPage activeConvId={activeConvId} onConversationUpdated={() => { fetchList().catch(() => {}); }} />} />
           <Route path="/documents" element={<DocumentPage />} />
           <Route path="/profile" element={<ProfilePage />} />
         </Routes>

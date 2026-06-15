@@ -17,9 +17,10 @@ const QUICK_QUESTIONS = [
 
 interface ChatPageProps {
   activeConvId: string | null;
+  onConversationUpdated?: () => void;
 }
 
-export const ChatPage: FC<ChatPageProps> = ({ activeConvId }) => {
+export const ChatPage: FC<ChatPageProps> = ({ activeConvId, onConversationUpdated }) => {
   const {
     messages,
     inputValue,
@@ -51,7 +52,9 @@ export const ChatPage: FC<ChatPageProps> = ({ activeConvId }) => {
       return;
     }
     void sendMessage(inputValue);
-  }, [inputValue, isLoading, sendMessage]);
+    // 消息发送后刷新侧边栏（标题可能被自动更新）
+    onConversationUpdated?.();
+  }, [inputValue, isLoading, sendMessage, onConversationUpdated]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -132,6 +135,7 @@ export const ChatPage: FC<ChatPageProps> = ({ activeConvId }) => {
                   className={styles.quickQuestion}
                   onClick={() => {
                     void sendMessage(q);
+                    onConversationUpdated?.();
                   }}
                   disabled={isLoading}
                   type="button"
@@ -149,6 +153,7 @@ export const ChatPage: FC<ChatPageProps> = ({ activeConvId }) => {
               message={msg}
               onFollowUp={(q) => {
                 void sendMessage(q);
+                onConversationUpdated?.();
               }}
             />
             {msg.status === 'error' && msg.role === 'assistant' && (
