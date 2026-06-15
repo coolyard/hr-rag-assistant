@@ -1,10 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import { Injectable, Logger } from '@nestjs/common';
 
 import type { Message } from '@/chat/chat.interface';
 import { ChatService } from '@/chat/chat.service';
 import { EmbeddingService } from '@/embed/embed.service';
-/* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import { LLMService } from '@/llm/llm.service';
 import { HR_KEYWORDS, KeywordSearchService } from '@/rag/keyword-search.service';
 import type {

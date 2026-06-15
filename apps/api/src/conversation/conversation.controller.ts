@@ -11,13 +11,13 @@ export class ConversationController {
   @Get()
   async list(@Req() req: Request) {
     const user = req.user as UserPayload;
-    return this.store.findConversationsByUser(user?.sub ?? 'anonymous');
+    return this.store.findConversationsByUser(user.sub);
   }
 
   @Post()
   async create(@Req() req: Request) {
     const user = req.user as UserPayload;
-    return this.store.createConversation('新对话', user?.sub ?? 'anonymous');
+    return this.store.createConversation('新对话', user.sub);
   }
 
   @Patch(':id')
