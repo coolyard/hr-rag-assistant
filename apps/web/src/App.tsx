@@ -1,9 +1,10 @@
-/* eslint-disable @typescript-eslint/no-floating-promises, @typescript-eslint/no-confusing-void-expression, @typescript-eslint/no-meaningless-void-operator */
+/* eslint-disable @typescript-eslint/no-floating-promises */
 import '@/styles/variables.css';
 
 import { type FC, useCallback, useEffect, useState } from 'react';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
+import styles from '@/App.module.css';
 import { Sidebar } from '@/components/Layout/Sidebar';
 import { useAuth } from '@/hooks/useAuth';
 import { useConversations } from '@/hooks/useConversations';
@@ -11,7 +12,6 @@ import { ChatPage } from '@/pages/ChatPage';
 import { DocumentPage } from '@/pages/DocumentPage';
 import { LoginPage } from '@/pages/LoginPage';
 import { ProfilePage } from '@/pages/ProfilePage';
-import styles from '@/App.module.css';
 
 const ProtectedRoute: FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
