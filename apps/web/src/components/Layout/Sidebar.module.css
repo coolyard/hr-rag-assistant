@@ -6,7 +6,7 @@
   border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .header {
@@ -51,7 +51,10 @@
 .list {
   flex: 1;
   overflow-y: auto;
+  overflow-x: visible;
   padding: 8px;
+  position: relative;
+  z-index: 1;
 }
 
 .conversationItem {
@@ -81,7 +84,7 @@
 .convTitle {
   flex: 1;
   font-size: 0.85rem;
-  overflow: visible;
+  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   border: none;
@@ -133,7 +136,7 @@
   border: 1px solid var(--border-color);
   border-radius: 6px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  z-index: 10;
+  z-index: 100;
   min-width: 100px;
 }
 
