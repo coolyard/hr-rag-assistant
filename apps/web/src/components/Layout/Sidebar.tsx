@@ -152,7 +152,7 @@ export const Sidebar: FC<SidebarProps> = ({
                   handleStartRename(conv.id, conv.title);
                 }}
               >
-                {conv.title || "新对话"}
+                {conv.title || '新对话'}
               </span>
             )}
             <button

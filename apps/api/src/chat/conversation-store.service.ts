@@ -15,8 +15,12 @@ function generateId(prefix: string): string {
 export class ConversationStoreService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createConversation(title: string, userId: string = "anonymous", convId?: string): Promise<Conversation> {
-    const id = convId ?? generateId("conv");
+  async createConversation(
+    title: string,
+    userId: string = 'anonymous',
+    convId?: string,
+  ): Promise<Conversation> {
+    const id = convId ?? generateId('conv');
     const now = Date.now();
     await this.prisma.conversation.create({
       data: {

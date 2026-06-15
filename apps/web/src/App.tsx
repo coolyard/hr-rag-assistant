@@ -1,4 +1,3 @@
-
 import '@/styles/variables.css';
 
 import { type FC, useCallback, useEffect, useState } from 'react';
@@ -89,10 +88,16 @@ const AuthenticatedLayout: FC = () => {
           conversations={conversations}
           activeConvId={activeConvId}
           isLoading={convsLoading}
-          onNew={() => { void handleNew(); }}
+          onNew={() => {
+            void handleNew();
+          }}
           onSelect={handleSelect}
-          onRename={(id, title) => { renameConversation(id, title).catch(() => {}); }}
-          onDelete={(id) => { deleteConversation(id).catch(() => {}); }}
+          onRename={(id, title) => {
+            renameConversation(id, title).catch(() => {});
+          }}
+          onDelete={(id) => {
+            deleteConversation(id).catch(() => {});
+          }}
           isOpen={sidebarOpen}
         />
       )}
@@ -111,7 +116,17 @@ const AuthenticatedLayout: FC = () => {
         </button>
         <Routes>
           <Route path="/" element={<Navigate to="/chat" replace />} />
-          <Route path="/chat" element={<ChatPage activeConvId={activeConvId} onConversationUpdated={() => { void fetchList(); }} />} />
+          <Route
+            path="/chat"
+            element={
+              <ChatPage
+                activeConvId={activeConvId}
+                onConversationUpdated={() => {
+                  void fetchList();
+                }}
+              />
+            }
+          />
           <Route path="/documents" element={<DocumentPage />} />
           <Route path="/profile" element={<ProfilePage />} />
         </Routes>

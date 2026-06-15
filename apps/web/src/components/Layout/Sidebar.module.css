@@ -181,7 +181,7 @@
     transition: left 0.25s ease;
   }
 
-  .sidebar[data-open="true"] {
+  .sidebar[data-open='true'] {
     left: 0;
     box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
   }
