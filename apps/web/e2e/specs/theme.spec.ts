@@ -10,9 +10,7 @@ test.describe('主题切换', () => {
 
   test('TC-20: 默认主题为浅色模式', async ({ page }) => {
     await page.goto('/chat');
-    const theme = await page.evaluate(() =>
-      document.documentElement.getAttribute('data-theme'),
-    );
+    const theme = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
     // 浅色模式要么没有 data-theme 属性，要么是 "light"
     expect(theme === null || theme === 'light').toBe(true);
   });
@@ -26,9 +24,7 @@ test.describe('主题切换', () => {
     });
     await page.reload();
     await page.waitForLoadState('networkidle');
-    const theme = await page.evaluate(() =>
-      document.documentElement.getAttribute('data-theme'),
-    );
+    const theme = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
     expect(theme).toBe('dark');
   });
 
@@ -41,9 +37,7 @@ test.describe('主题切换', () => {
     });
     await page.reload();
     await page.waitForLoadState('networkidle');
-    const theme = await page.evaluate(() =>
-      document.documentElement.getAttribute('data-theme'),
-    );
+    const theme = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
     expect(theme).toBe('dark');
   });
 });

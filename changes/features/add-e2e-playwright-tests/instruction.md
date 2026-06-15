@@ -125,14 +125,50 @@ export const MOCK_HR = {
 
 // ── 文档数据 ──
 export const MOCK_DOCUMENTS: HRDocument[] = [
-  { id: 'annual_leave', filename: '年假制度.md', title: '年假制度', category: 'annual_leave', categoryName: '年假', updatedAt: '2026-01-15T00:00:00.000Z' },
-  { id: 'reimbursement', filename: '报销流程.md', title: '报销流程', category: 'reimbursement', categoryName: '报销', updatedAt: '2026-01-15T00:00:00.000Z' },
-  { id: 'promotion', filename: '晋升规则.md', title: '晋升规则', category: 'promotion', categoryName: '晋升', updatedAt: '2026-01-15T00:00:00.000Z' },
-  { id: 'attendance', filename: '考勤制度.md', title: '考勤制度', category: 'attendance', categoryName: '考勤', updatedAt: '2026-01-15T00:00:00.000Z' },
-  { id: 'welfare', filename: '员工福利.md', title: '员工福利', category: 'welfare', categoryName: '福利', updatedAt: '2026-01-15T00:00:00.000Z' },
+  {
+    id: 'annual_leave',
+    filename: '年假制度.md',
+    title: '年假制度',
+    category: 'annual_leave',
+    categoryName: '年假',
+    updatedAt: '2026-01-15T00:00:00.000Z',
+  },
+  {
+    id: 'reimbursement',
+    filename: '报销流程.md',
+    title: '报销流程',
+    category: 'reimbursement',
+    categoryName: '报销',
+    updatedAt: '2026-01-15T00:00:00.000Z',
+  },
+  {
+    id: 'promotion',
+    filename: '晋升规则.md',
+    title: '晋升规则',
+    category: 'promotion',
+    categoryName: '晋升',
+    updatedAt: '2026-01-15T00:00:00.000Z',
+  },
+  {
+    id: 'attendance',
+    filename: '考勤制度.md',
+    title: '考勤制度',
+    category: 'attendance',
+    categoryName: '考勤',
+    updatedAt: '2026-01-15T00:00:00.000Z',
+  },
+  {
+    id: 'welfare',
+    filename: '员工福利.md',
+    title: '员工福利',
+    category: 'welfare',
+    categoryName: '福利',
+    updatedAt: '2026-01-15T00:00:00.000Z',
+  },
 ];
 
-export const MOCK_DOCUMENT_CONTENT = '# 年假制度\n\n## 年假天数\n根据工龄不同，年假天数如下：\n- 1-10年：5天\n- 10-20年：10天\n- 20年以上：15天\n\n## 申请流程\n1. 在系统提交请假申请\n2. 直属上级审批\n3. HR备案';
+export const MOCK_DOCUMENT_CONTENT =
+  '# 年假制度\n\n## 年假天数\n根据工龄不同，年假天数如下：\n- 1-10年：5天\n- 10-20年：10天\n- 20年以上：15天\n\n## 申请流程\n1. 在系统提交请假申请\n2. 直属上级审批\n3. HR备案';
 
 // ── Profile 数据 ──
 export const MOCK_PROFILE = {
@@ -199,8 +235,20 @@ export const MOCK_SSE_CHUNKS = [
 ];
 
 export const MOCK_SSE_SOURCES = [
-  { documentName: '年假制度.md', documentTitle: '年假制度', category: 'annual_leave', chunk: '根据工龄不同，年假天数如下：1-10年：5天', similarity: 0.89 },
-  { documentName: '年假制度.md', documentTitle: '年假制度', category: 'annual_leave', chunk: '申请流程：1. 在系统提交请假申请', similarity: 0.75 },
+  {
+    documentName: '年假制度.md',
+    documentTitle: '年假制度',
+    category: 'annual_leave',
+    chunk: '根据工龄不同，年假天数如下：1-10年：5天',
+    similarity: 0.89,
+  },
+  {
+    documentName: '年假制度.md',
+    documentTitle: '年假制度',
+    category: 'annual_leave',
+    chunk: '申请流程：1. 在系统提交请假申请',
+    similarity: 0.75,
+  },
 ];
 
 export const MOCK_SSE_FOLLOWUPS = [
@@ -623,7 +671,9 @@ test.describe('主题切换', () => {
   test('TC-21: 切换深色模式', async ({ page }) => {
     await page.goto('/chat');
     // 点击主题切换按钮
-    const themeToggle = page.locator('button[aria-label*="主题"], button:has(svg), button:has(span:has-text("主题"))');
+    const themeToggle = page.locator(
+      'button[aria-label*="主题"], button:has(svg), button:has(span:has-text("主题"))',
+    );
     // 如果没有 aria-label，尝试通过 Navbar 中的主题切换组件查找
     await themeToggle.or(page.locator('nav button').last()).first().click();
     // 选择深色模式
@@ -718,6 +768,7 @@ pnpm --filter web test:e2e
 ```
 
 预期结果：
+
 - Playwright 发现 `e2e/specs/` 目录下所有 spec 文件
 - 自动启动 Vite Dev Server（通过 playwright.config.ts 的 webServer 配置）
 - 所有 API 请求被 Mock Handler 拦截
@@ -745,28 +796,28 @@ open apps/web/playwright-report/index.html
 编辑 `.github/workflows/ci.yml`，在 `jobs` 中新增 `e2e` job（位置在 `quality` job 之后、文件末尾 `}` 之前）：
 
 ```yaml
-  e2e:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: "10.33.4"
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-      - run: pnpm install
-      - name: Install Playwright Chromium
-        run: pnpm --filter web exec playwright install chromium
-      - name: Run Playwright tests
-        run: pnpm --filter web test:e2e
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: playwright-report
-          path: apps/web/playwright-report/
-          retention-days: 7
+e2e:
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v4
+    - uses: pnpm/action-setup@v4
+      with:
+        version: '10.33.4'
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: pnpm
+    - run: pnpm install
+    - name: Install Playwright Chromium
+      run: pnpm --filter web exec playwright install chromium
+    - name: Run Playwright tests
+      run: pnpm --filter web test:e2e
+    - uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: playwright-report
+        path: apps/web/playwright-report/
+        retention-days: 7
 ```
 
 注意：此 job 不依赖 `quality` job，可与 lint/test/build 并行执行。

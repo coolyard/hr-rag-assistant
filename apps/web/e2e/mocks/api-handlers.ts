@@ -52,9 +52,14 @@ export async function setupApiMocks(page: Page): Promise<void> {
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify({
-        access_token: MOCK_TOKENS.employee,
-        user: { id: 'user-1', username: 'employee', role: 'employee' as const, displayName: '张三' },
-      }),
+          access_token: MOCK_TOKENS.employee,
+          user: {
+            id: 'user-1',
+            username: 'employee',
+            role: 'employee' as const,
+            displayName: '张三',
+          },
+        }),
       });
     }
     if (postData?.username === 'hr' && postData?.password === '123456') {
@@ -62,9 +67,9 @@ export async function setupApiMocks(page: Page): Promise<void> {
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify({
-        access_token: MOCK_TOKENS.hr,
-        user: { id: 'user-2', username: 'hr', role: 'hr' as const, displayName: '李四' },
-      }),
+          access_token: MOCK_TOKENS.hr,
+          user: { id: 'user-2', username: 'hr', role: 'hr' as const, displayName: '李四' },
+        }),
       });
     }
     return route.fulfill({
@@ -81,7 +86,7 @@ export async function setupApiMocks(page: Page): Promise<void> {
       contentType: 'text/event-stream',
       headers: {
         'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
+        Connection: 'keep-alive',
         'X-Accel-Buffering': 'no',
       },
       body: buildSSEResponse(),

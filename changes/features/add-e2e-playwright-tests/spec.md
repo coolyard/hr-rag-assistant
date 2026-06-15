@@ -34,14 +34,14 @@
 
 ### 1.4 测试范围与优先级
 
-| 优先级 | 模块 | 测试场景数 | 核心验证点 |
-|--------|------|-----------|-----------|
-| P0 | 登录认证 | 5 | 登录成功/失败/未认证跳转/登出/凭证提示 |
-| P0 | 聊天对话 | 5 | 发送消息/流式渲染/来源引用/猜你想问/新对话 |
-| P0 | 文档浏览 | 5 | 文档列表/分类筛选/搜索/文档查看器/上传按钮 |
-| P1 | 个人中心 | 3 | 个人信息/统计卡片/日历导航 |
-| P1 | 主题切换 | 3 | 浅色/深色/跟随系统/持久化 |
-| P1 | 页面导航 | 3 | 导航栏跳转/高亮状态/路由守卫 |
+| 优先级 | 模块     | 测试场景数 | 核心验证点                                 |
+| ------ | -------- | ---------- | ------------------------------------------ |
+| P0     | 登录认证 | 5          | 登录成功/失败/未认证跳转/登出/凭证提示     |
+| P0     | 聊天对话 | 5          | 发送消息/流式渲染/来源引用/猜你想问/新对话 |
+| P0     | 文档浏览 | 5          | 文档列表/分类筛选/搜索/文档查看器/上传按钮 |
+| P1     | 个人中心 | 3          | 个人信息/统计卡片/日历导航                 |
+| P1     | 主题切换 | 3          | 浅色/深色/跟随系统/持久化                  |
+| P1     | 页面导航 | 3          | 导航栏跳转/高亮状态/路由守卫               |
 
 ---
 
@@ -49,14 +49,14 @@
 
 ### 2.1 框架选择
 
-| 项目 | 选择 | 原因 |
-|------|------|------|
-| Runner | Playwright 1.52+ | 微软维护，原生 TypeScript 支持，自动等待 |
-| Assertion | Playwright Test Assertions | 内置 `expect(locator).toBeVisible()` 等 |
-| Mock API | `page.route()` | 拦截所有 `/api/*` 请求，返回模拟 JSON/SSE |
-| Reporter | `list` (CI) / `html` (本地) | CI 中简洁输出，本地可查看 HTML 报告 |
-| 浏览器 | Chromium (headless) | v1 仅 Chromium，CI 中运行最快 |
-| 视口 | 1280×720 (桌面) | v1 固定视口 |
+| 项目      | 选择                        | 原因                                      |
+| --------- | --------------------------- | ----------------------------------------- |
+| Runner    | Playwright 1.52+            | 微软维护，原生 TypeScript 支持，自动等待  |
+| Assertion | Playwright Test Assertions  | 内置 `expect(locator).toBeVisible()` 等   |
+| Mock API  | `page.route()`              | 拦截所有 `/api/*` 请求，返回模拟 JSON/SSE |
+| Reporter  | `list` (CI) / `html` (本地) | CI 中简洁输出，本地可查看 HTML 报告       |
+| 浏览器    | Chromium (headless)         | v1 仅 Chromium，CI 中运行最快             |
+| 视口      | 1280×720 (桌面)             | v1 固定视口                               |
 
 ### 2.2 架构设计
 
@@ -84,10 +84,10 @@ playwright 测试运行时
 
 ### 2.3 测试用户与凭据
 
-| 用户 | 用户名 | 密码 | role | JWT sub |
-|------|--------|------|------|---------|
-| HR 专员 | hr | 123456 | hr | user-2 |
-| 普通员工 | employee | 123456 | employee | user-1 |
+| 用户     | 用户名   | 密码   | role     | JWT sub |
+| -------- | -------- | ------ | -------- | ------- |
+| HR 专员  | hr       | 123456 | hr       | user-2  |
+| 普通员工 | employee | 123456 | employee | user-1  |
 
 ---
 
@@ -279,13 +279,13 @@ apps/web/e2e/
 ```jsonc
 {
   "devDependencies": {
-    "@playwright/test": "^1.52.0"
+    "@playwright/test": "^1.52.0",
   },
   "scripts": {
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:debug": "playwright test --debug"
-  }
+    "test:e2e:debug": "playwright test --debug",
+  },
 }
 ```
 
@@ -294,8 +294,8 @@ apps/web/e2e/
 ```jsonc
 {
   "scripts": {
-    "test:e2e": "pnpm --filter web test:e2e"
-  }
+    "test:e2e": "pnpm --filter web test:e2e",
+  },
 }
 ```
 
@@ -303,28 +303,28 @@ apps/web/e2e/
 
 ```yaml
 # 在 .github/workflows/ci.yml 中新增 job
-  e2e:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: "10.33.4"
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-      - run: pnpm install
-      - name: Install Playwright Chromium
-        run: pnpm --filter web exec playwright install chromium
-      - name: Run Playwright tests
-        run: pnpm --filter web test:e2e
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: playwright-report
-          path: apps/web/playwright-report/
-          retention-days: 7
+e2e:
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v4
+    - uses: pnpm/action-setup@v4
+      with:
+        version: '10.33.4'
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: pnpm
+    - run: pnpm install
+    - name: Install Playwright Chromium
+      run: pnpm --filter web exec playwright install chromium
+    - name: Run Playwright tests
+      run: pnpm --filter web test:e2e
+    - uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: playwright-report
+        path: apps/web/playwright-report/
+        retention-days: 7
 ```
 
 ---
@@ -376,7 +376,10 @@ export async function setupApiMocks(page: Page) {
   await page.route('**/api/auth/login', async (route) => {
     const body = JSON.parse(route.request().postData() || '{}');
     if (body.username === 'employee' && body.password === '123456') {
-      return route.fulfill({ status: 200, body: JSON.stringify({ access_token: 'mock-jwt-employee' }) });
+      return route.fulfill({
+        status: 200,
+        body: JSON.stringify({ access_token: 'mock-jwt-employee' }),
+      });
     }
     return route.fulfill({ status: 401, body: JSON.stringify({ message: '账号或密码错误' }) });
   });
@@ -388,7 +391,10 @@ export async function setupApiMocks(page: Page) {
 
   // 文档列表
   await page.route('**/api/documents', async (route) => {
-    return route.fulfill({ status: 200, body: JSON.stringify({ documents: MOCK_DOCUMENTS, total: 5 }) });
+    return route.fulfill({
+      status: 200,
+      body: JSON.stringify({ documents: MOCK_DOCUMENTS, total: 5 }),
+    });
   });
 
   // 健康检查
@@ -441,6 +447,6 @@ add-e2e-playwright-tests
 
 ## 9. Spec 演进记录
 
-| 日期 | 版本 | 变更内容 | 变更人 |
-|------|------|---------|--------|
-| 2026-06-15 | v1.0 | 初始版本，定义 E2E 测试范围、Mock 方案、CI 集成 | — |
+| 日期       | 版本 | 变更内容                                        | 变更人 |
+| ---------- | ---- | ----------------------------------------------- | ------ |
+| 2026-06-15 | v1.0 | 初始版本，定义 E2E 测试范围、Mock 方案、CI 集成 | —      |

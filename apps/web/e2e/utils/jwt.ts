@@ -39,11 +39,7 @@ function base64urlEncode(json: unknown): string {
  * 生成模拟 JWT token，格式为 header.payload.signature。
  * 使用 base64url 编码（与前端 AuthContext 的 decodeToken 一致）。
  */
-export function createMockJWT(
-  username: string,
-  userId: string,
-  role: 'employee' | 'hr',
-): string {
+export function createMockJWT(username: string, userId: string, role: 'employee' | 'hr'): string {
   const header = { alg: 'HS256', typ: 'JWT' };
   const payload = {
     sub: userId,
