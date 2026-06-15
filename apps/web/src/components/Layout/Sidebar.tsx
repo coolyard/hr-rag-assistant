@@ -87,7 +87,7 @@ export const Sidebar: FC<SidebarProps> = ({
   );
 
   return (
-    <div className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
+    <div className={styles.sidebar} style={isOpen ? { transform: 'translateX(0)' } : undefined}>
       <div className={styles.header}>
         <button className={styles.newButton} onClick={onNew} type="button">
           + 新建对话

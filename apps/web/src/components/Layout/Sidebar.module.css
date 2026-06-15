@@ -182,8 +182,7 @@
     transition: transform 0.25s ease;
   }
 
-  .sidebar.sidebarOpen {
-    transform: translateX(0);
+  .sidebar[style*="translateX(0)"] {
     box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
   }
 }
