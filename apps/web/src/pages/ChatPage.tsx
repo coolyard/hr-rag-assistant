@@ -51,9 +51,9 @@ export const ChatPage: FC<ChatPageProps> = ({ activeConvId, onConversationUpdate
     if (inputValue.trim().length === 0 || isLoading) {
       return;
     }
-    void sendMessage(inputValue);
-    // 消息发送后刷新侧边栏（标题可能被自动更新）
-    onConversationUpdated?.();
+    void sendMessage(inputValue).then(() => {
+      onConversationUpdated?.();
+    });
   }, [inputValue, isLoading, sendMessage, onConversationUpdated]);
 
   const handleKeyDown = useCallback(
@@ -134,8 +134,9 @@ export const ChatPage: FC<ChatPageProps> = ({ activeConvId, onConversationUpdate
                   key={q}
                   className={styles.quickQuestion}
                   onClick={() => {
-                    void sendMessage(q);
-                    onConversationUpdated?.();
+                    void sendMessage(q).then(() => {
+                      onConversationUpdated?.();
+                    });
                   }}
                   disabled={isLoading}
                   type="button"
@@ -152,8 +153,9 @@ export const ChatPage: FC<ChatPageProps> = ({ activeConvId, onConversationUpdate
             <ChatMessage
               message={msg}
               onFollowUp={(q) => {
-                void sendMessage(q);
-                onConversationUpdated?.();
+                void sendMessage(q).then(() => {
+                  onConversationUpdated?.();
+                });
               }}
             />
             {msg.status === 'error' && msg.role === 'assistant' && (
