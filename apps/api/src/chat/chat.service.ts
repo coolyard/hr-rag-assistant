@@ -14,14 +14,17 @@ function generateId(prefix: string): string {
 export class ChatService {
   constructor(private readonly store: ConversationStoreService) {}
 
-  async getOrCreateConversation(conversationId?: string): Promise<Conversation> {
+  async getOrCreateConversation(conversationId?: string, userId?: string): Promise<Conversation> {
     if (conversationId) {
       const existing = await this.store.getConversation(conversationId);
       if (existing) {
         return existing;
       }
     }
-    return this.store.createConversation('');
+    if (conversationId) {
+      return this.store.createConversation('', userId ?? 'anonymous', conversationId);
+    }
+    return this.store.createConversation('', userId ?? 'anonymous');
   }
 
   async getHistory(conversationId: string): Promise<Message[]> {
