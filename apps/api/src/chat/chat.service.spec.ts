@@ -6,7 +6,10 @@ import { PrismaService } from '@/prisma/prisma.service';
 
 describe('ChatService', () => {
   let service: ChatService;
-  const convStore = new Map<string, { id: string; title: string; createdAt: Date; updatedAt: Date; userId: string }>();
+  const convStore = new Map<
+    string,
+    { id: string; title: string; createdAt: Date; updatedAt: Date; userId: string }
+  >();
   const msgStore: Array<{ id: string; conversationId: string; role: string; content: string }> = [];
 
   beforeEach(async () => {
@@ -16,36 +19,64 @@ describe('ChatService', () => {
 
     const mockPrismaService = {
       conversation: {
-        create: jest.fn().mockImplementation((args: { data: { id: string; title: string; userId: string } }) => {
-          const now = new Date();
-          const conv = { id: args.data.id, title: args.data.title, createdAt: now, updatedAt: now, userId: args.data.userId };
-          convStore.set(conv.id, conv);
-          return Promise.resolve(conv);
-        }),
+        create: jest
+          .fn()
+          .mockImplementation((args: { data: { id: string; title: string; userId: string } }) => {
+            const now = new Date();
+            const conv = {
+              id: args.data.id,
+              title: args.data.title,
+              createdAt: now,
+              updatedAt: now,
+              userId: args.data.userId,
+            };
+            convStore.set(conv.id, conv);
+            return Promise.resolve(conv);
+          }),
         findUnique: jest.fn().mockImplementation((args: { where: { id: string } }) => {
           const conv = convStore.get(args.where.id);
           return Promise.resolve(conv ? { ...conv, messages: [] } : null);
         }),
         findMany: jest.fn().mockResolvedValue([]),
-        update: jest.fn().mockImplementation((args: { where: { id: string }; data: { title?: string; updatedAt?: Date } }) => {
-          const conv = convStore.get(args.where.id);
-          if (conv && args.data.title) {
-            conv.title = args.data.title;
-            conv.updatedAt = args.data.updatedAt ?? new Date();
-          }
-          return Promise.resolve(conv ?? {});
-        }),
+        update: jest
+          .fn()
+          .mockImplementation(
+            (args: { where: { id: string }; data: { title?: string; updatedAt?: Date } }) => {
+              const conv = convStore.get(args.where.id);
+              if (conv && args.data.title) {
+                conv.title = args.data.title;
+                conv.updatedAt = args.data.updatedAt ?? new Date();
+              }
+              return Promise.resolve(conv ?? {});
+            },
+          ),
         delete: jest.fn().mockResolvedValue({}),
       },
       message: {
-        create: jest.fn().mockImplementation((args: { data: { id: string; conversationId: string; role: string; content: string } }) => {
-          msgStore.push(args.data);
-          return Promise.resolve({});
-        }),
-        findMany: jest.fn().mockImplementation(() => Promise.resolve(msgStore.map(m => ({
-          id: m.id, conversationId: m.conversationId, role: m.role, content: m.content,
-          timestamp: new Date(), sources: null, status: 'complete', error: null,
-        })))),
+        create: jest
+          .fn()
+          .mockImplementation(
+            (args: {
+              data: { id: string; conversationId: string; role: string; content: string };
+            }) => {
+              msgStore.push(args.data);
+              return Promise.resolve({});
+            },
+          ),
+        findMany: jest.fn().mockImplementation(() =>
+          Promise.resolve(
+            msgStore.map((m) => ({
+              id: m.id,
+              conversationId: m.conversationId,
+              role: m.role,
+              content: m.content,
+              timestamp: new Date(),
+              sources: null,
+              status: 'complete',
+              error: null,
+            })),
+          ),
+        ),
         deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
         count: jest.fn().mockImplementation(() => Promise.resolve(msgStore.length)),
       },
