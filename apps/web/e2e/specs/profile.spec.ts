@@ -10,8 +10,8 @@ test.describe('个人中心', () => {
   });
 
   test('TC-17: 显示个人信息', async ({ page }) => {
-    await expect(page.getByText('张三')).toBeVisible();
-    await expect(page.getByText('技术部')).toBeVisible();
+    await expect(page.getByRole('heading', { name: '张三' })).toBeVisible();
+    await expect(page.getByText('技术部').first()).toBeVisible();
     await expect(page.getByText(/入职/)).toBeVisible();
   });
 
