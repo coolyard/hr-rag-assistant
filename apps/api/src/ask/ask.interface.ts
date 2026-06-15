@@ -17,3 +17,4 @@ export interface AskStreamChunk {
   error?: string;
   conversationId?: string;
 }
+
