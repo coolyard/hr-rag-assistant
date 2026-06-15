@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-floating-promises */
+
 import '@/styles/variables.css';
 
 import { type FC, useCallback, useEffect, useState } from 'react';
@@ -51,7 +51,7 @@ const AuthenticatedLayout: FC = () => {
   }, []);
 
   useEffect(() => {
-    fetchList().catch(() => {});
+    void fetchList();
   }, [fetchList]);
 
   // 列表加载完毕后，自动选中第一条对话
@@ -61,21 +61,22 @@ const AuthenticatedLayout: FC = () => {
     }
   }, [convsLoading, conversations, activeConvId, selectConversation]);
 
-  const handleNew = () => {
-    createConversation()
-      .then((conv) => {
-        if (conv && location.pathname !== '/chat') {
-          navigate('/chat');
-        }
-      })
-      .catch(() => {});
+  const handleNew = async () => {
+    try {
+      const conv = await createConversation();
+      if (conv && location.pathname !== '/chat') {
+        void navigate('/chat');
+      }
+    } catch {
+      // ignore
+    }
   };
 
   const handleSelect = (id: string) => {
     selectConversation(id);
     closeSidebar();
     if (location.pathname !== '/chat') {
-      navigate('/chat');
+      void navigate('/chat');
     }
   };
 
@@ -88,7 +89,7 @@ const AuthenticatedLayout: FC = () => {
           conversations={conversations}
           activeConvId={activeConvId}
           isLoading={convsLoading}
-          onNew={handleNew}
+          onNew={() => { void handleNew(); }}
           onSelect={handleSelect}
           onRename={(id, title) => { renameConversation(id, title).catch(() => {}); }}
           onDelete={(id) => { deleteConversation(id).catch(() => {}); }}
@@ -110,7 +111,7 @@ const AuthenticatedLayout: FC = () => {
         </button>
         <Routes>
           <Route path="/" element={<Navigate to="/chat" replace />} />
-          <Route path="/chat" element={<ChatPage activeConvId={activeConvId} onConversationUpdated={() => { fetchList().catch(() => {}); }} />} />
+          <Route path="/chat" element={<ChatPage activeConvId={activeConvId} onConversationUpdated={() => { void fetchList(); }} />} />
           <Route path="/documents" element={<DocumentPage />} />
           <Route path="/profile" element={<ProfilePage />} />
         </Routes>

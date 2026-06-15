@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/restrict-plus-operands */
+
 import { useCallback, useRef, useState } from 'react';
 
 import { client } from '@/api/client';
@@ -111,10 +111,11 @@ export function useChat() {
           }
 
           if (chunk.reasoning) {
+            const reasoningText: string = chunk.reasoning;
             setMessages((prev) =>
               prev.map((m) =>
                 m.id === assistantMsg.id
-                  ? { ...m, reasoning: (m.reasoning ?? '') + chunk.reasoning }
+                  ? { ...m, reasoning: (m.reasoning ?? '') + reasoningText }
                   : m,
               ),
             );
