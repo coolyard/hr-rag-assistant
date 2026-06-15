@@ -70,7 +70,7 @@ export class RAGService {
     conversationId?: string,
     userId?: string,
   ): AsyncIterable<StreamChunk> {
-    const conv = await this.chatService.getOrCreateConversation(conversationId);
+    const conv = await this.chatService.getOrCreateConversation(conversationId, userId);
     await this.chatService.addUserMessage(conv.id, query);
 
     let merged: MergedResult[];
