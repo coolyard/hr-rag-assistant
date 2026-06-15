@@ -17,3 +17,53 @@ body {
   display: flex;
   flex-direction: column;
 }
+
+.hamburger {
+  display: none;
+}
+
+.backdrop {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .hamburger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: var(--text-primary);
+    padding: 0;
+    margin-right: 8px;
+    border-radius: 4px;
+  }
+
+  .hamburger:hover {
+    background: var(--hover-bg);
+  }
+
+  .backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 199;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+
+  .backdrop.backdropVisible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .mainContent {
+    padding-left: 0;
+  }
+}

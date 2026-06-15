@@ -20,6 +20,7 @@ interface SidebarProps {
   onSelect: (id: string) => void;
   onRename: (id: string, title: string) => void;
   onDelete: (id: string) => void;
+  isOpen?: boolean;
 }
 
 export const Sidebar: FC<SidebarProps> = ({
@@ -30,6 +31,7 @@ export const Sidebar: FC<SidebarProps> = ({
   onSelect,
   onRename,
   onDelete,
+  isOpen,
 }) => {
   const [search, setSearch] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -85,7 +87,7 @@ export const Sidebar: FC<SidebarProps> = ({
   );
 
   return (
-    <div className={styles.sidebar}>
+    <div className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
       <div className={styles.header}>
         <button className={styles.newButton} onClick={onNew} type="button">
           + 新建对话

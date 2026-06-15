@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-floating-promises, @typescript-eslint/no-confusing-void-expression, @typescript-eslint/no-meaningless-void-operator */
 import '@/styles/variables.css';
 
-import { type FC, useEffect } from 'react';
+import { type FC, useCallback, useEffect, useState } from 'react';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
 import styles from '@/App.module.css';
@@ -40,6 +40,15 @@ const AuthenticatedLayout: FC = () => {
   } = useConversations();
   const navigate = useNavigate();
   const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const toggleSidebar = useCallback(() => {
+    setSidebarOpen((prev) => !prev);
+  }, []);
+
+  const closeSidebar = useCallback(() => {
+    setSidebarOpen(false);
+  }, []);
 
   useEffect(() => {
     void fetchList();
@@ -57,6 +66,7 @@ const AuthenticatedLayout: FC = () => {
 
   const handleSelect = (id: string) => {
     selectConversation(id);
+    closeSidebar();
     if (location.pathname !== '/chat') {
       navigate('/chat');
     }
@@ -83,7 +93,9 @@ const AuthenticatedLayout: FC = () => {
           }}
         />
       )}
+      <div className={`${styles.backdrop} ${sidebarOpen ? styles.backdropVisible : ''}`} onClick={closeSidebar}></div>
       <main className={styles.mainContent}>
+        <button className={styles.hamburger} onClick={toggleSidebar} type="button" aria-label="切换侧边栏">☰</button>
         <Routes>
           <Route path="/" element={<Navigate to="/chat" replace />} />
           <Route path="/chat" element={<ChatPage activeConvId={activeConvId} onConversationUpdated={() => { fetchList().catch(() => {}); }} />} />
