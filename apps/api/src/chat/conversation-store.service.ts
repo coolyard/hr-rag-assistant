@@ -44,7 +44,7 @@ export class ConversationStoreService {
         role: m.role as Message['role'],
         content: m.content,
         timestamp: m.timestamp.getTime(),
-        sources: m.sources ? JSON.parse(m.sources) : undefined,
+        sources: m.sources ? (JSON.parse(m.sources) as Message["sources"]) : undefined,
         status: m.status as Message['status'],
         error: m.error ?? undefined,
       })),
@@ -100,7 +100,7 @@ export class ConversationStoreService {
       role: m.role as Message['role'],
       content: m.content,
       timestamp: m.timestamp.getTime(),
-      sources: m.sources ? JSON.parse(m.sources) : undefined,
+      sources: m.sources ? (JSON.parse(m.sources) as Message["sources"]) : undefined,
       status: m.status as Message['status'],
       error: m.error ?? undefined,
     }));

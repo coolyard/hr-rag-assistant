@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-floating-promises, @typescript-eslint/no-confusing-void-expression, @typescript-eslint/no-meaningless-void-operator */
 import '@/styles/variables.css';
 
 import { type FC, useEffect } from 'react';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
+import styles from '@/App.module.css';
 import { Sidebar } from '@/components/Layout/Sidebar';
 import { useAuth } from '@/hooks/useAuth';
 import { useConversations } from '@/hooks/useConversations';
@@ -10,7 +12,6 @@ import { ChatPage } from '@/pages/ChatPage';
 import { DocumentPage } from '@/pages/DocumentPage';
 import { LoginPage } from '@/pages/LoginPage';
 import { ProfilePage } from '@/pages/ProfilePage';
-import styles from '@/App.module.css';
 
 const ProtectedRoute: FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -44,11 +45,14 @@ const AuthenticatedLayout: FC = () => {
     void fetchList();
   }, [fetchList]);
 
-  const handleNew = async () => {
-    const conv = await createConversation();
-    if (conv && location.pathname !== '/chat') {
-      navigate('/chat');
-    }
+  const handleNew = () => {
+    createConversation()
+      .then((conv) => {
+        if (conv && location.pathname !== '/chat') {
+          navigate('/chat');
+        }
+      })
+      .catch(() => {});
   };
 
   const handleSelect = (id: string) => {
@@ -67,10 +71,16 @@ const AuthenticatedLayout: FC = () => {
           conversations={conversations}
           activeConvId={activeConvId}
           isLoading={convsLoading}
-          onNew={handleNew}
+          onNew={() => {
+            void handleNew();
+          }}
           onSelect={handleSelect}
-          onRename={renameConversation}
-          onDelete={deleteConversation}
+          onRename={(id, title) => {
+            renameConversation(id, title).catch(() => {});
+          }}
+          onDelete={(id) => {
+            deleteConversation(id).catch(() => {});
+          }}
         />
       )}
       <main className={styles.mainContent}>

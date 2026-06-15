@@ -9,6 +9,7 @@ import {
 } from 'react';
 
 import type { ConversationItem } from '@/hooks/useConversations';
+
 import styles from './Sidebar.module.css';
 
 interface SidebarProps {
@@ -92,7 +93,9 @@ export const Sidebar: FC<SidebarProps> = ({
         <input
           className={styles.searchInput}
           value={search}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => {
+            setSearch(e.target.value);
+          }}
           placeholder="搜索对话..."
         />
       </div>
@@ -127,15 +130,25 @@ export const Sidebar: FC<SidebarProps> = ({
                 ref={editRef}
                 className={styles.convTitleEdit}
                 value={editTitle}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setEditTitle(e.target.value)}
-                onBlur={() => handleConfirmRename(conv.id)}
-                onKeyDown={(e) => handleRenameKey(e, conv.id)}
-                onClick={(e) => e.stopPropagation()}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                  setEditTitle(e.target.value);
+                }}
+                onBlur={() => {
+                  handleConfirmRename(conv.id);
+                }}
+                onKeyDown={(e) => {
+                  handleRenameKey(e, conv.id);
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
               />
             ) : (
               <span
                 className={styles.convTitle}
-                onDoubleClick={() => handleStartRename(conv.id, conv.title)}
+                onDoubleClick={() => {
+                  handleStartRename(conv.id, conv.title);
+                }}
               >
                 {conv.title}
               </span>
