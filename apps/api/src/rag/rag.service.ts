@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import { Injectable, Logger } from '@nestjs/common';
 
 import type { Message } from '@/chat/chat.interface';
