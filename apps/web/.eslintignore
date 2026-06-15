@@ -1,0 +1,2 @@
+# Playwright E2E test files are outside the Vite/tsconfig project scope
+e2e/
