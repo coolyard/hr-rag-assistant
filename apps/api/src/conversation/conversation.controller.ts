@@ -17,7 +17,7 @@ export class ConversationController {
   @Post()
   async create(@Req() req: Request) {
     const user = req.user as UserPayload;
-    return this.store.createConversation('新对话', user.sub);
+    return this.store.createConversation('', user.sub);
   }
 
   @Patch(':id')
