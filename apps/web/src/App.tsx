@@ -54,6 +54,13 @@ const AuthenticatedLayout: FC = () => {
     fetchList().catch(() => {});
   }, [fetchList]);
 
+  // 列表加载完毕后，自动选中第一条对话
+  useEffect(() => {
+    if (!convsLoading && conversations.length > 0 && !activeConvId) {
+      selectConversation(conversations[0].id);
+    }
+  }, [convsLoading, conversations, activeConvId, selectConversation]);
+
   const handleNew = () => {
     createConversation()
       .then((conv) => {
