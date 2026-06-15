@@ -174,16 +174,15 @@
   .sidebar {
     position: fixed;
     top: 0;
-    left: 0;
     width: 260px;
     height: 100vh;
     z-index: 200;
-    transform: translateX(-100%);
-    transition: transform 0.25s ease;
+    left: -260px;
+    transition: left 0.25s ease;
   }
 
   .sidebar[data-open="true"] {
-    transform: translateX(0);
+    left: 0;
     box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
   }
 }
