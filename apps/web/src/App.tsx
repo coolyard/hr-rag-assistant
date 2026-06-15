@@ -1,13 +1,16 @@
 import '@/styles/variables.css';
 
-import { type FC } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { type FC, useEffect } from 'react';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
+import { Sidebar } from '@/components/Layout/Sidebar';
 import { useAuth } from '@/hooks/useAuth';
+import { useConversations } from '@/hooks/useConversations';
 import { ChatPage } from '@/pages/ChatPage';
 import { DocumentPage } from '@/pages/DocumentPage';
 import { LoginPage } from '@/pages/LoginPage';
 import { ProfilePage } from '@/pages/ProfilePage';
+import styles from '@/App.module.css';
 
 const ProtectedRoute: FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -23,32 +26,74 @@ const ProtectedRoute: FC<{ children: React.ReactNode }> = ({ children }) => {
   return <>{children}</>;
 };
 
+const AuthenticatedLayout: FC = () => {
+  const {
+    conversations,
+    activeConvId,
+    isLoading: convsLoading,
+    fetchList,
+    createConversation,
+    renameConversation,
+    deleteConversation,
+    selectConversation,
+  } = useConversations();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    void fetchList();
+  }, [fetchList]);
+
+  const handleNew = async () => {
+    const conv = await createConversation();
+    if (conv && location.pathname !== '/chat') {
+      navigate('/chat');
+    }
+  };
+
+  const handleSelect = (id: string) => {
+    selectConversation(id);
+    if (location.pathname !== '/chat') {
+      navigate('/chat');
+    }
+  };
+
+  const sidebarVisible = location.pathname !== '/login';
+
+  return (
+    <div className={styles.appLayout}>
+      {sidebarVisible && (
+        <Sidebar
+          conversations={conversations}
+          activeConvId={activeConvId}
+          isLoading={convsLoading}
+          onNew={handleNew}
+          onSelect={handleSelect}
+          onRename={renameConversation}
+          onDelete={deleteConversation}
+        />
+      )}
+      <main className={styles.mainContent}>
+        <Routes>
+          <Route path="/" element={<Navigate to="/chat" replace />} />
+          <Route path="/chat" element={<ChatPage activeConvId={activeConvId} />} />
+          <Route path="/documents" element={<DocumentPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+        </Routes>
+      </main>
+    </div>
+  );
+};
+
 export const App: FC = () => {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/chat" replace />} />
       <Route path="/login" element={<LoginPage />} />
       <Route
-        path="/chat"
+        path="*"
         element={
           <ProtectedRoute>
-            <ChatPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/documents"
-        element={
-          <ProtectedRoute>
-            <DocumentPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/profile"
-        element={
-          <ProtectedRoute>
-            <ProfilePage />
+            <AuthenticatedLayout />
           </ProtectedRoute>
         }
       />

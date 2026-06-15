@@ -15,7 +15,11 @@ const QUICK_QUESTIONS = [
   '我什么时候可以申请晋升？薪资能涨多少？',
 ];
 
-export const ChatPage: FC = () => {
+interface ChatPageProps {
+  activeConvId: string | null;
+}
+
+export const ChatPage: FC<ChatPageProps> = ({ activeConvId }) => {
   const {
     messages,
     inputValue,
@@ -26,6 +30,7 @@ export const ChatPage: FC = () => {
     retryMessage,
     clearConversation,
     newConversation,
+    loadConversation,
   } = useChat();
 
   const listRef = useRef<HTMLDivElement>(null);
@@ -67,6 +72,19 @@ export const ChatPage: FC = () => {
     },
     [setInputValue],
   );
+
+  const convRef = useRef(activeConvId);
+
+  useEffect(() => {
+    if (activeConvId && activeConvId !== convRef.current) {
+      convRef.current = activeConvId;
+      void loadConversation(activeConvId);
+    }
+    if (activeConvId === null && convRef.current !== null) {
+      convRef.current = null;
+      clearConversation();
+    }
+  }, [activeConvId, loadConversation, clearConversation]);
 
   const handleRetry = useCallback(
     (messageId: string) => {

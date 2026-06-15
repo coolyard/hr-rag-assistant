@@ -4,3 +4,16 @@ body {
   background: var(--bg-primary);
   color: var(--text-primary);
 }
+
+.appLayout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.mainContent {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}

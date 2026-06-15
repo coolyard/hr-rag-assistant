@@ -7,6 +7,7 @@ import { VectorStoreService } from '@/vector/vector-store.service';
 import { KeywordSearchService } from '@/rag/keyword-search.service';
 import { ChatService } from '@/chat/chat.service';
 import { ConversationStoreService } from '@/chat/conversation-store.service';
+import { PrismaService } from '@/prisma/prisma.service';
 import { LLMService } from '@/llm/llm.service';
 import { UserProfileService } from '@/user-profile/user-profile.service';
 import { AuthService } from '@/auth/auth.service';
@@ -16,12 +17,31 @@ describe('RAGService', () => {
   let service: RAGService;
 
   beforeEach(async () => {
+    const mockPrismaService = {
+      conversation: {
+        create: jest.fn().mockResolvedValue({}),
+        findUnique: jest.fn().mockResolvedValue(null),
+        findMany: jest.fn().mockResolvedValue([]),
+        update: jest.fn().mockResolvedValue({}),
+        delete: jest.fn().mockResolvedValue({}),
+      },
+      message: {
+        create: jest.fn().mockResolvedValue({}),
+        findMany: jest.fn().mockResolvedValue([]),
+        deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
+        count: jest.fn().mockResolvedValue(0),
+      },
+      $connect: jest.fn().mockResolvedValue(undefined),
+      $disconnect: jest.fn().mockResolvedValue(undefined),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RAGService,
         KeywordSearchService,
         ChatService,
         ConversationStoreService,
+        { provide: PrismaService, useValue: mockPrismaService },
         UserProfileService,
         AuthService,
         {

@@ -138,6 +138,51 @@ export async function setupApiMocks(page: Page): Promise<void> {
     });
   });
 
+  // ── 对话 CRUD ──
+  await page.route('**/api/conversations', async (route: Route) => {
+    if (route.request().method() === 'POST') {
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          id: 'conv-test-1',
+          title: '新对话',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          userId: 'user-1',
+          messages: [],
+        }),
+      });
+    }
+    // GET - list
+    return route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify([
+        {
+          id: 'conv-1',
+          title: '年假咨询',
+          updatedAt: new Date().toISOString(),
+          messages: [{ content: '我今年还有几天年假？' }],
+        },
+        {
+          id: 'conv-2',
+          title: '报销流程',
+          updatedAt: new Date().toISOString(),
+          messages: [{ content: '报销怎么走？' }],
+        },
+      ]),
+    });
+  });
+
+  await page.route('**/api/conversations/*/messages', async (route: Route) => {
+    return route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify([]),
+    });
+  });
+
   // ── 健康检查 ──
   await page.route('**/api/health', async (route: Route) => {
     return route.fulfill({

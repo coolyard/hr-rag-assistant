@@ -11,7 +11,7 @@ test.describe('页面导航', () => {
   test('TC-23: 导航栏显示三个入口', async ({ page }) => {
     await page.goto('/chat');
     await page.waitForLoadState('networkidle');
-    await expect(page.getByText('对话')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('link', { name: /对话/ })).toBeVisible({ timeout: 10000 });
     await expect(page.getByText('文档')).toBeVisible();
     await expect(page.getByText('我的')).toBeVisible();
   });
