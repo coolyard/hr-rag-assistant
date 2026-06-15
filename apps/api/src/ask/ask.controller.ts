@@ -42,6 +42,7 @@ export class AskController {
           chunk: chunk.token,
           done: chunk.done,
           status: chunk.status,
+          reasoning: chunk.reasoning,
           followUps: chunk.followUps,
           sources: chunk.sources,
           confidenceLevel: chunk.confidenceLevel,

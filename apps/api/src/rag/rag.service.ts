@@ -77,9 +77,20 @@ export class RAGService {
     try {
       const vectorResults = await this.vectorSearch(query, VECTOR_TOP_K);
       yield { token: '', done: false, status: '正在检索相关文档...' };
+      yield {
+        token: '',
+        done: false,
+        reasoning: '正在启动向量语义检索，查找与问题最相关的文档片段...',
+      };
       const allChunks = this.vectorStore.getAll();
+      yield { token: '', done: false, reasoning: '正在进行关键词精确匹配，补充制度规则类文档...' };
       const keywordResults = this.keywordSearch.search(query, allChunks, KEYWORD_TOP_K);
       merged = this.mergeResults(vectorResults, keywordResults, MERGE_TOP_K);
+      yield {
+        token: '',
+        done: false,
+        reasoning: `检索完成：向量检索返回 ${String(vectorResults.length)} 条，关键词检索返回 ${String(keywordResults.length)} 条，合并去重后得到 ${String(merged.length)} 条相关文档。`,
+      };
       yield { token: '', done: false, status: `找到 ${String(merged.length)} 条匹配，正在分析...` };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -98,12 +109,18 @@ export class RAGService {
           userProfileText = this.userProfileService.formatForPrompt(profile);
           hasPersonalData = true;
           this.logger.log(`Personal data injected for user ${userId}`);
+          yield {
+            token: '',
+            done: false,
+            reasoning: `已匹配到用户个人信息：${profile.realName}，${profile.department} ${profile.position}，年假剩余 ${String(profile.annualLeaveRemaining)} 天。`,
+          };
         }
       }
     }
 
     if (this.shouldReject(merged, query, hasPersonalData)) {
       this.logger.log(`Query rejected (below threshold or filtered): ${query}`);
+      yield { token: '', done: false, reasoning: '检索到的文档相似度过低，无法提供可靠回答。' };
       this.chatService.addAssistantMessage(conv.id, REJECTION_PHRASE);
       yield { token: REJECTION_PHRASE, done: true, confidenceLevel: 'low' };
       return;
@@ -116,6 +133,11 @@ export class RAGService {
     const sources = this.buildSources(merged);
 
     yield { token: '', done: false, status: '正在生成回答...' };
+    yield {
+      token: '',
+      done: false,
+      reasoning: '已构建提示词（包含检索文档 + 用户个人信息 + 对话历史），正在调用 LLM 生成回答...',
+    };
 
     let fullAnswer = '';
     try {
