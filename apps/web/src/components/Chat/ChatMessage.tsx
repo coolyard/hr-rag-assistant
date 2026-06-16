@@ -4,6 +4,7 @@ import type { SourceCitation } from '@/api/sse';
 import styles from '@/components/Chat/ChatMessage.module.css';
 import { ConfidenceBadge } from '@/components/Chat/ConfidenceBadge';
 import { HallucinationWarning } from '@/components/Chat/HallucinationWarning';
+import { showToast } from '@/components/Chat/Toast';
 import { ToolCallCard } from '@/components/Chat/ToolCallCard';
 import type { Message } from '@/hooks/useChat';
 import { renderMarkdown } from '@/utils/markdown';
@@ -215,21 +216,36 @@ export const ChatMessage: FC<ChatMessageProps> = ({
             ))}
           </div>
         )}
-        {message.status === 'complete' &&
-          message.promptTokens != null &&
-          message.completionTokens != null && (
-            <div className={styles.tokenInfo}>~{message.completionTokens} tokens</div>
-          )}
-        {message.status === 'complete' && message.role === 'assistant' && onRegenerate && (
-          <button
-            className={styles.regenerateButton}
-            onClick={() => {
-              onRegenerate(message.id);
-            }}
-            type="button"
-          >
-            重新生成
-          </button>
+        {message.status === 'complete' && (
+          <div className={styles.messageActions}>
+            {message.promptTokens != null && message.completionTokens != null && (
+              <span className={styles.tokenInfo}>~{message.completionTokens} tokens</span>
+            )}
+            <button
+              className={styles.actionButton}
+              onClick={() => {
+                const text = message.content.replace(/<[^>]*>/g, '');
+                showToast('✓ 已复制到剪贴板');
+                navigator.clipboard.writeText(text).catch(() => {
+                  // clipboard not available (non-HTTPS), toast already shown
+                });
+              }}
+              type="button"
+            >
+              复制
+            </button>
+            {message.role === 'assistant' && onRegenerate && (
+              <button
+                className={styles.actionButton}
+                onClick={() => {
+                  onRegenerate(message.id);
+                }}
+                type="button"
+              >
+                重新生成
+              </button>
+            )}
+          </div>
         )}
       </div>
     </div>
