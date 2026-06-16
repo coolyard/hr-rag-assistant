@@ -13,9 +13,11 @@ export interface Message {
   followUps?: string[];
   confidenceLevel?: 'high' | 'medium' | 'low';
   hallucinationWarning?: string;
-  status?: 'sending' | 'streaming' | 'complete' | 'error';
+  status?: 'sending' | 'streaming' | 'complete' | 'error' | 'stopped';
   error?: string;
   reasoning?: string;
+  promptTokens?: number;
+  completionTokens?: number;
 }
 
 function generateId(prefix: string): string {
@@ -145,6 +147,8 @@ export function useChat() {
                       hallucinationWarning: chunk.hallucinationWarning,
                       status: finalStatus,
                       error: chunk.error,
+                      promptTokens: chunk.promptTokens,
+                      completionTokens: chunk.completionTokens,
                     }
                   : m,
               ),
@@ -153,7 +157,16 @@ export function useChat() {
           }
         }
       } catch (error) {
-        if (!(error instanceof DOMException && error.name === 'AbortError')) {
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          // 用户主动停止：刷新已缓冲的 token，标记为 stopped
+          if (rafId !== null) {
+            cancelAnimationFrame(rafId);
+            flushTokens();
+          }
+          setMessages((prev) =>
+            prev.map((m) => (m.id === assistantMsg.id ? { ...m, status: 'stopped' as const } : m)),
+          );
+        } else {
           if (rafId !== null) {
             cancelAnimationFrame(rafId);
             flushTokens();
@@ -224,6 +237,31 @@ export function useChat() {
     }
   }, []);
 
+  const stopGeneration = useCallback(() => {
+    if (abortRef.current) {
+      abortRef.current.abort();
+    }
+  }, []);
+
+  const regenerate = useCallback(
+    (assistantMsgId: string) => {
+      const idx = messages.findIndex((m) => m.id === assistantMsgId);
+      if (idx <= 0) {
+        return;
+      }
+      const userMsg = [...messages.slice(0, idx)].reverse().find((m: Message) => m.role === 'user');
+      if (!userMsg) {
+        return;
+      }
+      // Remove the current assistant message
+      setMessages((prev) => prev.filter((m) => m.id !== assistantMsgId));
+      loadingRef.current = false;
+      setIsLoading(false);
+      void sendMessage(userMsg.content);
+    },
+    [messages, sendMessage],
+  );
+
   return {
     messages,
     inputValue,
@@ -231,7 +269,9 @@ export function useChat() {
     isLoading,
     statusText,
     sendMessage,
+    stopGeneration,
     retryMessage,
+    regenerate,
     clearConversation,
     conversationId,
     newConversation,

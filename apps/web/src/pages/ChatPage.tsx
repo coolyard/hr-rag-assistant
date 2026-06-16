@@ -28,7 +28,9 @@ export const ChatPage: FC<ChatPageProps> = ({ activeConvId, onConversationUpdate
     isLoading,
     statusText,
     sendMessage,
+    stopGeneration,
     retryMessage,
+    regenerate,
     clearConversation,
     newConversation,
     loadConversation,
@@ -157,6 +159,9 @@ export const ChatPage: FC<ChatPageProps> = ({ activeConvId, onConversationUpdate
                   onConversationUpdated?.();
                 });
               }}
+              onRegenerate={(id) => {
+                regenerate(id);
+              }}
             />
             {msg.status === 'error' && msg.role === 'assistant' && (
               <div className={styles.retryRow}>
@@ -183,6 +188,20 @@ export const ChatPage: FC<ChatPageProps> = ({ activeConvId, onConversationUpdate
             <span>{statusText}</span>
           </div>
         )}
+
+        {(() => {
+          const totalPrompt = messages.reduce((sum, m) => sum + (m.promptTokens ?? 0), 0);
+          const totalCompletion = messages.reduce((sum, m) => sum + (m.completionTokens ?? 0), 0);
+          if (totalCompletion > 0) {
+            return (
+              <div className={styles.tokenTotal}>
+                本轮 · Prompt ~{totalPrompt} | Completion ~{totalCompletion} | 总计 ~
+                {totalPrompt + totalCompletion} tokens
+              </div>
+            );
+          }
+          return null;
+        })()}
       </div>
 
       <div className={styles.inputArea}>
@@ -201,14 +220,20 @@ export const ChatPage: FC<ChatPageProps> = ({ activeConvId, onConversationUpdate
           <span className={styles.charCount}>
             {String(charCount)}/{String(MAX_CHARS)}
           </span>
-          <button
-            className={styles.sendButton}
-            onClick={handleSend}
-            disabled={isLoading || inputValue.trim().length === 0}
-            type="button"
-          >
-            {isLoading ? '生成中...' : '发送'}
-          </button>
+          {isLoading ? (
+            <button className={styles.stopButton} onClick={stopGeneration} type="button">
+              停止生成
+            </button>
+          ) : (
+            <button
+              className={styles.sendButton}
+              onClick={handleSend}
+              disabled={inputValue.trim().length === 0}
+              type="button"
+            >
+              发送
+            </button>
+          )}
         </div>
       </div>
     </div>

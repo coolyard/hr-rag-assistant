@@ -273,3 +273,45 @@
   white-space: pre-wrap;
   word-break: break-word;
 }
+
+/* ── Token 信息 ── */
+
+.tokenInfo {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  margin-top: 4px;
+  text-align: right;
+}
+
+/* ── 重新生成按钮 ── */
+
+.regenerateButton {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  font-family: inherit;
+  color: var(--text-tertiary);
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
+}
+
+.regenerateButton:hover {
+  color: var(--text-primary);
+  border-color: var(--text-secondary);
+}
+
+/* ── 停止生成提示 ── */
+
+.stoppedHint {
+  margin: 0;
+  font-size: 0.83rem;
+  color: var(--text-tertiary);
+  font-style: italic;
+}

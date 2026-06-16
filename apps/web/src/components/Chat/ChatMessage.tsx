@@ -102,11 +102,13 @@ const ThinkingSection: FC<ThinkingSectionProps> = ({ reasoning, isStreaming }) =
 interface ChatMessageProps {
   message: Message;
   onFollowUp?: (question: string) => void;
+  onRegenerate?: (id: string) => void;
 }
 
-export const ChatMessage: FC<ChatMessageProps> = ({ message, onFollowUp }) => {
+export const ChatMessage: FC<ChatMessageProps> = ({ message, onFollowUp, onRegenerate }) => {
   const isUser = message.role === 'user';
   const isLoading = message.status === 'sending' || message.status === 'streaming';
+  const isStopped = message.status === 'stopped';
   const hasContent = message.content.length > 0;
 
   if (isUser) {
@@ -134,6 +136,10 @@ export const ChatMessage: FC<ChatMessageProps> = ({ message, onFollowUp }) => {
             <span className={styles.dot}>●</span>
             <span className={styles.dot}>●</span>
           </div>
+        )}
+        {isStopped && !hasContent && <p className={styles.stoppedHint}>用户已停止生成</p>}
+        {isStopped && hasContent && (
+          <p className={styles.stoppedHint}>用户已停止生成 · 以下为已生成内容</p>
         )}
         {hasContent && (
           <div
@@ -174,6 +180,22 @@ export const ChatMessage: FC<ChatMessageProps> = ({ message, onFollowUp }) => {
               </button>
             ))}
           </div>
+        )}
+        {message.status === 'complete' &&
+          message.promptTokens != null &&
+          message.completionTokens != null && (
+            <div className={styles.tokenInfo}>~{message.completionTokens} tokens</div>
+          )}
+        {message.status === 'complete' && message.role === 'assistant' && onRegenerate && (
+          <button
+            className={styles.regenerateButton}
+            onClick={() => {
+              onRegenerate(message.id);
+            }}
+            type="button"
+          >
+            重新生成
+          </button>
         )}
       </div>
     </div>
