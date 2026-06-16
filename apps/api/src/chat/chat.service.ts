@@ -65,4 +65,21 @@ export class ChatService {
     await this.store.addMessage(convId, message);
     return message;
   }
+
+  async persistToolMessage(
+    convId: string,
+    contentJson: string,
+    role: string,
+    messageId: string,
+  ): Promise<Message> {
+    const message: Message = {
+      id: messageId,
+      role: role as Message['role'],
+      content: contentJson,
+      timestamp: Date.now(),
+      status: 'complete',
+    };
+    await this.store.addMessage(convId, message);
+    return message;
+  }
 }

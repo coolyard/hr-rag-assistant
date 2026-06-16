@@ -86,17 +86,33 @@ export class RAGService {
     if (tool) {
       const args = tool.buildArgs(query);
       yield { token: '', done: false, reasoning: `检测到操作意图：${tool.title}` };
+      const toolCallId = generateToolCallId();
       yield {
         token: '',
         done: false,
         toolCallStart: {
-          id: generateToolCallId(),
+          id: toolCallId,
           name: tool.name,
           title: tool.title,
           args,
           confirmRequired: tool.confirmRequired,
         },
       };
+      // 持久化 toolCall 消息到数据库
+      await this.chatService.persistToolMessage(
+        conv.id,
+        JSON.stringify({
+          toolCall: {
+            id: toolCallId,
+            name: tool.name,
+            title: tool.title,
+            args,
+            confirmRequired: tool.confirmRequired,
+          },
+        }),
+        'toolCall',
+        toolCallId,
+      );
       return;
     }
 

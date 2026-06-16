@@ -45,15 +45,13 @@ export class AskController {
           done: chunk.done,
           status: chunk.status,
           reasoning: chunk.reasoning,
+          toolCallStart: chunk.toolCallStart,
+          toolResult: chunk.toolResult,
           followUps: chunk.followUps,
           sources: chunk.sources,
           confidenceLevel: chunk.confidenceLevel,
           hallucinationWarning: chunk.hallucinationWarning,
           error: chunk.error,
-          toolCallStart: chunk.toolCallStart,
-          toolResult: chunk.toolResult,
-          promptTokens: chunk.promptTokens,
-          completionTokens: chunk.completionTokens,
           conversationId: body.conversationId,
         };
         res.write(`data: ${JSON.stringify(data)}\n\n`);
@@ -75,11 +73,26 @@ export class AskController {
   }
 
   @Post('tool/execute')
-  @Post('tool/execute')
-  executeTool(
-    @Body() body: { toolCallId: string; toolName: string; args: Record<string, unknown> },
+  async executeTool(
+    @Body()
+    body: {
+      toolCallId: string;
+      toolName: string;
+      args: Record<string, unknown>;
+      conversationId?: string;
+    },
   ) {
-    return this.toolRegistry.executeTool(body.toolName, body.args);
+    const result = this.toolRegistry.executeTool(body.toolName, body.args);
+    if (body.conversationId) {
+      const trId = 'tr-' + String(Date.now()) + '-' + Math.random().toString(36).slice(2, 8);
+      await this.chatService.persistToolMessage(
+        body.conversationId,
+        JSON.stringify({ toolResult: { id: body.toolCallId, result: result.result } }),
+        'toolResult',
+        trId,
+      );
+    }
+    return result;
   }
 
   @Get('history/:conversationId')

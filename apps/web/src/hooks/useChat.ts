@@ -240,7 +240,7 @@ export function useChat() {
       const res = await fetch('/api/ask/tool/execute', {
         method: 'POST',
         headers,
-        body: JSON.stringify({ toolCallId, toolName, args }),
+        body: JSON.stringify({ toolCallId, toolName, args, conversationId }),
       });
       const result = (await res.json()) as { result: string; error?: string };
       const resultMsg: Message = {
@@ -253,7 +253,7 @@ export function useChat() {
       };
       setMessages((prev) => [...prev, resultMsg]);
     },
-    [],
+    [conversationId],
   );
 
   const retryMessage = useCallback(
@@ -288,11 +288,28 @@ export function useChat() {
       const res = await client.get(`/conversations/${convId}/messages`);
       const msgs = Array.isArray(res.data) ? (res.data as Message[]) : [];
       setMessages(
-        msgs.map((m) => ({
-          ...m,
-          timestamp:
-            typeof m.timestamp === 'string' ? new Date(m.timestamp).getTime() : m.timestamp,
-        })),
+        msgs.map((m) => {
+          const base = {
+            ...m,
+            timestamp:
+              typeof m.timestamp === 'string' ? new Date(m.timestamp).getTime() : m.timestamp,
+          };
+          // 从 content JSON 中恢复 toolCall/toolResult 字段
+          if (m.role === 'toolCall' || m.role === 'toolResult') {
+            try {
+              const parsed = JSON.parse(m.content) as Record<string, unknown>;
+              if (parsed.toolCall) {
+                return { ...base, toolCall: parsed.toolCall as Message['toolCall'] };
+              }
+              if (parsed.toolResult) {
+                return { ...base, toolResult: parsed.toolResult as Message['toolResult'] };
+              }
+            } catch {
+              // content is not valid JSON, keep as-is
+            }
+          }
+          return base;
+        }),
       );
       setConversationId(convId);
     } catch {
