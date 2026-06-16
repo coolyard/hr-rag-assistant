@@ -306,3 +306,12 @@
   color: var(--text-primary);
   border-color: var(--text-secondary);
 }
+
+/* ── 停止生成提示 ── */
+
+.stoppedHint {
+  margin: 0;
+  font-size: 0.83rem;
+  color: var(--text-tertiary);
+  font-style: italic;
+}

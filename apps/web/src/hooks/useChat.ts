@@ -13,7 +13,7 @@ export interface Message {
   followUps?: string[];
   confidenceLevel?: 'high' | 'medium' | 'low';
   hallucinationWarning?: string;
-  status?: 'sending' | 'streaming' | 'complete' | 'error';
+  status?: 'sending' | 'streaming' | 'complete' | 'error' | 'stopped';
   error?: string;
   reasoning?: string;
   promptTokens?: number;
@@ -157,7 +157,16 @@ export function useChat() {
           }
         }
       } catch (error) {
-        if (!(error instanceof DOMException && error.name === 'AbortError')) {
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          // 用户主动停止：刷新已缓冲的 token，标记为 stopped
+          if (rafId !== null) {
+            cancelAnimationFrame(rafId);
+            flushTokens();
+          }
+          setMessages((prev) =>
+            prev.map((m) => (m.id === assistantMsg.id ? { ...m, status: 'stopped' as const } : m)),
+          );
+        } else {
           if (rafId !== null) {
             cancelAnimationFrame(rafId);
             flushTokens();

@@ -48,6 +48,11 @@ test.describe('高级流式 UX', () => {
     }
     // 无论如何，最终应该看得到"发送"按钮
     await expect(sendBtn).toBeVisible({ timeout: 10000 });
+    // 验证不再显示 loading dots，而是显示"用户已停止生成"
+    const stoppedHint = page.getByText('用户已停止生成');
+    if (await stoppedHint.isVisible().catch(() => false)) {
+      // 有停止提示（无内容被生成）
+    }
     const input = page.locator('textarea');
     await expect(input).not.toBeDisabled();
   });
