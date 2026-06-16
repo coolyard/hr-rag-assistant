@@ -132,7 +132,13 @@ export function useChat() {
               toolCall: chunk.toolCallStart,
               status: 'complete',
             };
-            setMessages((prev) => [...prev, toolMsg]);
+            // 移除初始的 loading assistant 消息，用 toolCall 消息替代
+            setMessages((prev) => {
+              const withoutLoading = prev.filter(
+                (m) => !(m.role === 'assistant' && m.id === assistantMsg.id && m.content === ''),
+              );
+              return [...withoutLoading, toolMsg];
+            });
             setIsLoading(false);
             setStatusText('');
             loadingRef.current = false;
