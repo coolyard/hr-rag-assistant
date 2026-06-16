@@ -12,6 +12,7 @@ import { HealthModule } from '@/health/health.module';
 import { LLMModule } from '@/llm/llm.module';
 import { PrismaModule } from '@/prisma/prisma.module';
 import { RagModule } from '@/rag/rag.module';
+import { ToolModule } from '@/tool/tool.module';
 import { UserProfileModule } from '@/user-profile/user-profile.module';
 import { VectorModule } from '@/vector/vector.module';
 
@@ -27,6 +28,7 @@ import { VectorModule } from '@/vector/vector.module';
     HealthModule,
     LLMModule,
     RagModule,
+    ToolModule,
     UserProfileModule,
     VectorModule,
   ],

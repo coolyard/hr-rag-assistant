@@ -2,6 +2,14 @@ import type { SourceCitation } from '@/rag/rag.interface';
 
 export interface AskRequest {
   question: string;
+  toolCallStart?: {
+    id: string;
+    name: string;
+    title: string;
+    args: Record<string, unknown>;
+    confirmRequired: boolean;
+  };
+  toolResult?: { id: string; result: string | Record<string, unknown>; error?: string };
   conversationId?: string;
 }
 
@@ -17,5 +25,13 @@ export interface AskStreamChunk {
   error?: string;
   promptTokens?: number;
   completionTokens?: number;
+  toolCallStart?: {
+    id: string;
+    name: string;
+    title: string;
+    args: Record<string, unknown>;
+    confirmRequired: boolean;
+  };
+  toolResult?: { id: string; result: string | Record<string, unknown>; error?: string };
   conversationId?: string;
 }

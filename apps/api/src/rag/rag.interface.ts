@@ -30,6 +30,22 @@ export interface StreamChunk {
   error?: string;
   promptTokens?: number;
   completionTokens?: number;
+  toolCallStart?: ToolCallStart;
+  toolResult?: ToolResult;
+}
+
+export interface ToolCallStart {
+  id: string;
+  name: string;
+  title: string;
+  args: Record<string, unknown>;
+  confirmRequired: boolean;
+}
+
+export interface ToolResult {
+  id: string;
+  result: string | Record<string, unknown>;
+  error?: string;
 }
 
 export type { DocumentMeta, SearchResult };

@@ -165,3 +165,17 @@ export const MOCK_REASONING_CHUNKS = [
   '已匹配到用户个人信息：张三，技术部 前端工程师，年假剩余 7 天。\n',
   '已构建提示词（包含检索文档 + 用户个人信息 + 对话历史），正在调用 LLM 生成回答...\n',
 ];
+
+// ── 工具调用 Mock 数据 ──
+export const MOCK_TOOL_CALL = {
+  id: 'tc-1',
+  name: 'apply_leave',
+  title: '申请年假',
+  args: {
+    days: 3,
+    startDate: '2026-06-20',
+    endDate: '2026-06-22',
+    leaveType: 'annual',
+  },
+  confirmRequired: true,
+};

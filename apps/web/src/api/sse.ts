@@ -1,6 +1,18 @@
 export interface AskRequest {
   question: string;
   conversationId?: string;
+  toolCallStart?: {
+    id: string;
+    name: string;
+    title: string;
+    args: Record<string, unknown>;
+    confirmRequired: boolean;
+  };
+  toolResult?: {
+    id: string;
+    result: string | Record<string, unknown>;
+    error?: string;
+  };
 }
 
 export interface AskStreamChunk {
@@ -16,6 +28,18 @@ export interface AskStreamChunk {
   promptTokens?: number;
   completionTokens?: number;
   conversationId?: string;
+  toolCallStart?: {
+    id: string;
+    name: string;
+    title: string;
+    args: Record<string, unknown>;
+    confirmRequired: boolean;
+  };
+  toolResult?: {
+    id: string;
+    result: string | Record<string, unknown>;
+    error?: string;
+  };
 }
 
 export interface SourceCitation {

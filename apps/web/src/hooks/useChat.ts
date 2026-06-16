@@ -6,7 +6,7 @@ import type { SourceCitation } from '@/api/sse';
 
 export interface Message {
   id: string;
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'toolCall' | 'toolResult';
   content: string;
   timestamp: number;
   sources?: SourceCitation[];
@@ -18,6 +18,18 @@ export interface Message {
   reasoning?: string;
   promptTokens?: number;
   completionTokens?: number;
+  toolCall?: {
+    id: string;
+    name: string;
+    title: string;
+    args: Record<string, unknown>;
+    confirmRequired: boolean;
+  };
+  toolResult?: {
+    id: string;
+    result: string | Record<string, unknown>;
+    error?: string;
+  };
 }
 
 function generateId(prefix: string): string {
@@ -111,6 +123,31 @@ export function useChat() {
             );
           }
 
+          if (chunk.toolCallStart) {
+            const toolMsg: Message = {
+              id: generateId('tc'),
+              role: 'toolCall',
+              content: '',
+              timestamp: Date.now(),
+              toolCall: chunk.toolCallStart,
+              status: 'complete',
+            };
+            // 移除初始的 loading assistant 消息，用 toolCall 消息替代
+            setMessages((prev) => {
+              const withoutLoading = prev.filter(
+                (m) => !(m.role === 'assistant' && m.id === assistantMsg.id && m.content === ''),
+              );
+              return [...withoutLoading, toolMsg];
+            });
+            setIsLoading(false);
+            setStatusText('');
+            loadingRef.current = false;
+            if (rafId !== null) {
+              cancelAnimationFrame(rafId);
+            }
+            return;
+          }
+
           if (chunk.reasoning) {
             const reasoningText: string = chunk.reasoning;
             setMessages((prev) =>
@@ -191,6 +228,32 @@ export function useChat() {
       }
     },
     [conversationId],
+  );
+
+  const confirmToolCall = useCallback(
+    async (toolCallId: string, toolName: string, args: Record<string, unknown>) => {
+      const token = localStorage.getItem('hr_rag_token');
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+      const res = await fetch('/api/ask/tool/execute', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ toolCallId, toolName, args }),
+      });
+      const result = (await res.json()) as { result: string; error?: string };
+      const resultMsg: Message = {
+        id: generateId('tr'),
+        role: 'toolResult',
+        content: result.error != null ? `执行失败: ${result.error}` : result.result,
+        timestamp: Date.now(),
+        toolResult: { id: toolCallId, result: result.result },
+        status: 'complete',
+      };
+      setMessages((prev) => [...prev, resultMsg]);
+    },
+    [],
   );
 
   const retryMessage = useCallback(
@@ -274,6 +337,7 @@ export function useChat() {
     regenerate,
     clearConversation,
     conversationId,
+    confirmToolCall,
     newConversation,
     loadConversation,
   };

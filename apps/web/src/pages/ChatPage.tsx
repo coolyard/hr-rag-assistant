@@ -32,6 +32,7 @@ export const ChatPage: FC<ChatPageProps> = ({ activeConvId, onConversationUpdate
     retryMessage,
     regenerate,
     clearConversation,
+    confirmToolCall,
     newConversation,
     loadConversation,
   } = useChat();
@@ -90,6 +91,10 @@ export const ChatPage: FC<ChatPageProps> = ({ activeConvId, onConversationUpdate
       clearConversation();
     }
   }, [activeConvId, loadConversation, clearConversation]);
+
+  const handleToolCancel = useCallback(() => {
+    // 用户取消工具调用，不做任何操作
+  }, []);
 
   const handleRetry = useCallback(
     (messageId: string) => {
@@ -162,6 +167,10 @@ export const ChatPage: FC<ChatPageProps> = ({ activeConvId, onConversationUpdate
               onRegenerate={(id) => {
                 regenerate(id);
               }}
+              onToolConfirm={(toolCallId, toolName, args) => {
+                void confirmToolCall(toolCallId, toolName, args);
+              }}
+              onToolCancel={handleToolCancel}
             />
             {msg.status === 'error' && msg.role === 'assistant' && (
               <div className={styles.retryRow}>
