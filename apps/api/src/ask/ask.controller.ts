@@ -5,6 +5,7 @@ import type { AskRequest, AskStreamChunk } from '@/ask/ask.interface';
 import type { UserPayload } from '@/auth/auth.interface';
 import { ChatService } from '@/chat/chat.service';
 import { RAGService } from '@/rag/rag.service';
+import { ToolRegistryService } from '@/tool/tool-registry.service';
 
 const HEARTBEAT_INTERVAL = 15000;
 
@@ -15,6 +16,7 @@ export class AskController {
   constructor(
     private readonly ragService: RAGService,
     private readonly chatService: ChatService,
+    private readonly toolRegistry: ToolRegistryService,
   ) {}
 
   @Post()
@@ -68,6 +70,14 @@ export class AskController {
       clearInterval(heartbeat);
       res.end();
     }
+  }
+
+  @Post('tool/execute')
+  @Post('tool/execute')
+  executeTool(
+    @Body() body: { toolCallId: string; toolName: string; args: Record<string, unknown> },
+  ) {
+    return this.toolRegistry.executeTool(body.toolName, body.args);
   }
 
   @Get('history/:conversationId')

@@ -4,6 +4,7 @@ import type { SourceCitation } from '@/api/sse';
 import styles from '@/components/Chat/ChatMessage.module.css';
 import { ConfidenceBadge } from '@/components/Chat/ConfidenceBadge';
 import { HallucinationWarning } from '@/components/Chat/HallucinationWarning';
+import { ToolCallCard } from '@/components/Chat/ToolCallCard';
 import type { Message } from '@/hooks/useChat';
 import { renderMarkdown } from '@/utils/markdown';
 
@@ -103,13 +104,46 @@ interface ChatMessageProps {
   message: Message;
   onFollowUp?: (question: string) => void;
   onRegenerate?: (id: string) => void;
+  onToolConfirm?: (toolCallId: string, toolName: string, args: Record<string, unknown>) => void;
+  onToolCancel?: () => void;
 }
 
-export const ChatMessage: FC<ChatMessageProps> = ({ message, onFollowUp, onRegenerate }) => {
+export const ChatMessage: FC<ChatMessageProps> = ({
+  message,
+  onFollowUp,
+  onRegenerate,
+  onToolConfirm,
+  onToolCancel,
+}) => {
   const isUser = message.role === 'user';
   const isLoading = message.status === 'sending' || message.status === 'streaming';
   const isStopped = message.status === 'stopped';
   const hasContent = message.content.length > 0;
+
+  if (message.role === 'toolCall' && message.toolCall) {
+    const tc = message.toolCall;
+    return (
+      <div className={styles.assistantRow}>
+        <ToolCallCard
+          toolCall={tc}
+          onConfirm={() => {
+            onToolConfirm?.(tc.id, tc.name, tc.args);
+          }}
+          onCancel={() => {
+            onToolCancel?.();
+          }}
+        />
+      </div>
+    );
+  }
+
+  if (message.role === 'toolResult') {
+    return (
+      <div className={styles.assistantRow}>
+        <div className={styles.toolResultBanner}>{message.content}</div>
+      </div>
+    );
+  }
 
   if (isUser) {
     return (

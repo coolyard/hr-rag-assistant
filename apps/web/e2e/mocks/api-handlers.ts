@@ -4,6 +4,7 @@ import {
   MOCK_DOCUMENT_CONTENT,
   MOCK_PROFILE,
   MOCK_REASONING_CHUNKS,
+  MOCK_TOOL_CALL,
   MOCK_SSE_CHUNKS,
   MOCK_SSE_SOURCES,
   MOCK_SSE_FOLLOWUPS,
@@ -14,6 +15,20 @@ import { MOCK_TOKENS } from '../utils/jwt';
  * 构建完整的 SSE 流响应字符串。
  * route.fulfill() 不支持 ReadableStream，所以一次性构建所有 data: 消息。
  */
+/**
+ * 构建 Tool Call SSE 响应（当问题包含"申请年假"时触发）
+ */
+function buildToolCallSSEResponse(): string {
+  let sseData = '';
+  // 先发送 reasoning
+  for (const reasoning of MOCK_REASONING_CHUNKS) {
+    sseData += `data: ${JSON.stringify({ chunk: '', done: false, reasoning })}\n\n`;
+  }
+  // 发送 tool call start
+  sseData += `data: ${JSON.stringify({ chunk: '', done: false, toolCallStart: MOCK_TOOL_CALL })}\n\n`;
+  return sseData;
+}
+
 function buildSSEResponse(): string {
   let sseData = '';
   // 先发送 reasoning 片段（思考过程）
@@ -87,8 +102,36 @@ export async function setupApiMocks(page: Page): Promise<void> {
     });
   });
 
-  // ── 问答 SSE 流 ──
+  // ── 问答 SSE 流（条件：tool call 检测）──
+  let askHandled = false;
   await page.route('**/api/ask', async (route: Route) => {
+    if (askHandled) {
+      // 第二次请求（确认后继续生成）使用正常流
+      return route.fulfill({
+        status: 200,
+        contentType: 'text/event-stream',
+        headers: {
+          'Cache-Control': 'no-cache',
+          Connection: 'keep-alive',
+          'X-Accel-Buffering': 'no',
+        },
+        body: buildSSEResponse(),
+      });
+    }
+    const postData = route.request().postDataJSON();
+    if (postData?.question?.includes('申请年假') || postData?.question?.includes('请假')) {
+      askHandled = true;
+      return route.fulfill({
+        status: 200,
+        contentType: 'text/event-stream',
+        headers: {
+          'Cache-Control': 'no-cache',
+          Connection: 'keep-alive',
+          'X-Accel-Buffering': 'no',
+        },
+        body: buildToolCallSSEResponse(),
+      });
+    }
     return route.fulfill({
       status: 200,
       contentType: 'text/event-stream',
@@ -98,6 +141,18 @@ export async function setupApiMocks(page: Page): Promise<void> {
         'X-Accel-Buffering': 'no',
       },
       body: buildSSEResponse(),
+    });
+  });
+
+  // ── 工具执行 ──
+  await page.route('**/api/tool/execute', async (route: Route) => {
+    return route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        id: 'tc-1',
+        result: '年假申请已提交：3天（2026-06-20 至 2026-06-22），等待直属上级审批。',
+      }),
     });
   });
 

@@ -10,6 +10,7 @@ import { ConversationStoreService } from '@/chat/conversation-store.service';
 import { PrismaService } from '@/prisma/prisma.service';
 import { LLMService } from '@/llm/llm.service';
 import { UserProfileService } from '@/user-profile/user-profile.service';
+import { ToolRegistryService } from '@/tool/tool-registry.service';
 import { AuthService } from '@/auth/auth.service';
 import type { MergedResult, RAGSearchResult } from '@/rag/rag.interface';
 
@@ -37,6 +38,7 @@ describe('RAGService', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
+        ToolRegistryService,
         RAGService,
         KeywordSearchService,
         ChatService,

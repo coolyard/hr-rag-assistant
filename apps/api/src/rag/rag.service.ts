@@ -12,6 +12,7 @@ import type {
   StreamChunk,
 } from '@/rag/rag.interface';
 import { validateAnswer } from '@/rag/rag.validator';
+import { ToolRegistryService } from '@/tool/tool-registry.service';
 import { UserProfileService } from '@/user-profile/user-profile.service';
 import { VectorStoreService } from '@/vector/vector-store.service';
 
@@ -49,6 +50,12 @@ const SYSTEM_PROMPT_TEMPLATE = `你是企业 HR 助手，专门回答员工关�
 
 const MAX_TOKENS_ESTIMATE = 28000;
 
+function generateToolCallId(): string {
+  const ts = Date.now();
+  const rand = Math.random().toString(36).slice(2, 8);
+  return `tc-${String(ts)}-${rand}`;
+}
+
 export const REJECTION_PHRASE =
   '根据现有 HR 文档，无法确认该问题的答案。建议联系 HR 部门获取准确信息。';
 
@@ -63,6 +70,7 @@ export class RAGService {
     private readonly chatService: ChatService,
     private readonly llmService: LLMService,
     private readonly userProfileService: UserProfileService,
+    private readonly toolRegistry: ToolRegistryService,
   ) {}
 
   async *orchestrate(
@@ -72,6 +80,25 @@ export class RAGService {
   ): AsyncIterable<StreamChunk> {
     const conv = await this.chatService.getOrCreateConversation(conversationId, userId);
     await this.chatService.addUserMessage(conv.id, query);
+
+    // 检测是否需要工具调用
+    const tool = this.toolRegistry.detectTool(query);
+    if (tool) {
+      const args = tool.buildArgs(query);
+      yield { token: '', done: false, reasoning: `检测到操作意图：${tool.title}` };
+      yield {
+        token: '',
+        done: false,
+        toolCallStart: {
+          id: generateToolCallId(),
+          name: tool.name,
+          title: tool.title,
+          args,
+          confirmRequired: tool.confirmRequired,
+        },
+      };
+      return;
+    }
 
     let merged: MergedResult[];
     try {
