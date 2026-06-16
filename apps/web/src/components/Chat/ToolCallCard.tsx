@@ -19,8 +19,12 @@ export const ToolCallCard: FC<ToolCallCardProps> = ({ toolCall, onConfirm, onCan
 
   const handleConfirm = useCallback(() => {
     setStatus('executing');
-    onConfirm();
-    setStatus('completed');
+    try {
+      onConfirm();
+      setStatus('completed');
+    } catch {
+      setStatus('idle');
+    }
   }, [onConfirm]);
 
   const handleCancel = useCallback(() => {

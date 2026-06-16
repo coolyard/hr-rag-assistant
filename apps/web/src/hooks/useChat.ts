@@ -237,7 +237,7 @@ export function useChat() {
       if (token) {
         headers.Authorization = `Bearer ${token}`;
       }
-      const res = await fetch('/api/tool/execute', {
+      const res = await fetch('/api/ask/tool/execute', {
         method: 'POST',
         headers,
         body: JSON.stringify({ toolCallId, toolName, args }),

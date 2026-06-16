@@ -94,7 +94,7 @@ export const ChatPage: FC<ChatPageProps> = ({ activeConvId, onConversationUpdate
 
   const handleToolConfirm = useCallback(
     (toolCallId: string, toolName: string, args: Record<string, unknown>) => {
-      void confirmToolCall(toolCallId, toolName, args);
+      return confirmToolCall(toolCallId, toolName, args);
     },
     [confirmToolCall],
   );

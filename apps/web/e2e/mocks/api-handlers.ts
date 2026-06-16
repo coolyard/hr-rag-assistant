@@ -145,7 +145,7 @@ export async function setupApiMocks(page: Page): Promise<void> {
   });
 
   // ── 工具执行 ──
-  await page.route('**/api/tool/execute', async (route: Route) => {
+  await page.route('**/api/ask/tool/execute', async (route: Route) => {
     return route.fulfill({
       status: 200,
       contentType: 'application/json',
