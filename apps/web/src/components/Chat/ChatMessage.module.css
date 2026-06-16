@@ -329,3 +329,31 @@
   color: #16a34a;
   line-height: 1.5;
 }
+
+/* ── 消息操作按钮 ── */
+
+.messageActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.actionButton {
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
+}
+
+.actionButton:hover {
+  color: var(--text-primary);
+  border-color: var(--text-secondary);
+}

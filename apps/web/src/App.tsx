@@ -1,16 +1,22 @@
 import '@/styles/variables.css';
 
-import { type FC, useCallback, useEffect, useState } from 'react';
+import { type FC, lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
 import styles from '@/App.module.css';
+import { ErrorBoundary } from '@/components/Error/ErrorBoundary';
+import { PageSkeleton } from '@/components/Layout/PageSkeleton';
 import { Sidebar } from '@/components/Layout/Sidebar';
 import { useAuth } from '@/hooks/useAuth';
 import { useConversations } from '@/hooks/useConversations';
-import { ChatPage } from '@/pages/ChatPage';
-import { DocumentPage } from '@/pages/DocumentPage';
+const ChatPage = lazy(() => import('@/pages/ChatPage').then((m) => ({ default: m.ChatPage })));
+const DocumentPage = lazy(() =>
+  import('@/pages/DocumentPage').then((m) => ({ default: m.DocumentPage })),
+);
 import { LoginPage } from '@/pages/LoginPage';
-import { ProfilePage } from '@/pages/ProfilePage';
+const ProfilePage = lazy(() =>
+  import('@/pages/ProfilePage').then((m) => ({ default: m.ProfilePage })),
+);
 
 const ProtectedRoute: FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -114,22 +120,24 @@ const AuthenticatedLayout: FC = () => {
         >
           ☰
         </button>
-        <Routes>
-          <Route path="/" element={<Navigate to="/chat" replace />} />
-          <Route
-            path="/chat"
-            element={
-              <ChatPage
-                activeConvId={activeConvId}
-                onConversationUpdated={() => {
-                  void fetchList();
-                }}
-              />
-            }
-          />
-          <Route path="/documents" element={<DocumentPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-        </Routes>
+        <Suspense fallback={<PageSkeleton />}>
+          <Routes>
+            <Route path="/" element={<Navigate to="/chat" replace />} />
+            <Route
+              path="/chat"
+              element={
+                <ChatPage
+                  activeConvId={activeConvId}
+                  onConversationUpdated={() => {
+                    void fetchList();
+                  }}
+                />
+              }
+            />
+            <Route path="/documents" element={<DocumentPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+          </Routes>
+        </Suspense>
       </main>
     </div>
   );
@@ -137,16 +145,18 @@ const AuthenticatedLayout: FC = () => {
 
 export const App: FC = () => {
   return (
-    <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route
-        path="*"
-        element={
-          <ProtectedRoute>
-            <AuthenticatedLayout />
-          </ProtectedRoute>
-        }
-      />
-    </Routes>
+    <ErrorBoundary>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="*"
+          element={
+            <ProtectedRoute>
+              <AuthenticatedLayout />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </ErrorBoundary>
   );
 };
