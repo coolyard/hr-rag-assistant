@@ -92,13 +92,6 @@ export const ChatPage: FC<ChatPageProps> = ({ activeConvId, onConversationUpdate
     }
   }, [activeConvId, loadConversation, clearConversation]);
 
-  const handleToolConfirm = useCallback(
-    (toolCallId: string, toolName: string, args: Record<string, unknown>) => {
-      return confirmToolCall(toolCallId, toolName, args);
-    },
-    [confirmToolCall],
-  );
-
   const handleToolCancel = useCallback(() => {
     // 用户取消工具调用，不做任何操作
   }, []);
@@ -174,7 +167,9 @@ export const ChatPage: FC<ChatPageProps> = ({ activeConvId, onConversationUpdate
               onRegenerate={(id) => {
                 regenerate(id);
               }}
-              onToolConfirm={handleToolConfirm}
+              onToolConfirm={(toolCallId, toolName, args) => {
+                void confirmToolCall(toolCallId, toolName, args);
+              }}
               onToolCancel={handleToolCancel}
             />
             {msg.status === 'error' && msg.role === 'assistant' && (
