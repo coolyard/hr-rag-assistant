@@ -15,7 +15,12 @@ const QUICK_QUESTIONS = [
   '我什么时候可以申请晋升？薪资能涨多少？',
 ];
 
-export const ChatPage: FC = () => {
+interface ChatPageProps {
+  activeConvId: string | null;
+  onConversationUpdated?: () => void;
+}
+
+export const ChatPage: FC<ChatPageProps> = ({ activeConvId, onConversationUpdated }) => {
   const {
     messages,
     inputValue,
@@ -26,6 +31,7 @@ export const ChatPage: FC = () => {
     retryMessage,
     clearConversation,
     newConversation,
+    loadConversation,
   } = useChat();
 
   const listRef = useRef<HTMLDivElement>(null);
@@ -45,8 +51,10 @@ export const ChatPage: FC = () => {
     if (inputValue.trim().length === 0 || isLoading) {
       return;
     }
-    void sendMessage(inputValue);
-  }, [inputValue, isLoading, sendMessage]);
+    void sendMessage(inputValue).then(() => {
+      onConversationUpdated?.();
+    });
+  }, [inputValue, isLoading, sendMessage, onConversationUpdated]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -67,6 +75,19 @@ export const ChatPage: FC = () => {
     },
     [setInputValue],
   );
+
+  const convRef = useRef(activeConvId);
+
+  useEffect(() => {
+    if (activeConvId && activeConvId !== convRef.current) {
+      convRef.current = activeConvId;
+      void loadConversation(activeConvId);
+    }
+    if (activeConvId === null && convRef.current !== null) {
+      convRef.current = null;
+      clearConversation();
+    }
+  }, [activeConvId, loadConversation, clearConversation]);
 
   const handleRetry = useCallback(
     (messageId: string) => {
@@ -113,7 +134,9 @@ export const ChatPage: FC = () => {
                   key={q}
                   className={styles.quickQuestion}
                   onClick={() => {
-                    void sendMessage(q);
+                    void sendMessage(q).then(() => {
+                      onConversationUpdated?.();
+                    });
                   }}
                   disabled={isLoading}
                   type="button"
@@ -130,7 +153,9 @@ export const ChatPage: FC = () => {
             <ChatMessage
               message={msg}
               onFollowUp={(q) => {
-                void sendMessage(q);
+                void sendMessage(q).then(() => {
+                  onConversationUpdated?.();
+                });
               }}
             />
             {msg.status === 'error' && msg.role === 'assistant' && (

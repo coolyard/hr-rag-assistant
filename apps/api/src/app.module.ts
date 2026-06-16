@@ -5,10 +5,12 @@ import { AppService } from '@/app.service';
 import { AskModule } from '@/ask/ask.module';
 import { AuthModule } from '@/auth/auth.module';
 import { ChatModule } from '@/chat/chat.module';
+import { ConversationModule } from '@/conversation/conversation.module';
 import { DocumentModule } from '@/document/document.module';
 import { EmbeddingModule } from '@/embed/embed.module';
 import { HealthModule } from '@/health/health.module';
 import { LLMModule } from '@/llm/llm.module';
+import { PrismaModule } from '@/prisma/prisma.module';
 import { RagModule } from '@/rag/rag.module';
 import { UserProfileModule } from '@/user-profile/user-profile.module';
 import { VectorModule } from '@/vector/vector.module';
@@ -18,8 +20,10 @@ import { VectorModule } from '@/vector/vector.module';
     AskModule,
     AuthModule,
     ChatModule,
+    ConversationModule,
     DocumentModule,
     EmbeddingModule,
+    PrismaModule,
     HealthModule,
     LLMModule,
     RagModule,

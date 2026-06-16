@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 
+import { client } from '@/api/client';
 import { streamAsk } from '@/api/sse';
 import type { SourceCitation } from '@/api/sse';
 
@@ -109,10 +110,11 @@ export function useChat() {
           }
 
           if (chunk.reasoning) {
+            const reasoningText: string = chunk.reasoning;
             setMessages((prev) =>
               prev.map((m) =>
                 m.id === assistantMsg.id
-                  ? { ...m, reasoning: (m.reasoning ?? '') + (chunk.reasoning ?? '') }
+                  ? { ...m, reasoning: (m.reasoning ?? '') + reasoningText }
                   : m,
               ),
             );
@@ -205,6 +207,23 @@ export function useChat() {
     clearConversation();
   }, [clearConversation]);
 
+  const loadConversation = useCallback(async (convId: string) => {
+    try {
+      const res = await client.get(`/conversations/${convId}/messages`);
+      const msgs = Array.isArray(res.data) ? (res.data as Message[]) : [];
+      setMessages(
+        msgs.map((m) => ({
+          ...m,
+          timestamp:
+            typeof m.timestamp === 'string' ? new Date(m.timestamp).getTime() : m.timestamp,
+        })),
+      );
+      setConversationId(convId);
+    } catch {
+      setMessages([]);
+    }
+  }, []);
+
   return {
     messages,
     inputValue,
@@ -216,5 +235,6 @@ export function useChat() {
     clearConversation,
     conversationId,
     newConversation,
+    loadConversation,
   };
 }

@@ -70,8 +70,8 @@ export class RAGService {
     conversationId?: string,
     userId?: string,
   ): AsyncIterable<StreamChunk> {
-    const conv = this.chatService.getOrCreateConversation(conversationId);
-    this.chatService.addUserMessage(conv.id, query);
+    const conv = await this.chatService.getOrCreateConversation(conversationId, userId);
+    await this.chatService.addUserMessage(conv.id, query);
 
     let merged: MergedResult[];
     try {
@@ -121,12 +121,12 @@ export class RAGService {
     if (this.shouldReject(merged, query, hasPersonalData)) {
       this.logger.log(`Query rejected (below threshold or filtered): ${query}`);
       yield { token: '', done: false, reasoning: '检索到的文档相似度过低，无法提供可靠回答。' };
-      this.chatService.addAssistantMessage(conv.id, REJECTION_PHRASE);
+      await this.chatService.addAssistantMessage(conv.id, REJECTION_PHRASE);
       yield { token: REJECTION_PHRASE, done: true, confidenceLevel: 'low' };
       return;
     }
 
-    const history = this.chatService.getHistory(conv.id);
+    const history = await this.chatService.getHistory(conv.id);
 
     const prompt = this.buildPrompt(query, merged, history, userProfileText);
 
@@ -149,7 +149,7 @@ export class RAGService {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.error(`LLM generation failed: ${message}`);
       if (fullAnswer.length > 0) {
-        this.chatService.addAssistantMessage(conv.id, fullAnswer);
+        await this.chatService.addAssistantMessage(conv.id, fullAnswer);
       }
       yield { token: '', done: true, error: message, confidenceLevel: 'low' };
       return;
@@ -168,7 +168,7 @@ export class RAGService {
     const validation = validateAnswer(fullAnswer, merged);
     const confidenceLevel = this.getConfidenceLevel(merged[0]?.hybridScore ?? 0);
 
-    this.chatService.addAssistantMessage(conv.id, fullAnswer, sources);
+    await this.chatService.addAssistantMessage(conv.id, fullAnswer, sources);
     this.logger.log(
       `RAG orchestration complete for query "${query}": ${String(merged.length)} sources, confidence=${confidenceLevel}`,
     );

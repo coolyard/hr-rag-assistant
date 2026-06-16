@@ -14,21 +14,24 @@ function generateId(prefix: string): string {
 export class ChatService {
   constructor(private readonly store: ConversationStoreService) {}
 
-  getOrCreateConversation(conversationId?: string): Conversation {
+  async getOrCreateConversation(conversationId?: string, userId?: string): Promise<Conversation> {
     if (conversationId) {
-      const existing = this.store.getConversation(conversationId);
+      const existing = await this.store.getConversation(conversationId);
       if (existing) {
         return existing;
       }
     }
-    return this.store.createConversation('');
+    if (conversationId) {
+      return this.store.createConversation('', userId ?? 'anonymous', conversationId);
+    }
+    return this.store.createConversation('', userId ?? 'anonymous');
   }
 
-  getHistory(conversationId: string): Message[] {
+  async getHistory(conversationId: string): Promise<Message[]> {
     return this.store.getMessages(conversationId);
   }
 
-  addUserMessage(convId: string, content: string): Message {
+  async addUserMessage(convId: string, content: string): Promise<Message> {
     const message: Message = {
       id: generateId('msg'),
       role: 'user',
@@ -36,17 +39,21 @@ export class ChatService {
       timestamp: Date.now(),
       status: 'complete',
     };
-    this.store.addMessage(convId, message);
+    await this.store.addMessage(convId, message);
 
-    const conv = this.store.getConversation(convId);
+    const conv = await this.store.getConversation(convId);
     if (conv && conv.title.length === 0) {
-      conv.title = content.slice(0, 20);
+      await this.store.updateConversationTitle(convId, content.slice(0, 20));
     }
 
     return message;
   }
 
-  addAssistantMessage(convId: string, content: string, sources?: SourceCitation[]): Message {
+  async addAssistantMessage(
+    convId: string,
+    content: string,
+    sources?: SourceCitation[],
+  ): Promise<Message> {
     const message: Message = {
       id: generateId('msg'),
       role: 'assistant',
@@ -55,7 +62,7 @@ export class ChatService {
       sources,
       status: 'complete',
     };
-    this.store.addMessage(convId, message);
+    await this.store.addMessage(convId, message);
     return message;
   }
 }
