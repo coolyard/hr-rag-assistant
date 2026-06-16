@@ -4,6 +4,7 @@ import type { SourceCitation } from '@/api/sse';
 import styles from '@/components/Chat/ChatMessage.module.css';
 import { ConfidenceBadge } from '@/components/Chat/ConfidenceBadge';
 import { HallucinationWarning } from '@/components/Chat/HallucinationWarning';
+import { RetrievalPanel } from '@/components/Chat/RetrievalPanel';
 import { showToast } from '@/components/Chat/Toast';
 import { ToolCallCard } from '@/components/Chat/ToolCallCard';
 import type { Message } from '@/hooks/useChat';
@@ -116,6 +117,7 @@ export const ChatMessage: FC<ChatMessageProps> = ({
   onToolConfirm,
   onToolCancel,
 }) => {
+  const [showRetrieval, setShowRetrieval] = useState(false);
   const isUser = message.role === 'user';
   const isLoading = message.status === 'sending' || message.status === 'streaming';
   const isStopped = message.status === 'stopped';
@@ -246,6 +248,14 @@ export const ChatMessage: FC<ChatMessageProps> = ({
               </button>
             )}
           </div>
+        )}
+        {showRetrieval && (
+          <RetrievalPanel
+            message={message}
+            onClose={() => {
+              setShowRetrieval(false);
+            }}
+          />
         )}
       </div>
     </div>

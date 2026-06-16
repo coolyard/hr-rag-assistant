@@ -18,6 +18,7 @@ export interface Message {
   reasoning?: string;
   promptTokens?: number;
   completionTokens?: number;
+  retrievalDetail?: import('@/api/sse').AskStreamChunk['retrievalDetail'];
   toolCall?: {
     id: string;
     name: string;

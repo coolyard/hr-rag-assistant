@@ -27,6 +27,21 @@ export interface AskStreamChunk {
   error?: string;
   promptTokens?: number;
   completionTokens?: number;
+  retrievalDetail?: {
+    vectorCount: number;
+    keywordCount: number;
+    mergedCount: number;
+    vectorSources: Array<{
+      documentTitle: string;
+      similarity: number;
+      source: 'vector' | 'keyword';
+    }>;
+    keywordSources: Array<{
+      documentTitle: string;
+      similarity: number;
+      source: 'vector' | 'keyword';
+    }>;
+  };
   conversationId?: string;
   toolCallStart?: {
     id: string;

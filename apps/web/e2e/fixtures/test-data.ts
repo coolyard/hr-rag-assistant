@@ -179,3 +179,18 @@ export const MOCK_TOOL_CALL = {
   },
   confirmRequired: true,
 };
+
+// ── 检索可视化 Mock 数据 ──
+export const MOCK_RETRIEVAL_DETAIL = {
+  vectorCount: 2,
+  keywordCount: 2,
+  mergedCount: 2,
+  vectorSources: [
+    { documentTitle: '年假制度', similarity: 0.89, source: 'vector' as const },
+    { documentTitle: '考勤制度', similarity: 0.62, source: 'vector' as const },
+  ],
+  keywordSources: [
+    { documentTitle: '年假制度', similarity: 0.75, source: 'keyword' as const },
+    { documentTitle: '报销流程', similarity: 0.45, source: 'keyword' as const },
+  ],
+};

@@ -54,6 +54,7 @@ export class AskController {
           toolResult: chunk.toolResult,
           promptTokens: chunk.promptTokens,
           completionTokens: chunk.completionTokens,
+          retrievalDetail: chunk.retrievalDetail,
           conversationId: body.conversationId,
         };
         res.write(`data: ${JSON.stringify(data)}\n\n`);
