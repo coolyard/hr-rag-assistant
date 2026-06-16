@@ -102,9 +102,10 @@ const ThinkingSection: FC<ThinkingSectionProps> = ({ reasoning, isStreaming }) =
 interface ChatMessageProps {
   message: Message;
   onFollowUp?: (question: string) => void;
+  onRegenerate?: (id: string) => void;
 }
 
-export const ChatMessage: FC<ChatMessageProps> = ({ message, onFollowUp }) => {
+export const ChatMessage: FC<ChatMessageProps> = ({ message, onFollowUp, onRegenerate }) => {
   const isUser = message.role === 'user';
   const isLoading = message.status === 'sending' || message.status === 'streaming';
   const hasContent = message.content.length > 0;
@@ -174,6 +175,22 @@ export const ChatMessage: FC<ChatMessageProps> = ({ message, onFollowUp }) => {
               </button>
             ))}
           </div>
+        )}
+        {message.status === 'complete' &&
+          message.promptTokens != null &&
+          message.completionTokens != null && (
+            <div className={styles.tokenInfo}>~{message.completionTokens} tokens</div>
+          )}
+        {message.status === 'complete' && message.role === 'assistant' && onRegenerate && (
+          <button
+            className={styles.regenerateButton}
+            onClick={() => {
+              onRegenerate(message.id);
+            }}
+            type="button"
+          >
+            重新生成
+          </button>
         )}
       </div>
     </div>

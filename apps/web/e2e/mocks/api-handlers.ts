@@ -30,6 +30,8 @@ function buildSSEResponse(): string {
     sources: MOCK_SSE_SOURCES,
     confidenceLevel: 'high',
     followUps: MOCK_SSE_FOLLOWUPS,
+    promptTokens: 120,
+    completionTokens: 45,
   })}\n\n`;
   return sseData;
 }

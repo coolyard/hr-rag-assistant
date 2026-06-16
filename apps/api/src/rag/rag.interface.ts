@@ -28,6 +28,8 @@ export interface StreamChunk {
   confidenceLevel?: 'high' | 'medium' | 'low';
   hallucinationWarning?: string;
   error?: string;
+  promptTokens?: number;
+  completionTokens?: number;
 }
 
 export type { DocumentMeta, SearchResult };

@@ -15,5 +15,7 @@ export interface AskStreamChunk {
   confidenceLevel?: 'high' | 'medium' | 'low';
   hallucinationWarning?: string;
   error?: string;
+  promptTokens?: number;
+  completionTokens?: number;
   conversationId?: string;
 }

@@ -48,6 +48,8 @@ export class AskController {
           confidenceLevel: chunk.confidenceLevel,
           hallucinationWarning: chunk.hallucinationWarning,
           error: chunk.error,
+          promptTokens: chunk.promptTokens,
+          completionTokens: chunk.completionTokens,
           conversationId: body.conversationId,
         };
         res.write(`data: ${JSON.stringify(data)}\n\n`);

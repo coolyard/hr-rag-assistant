@@ -16,6 +16,8 @@ export interface Message {
   status?: 'sending' | 'streaming' | 'complete' | 'error';
   error?: string;
   reasoning?: string;
+  promptTokens?: number;
+  completionTokens?: number;
 }
 
 function generateId(prefix: string): string {
@@ -145,6 +147,8 @@ export function useChat() {
                       hallucinationWarning: chunk.hallucinationWarning,
                       status: finalStatus,
                       error: chunk.error,
+                      promptTokens: chunk.promptTokens,
+                      completionTokens: chunk.completionTokens,
                     }
                   : m,
               ),
@@ -224,6 +228,31 @@ export function useChat() {
     }
   }, []);
 
+  const stopGeneration = useCallback(() => {
+    if (abortRef.current) {
+      abortRef.current.abort();
+    }
+  }, []);
+
+  const regenerate = useCallback(
+    (assistantMsgId: string) => {
+      const idx = messages.findIndex((m) => m.id === assistantMsgId);
+      if (idx <= 0) {
+        return;
+      }
+      const userMsg = [...messages.slice(0, idx)].reverse().find((m: Message) => m.role === 'user');
+      if (!userMsg) {
+        return;
+      }
+      // Remove the current assistant message
+      setMessages((prev) => prev.filter((m) => m.id !== assistantMsgId));
+      loadingRef.current = false;
+      setIsLoading(false);
+      void sendMessage(userMsg.content);
+    },
+    [messages, sendMessage],
+  );
+
   return {
     messages,
     inputValue,
@@ -231,7 +260,9 @@ export function useChat() {
     isLoading,
     statusText,
     sendMessage,
+    stopGeneration,
     retryMessage,
+    regenerate,
     clearConversation,
     conversationId,
     newConversation,
