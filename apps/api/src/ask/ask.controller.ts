@@ -50,6 +50,8 @@ export class AskController {
           confidenceLevel: chunk.confidenceLevel,
           hallucinationWarning: chunk.hallucinationWarning,
           error: chunk.error,
+          toolCallStart: chunk.toolCallStart,
+          toolResult: chunk.toolResult,
           promptTokens: chunk.promptTokens,
           completionTokens: chunk.completionTokens,
           conversationId: body.conversationId,
