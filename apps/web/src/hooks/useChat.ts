@@ -183,6 +183,7 @@ export function useChat() {
                       sources: chunk.sources,
                       confidenceLevel: chunk.confidenceLevel,
                       hallucinationWarning: chunk.hallucinationWarning,
+                      retrievalDetail: chunk.retrievalDetail,
                       status: finalStatus,
                       error: chunk.error,
                       promptTokens: chunk.promptTokens,

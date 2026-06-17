@@ -33,7 +33,7 @@ export const RetrievalPanel: FC<RetrievalPanelProps> = ({ message, onClose }) =>
   }, [handleKeyDown]);
 
   const chartData = sources.map((s) => ({
-    name: s.documentTitle,
+    name: `《${s.documentTitle}》${s.chunk.slice(0, 20)}...`,
     similarity: Number((s.similarity * 100).toFixed(0)),
   }));
 
