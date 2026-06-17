@@ -1,6 +1,5 @@
 import { type FC, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 import type { Message } from '@/hooks/useChat';
 
@@ -52,19 +51,18 @@ export const RetrievalPanel: FC<RetrievalPanelProps> = ({ message, onClose }) =>
           {chartData.length > 0 && (
             <div className={styles.section}>
               <p className={styles.sectionTitle}>文档相似度</p>
-              <ResponsiveContainer width="100%" height={Math.max(chartData.length * 40, 120)}>
-                <BarChart
-                  data={chartData}
-                  layout="vertical"
-                  margin={{ left: 0, right: 20, top: 0, bottom: 0 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                  <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 12 }} />
-                  <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 12 }} />
-                  <Tooltip formatter={(value) => `${String(value ?? 0)}%`} />
-                  <Bar dataKey="similarity" fill="var(--accent-color)" radius={[0, 4, 4, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              {chartData.map((item) => (
+                <div key={item.name} className={styles.chartRow}>
+                  <span className={styles.chartLabel}>{item.name}</span>
+                  <div className={styles.chartBarTrack}>
+                    <div
+                      className={styles.chartBar}
+                      style={{ width: `${String(item.similarity)}%` }}
+                    />
+                  </div>
+                  <span className={styles.chartValue}>{String(item.similarity)}%</span>
+                </div>
+              ))}
             </div>
           )}
 
