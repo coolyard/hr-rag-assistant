@@ -189,21 +189,18 @@ export const ChatMessage: FC<ChatMessageProps> = ({
           <p className={styles.errorText}>{message.error}</p>
         )}
         {message.status === 'complete' && message.hallucinationWarning && <HallucinationWarning />}
-        {message.status === 'complete' &&
-          message.sources &&
-          message.sources.length > 0 &&
-          message.retrievalDetail && (
-            <div className={styles.sourcesSection}>
-              <p className={styles.sourcesLabel}>参考来源：</p>
-              {message.sources.map((s, i) => (
-                <CitationCard
-                  key={`${s.documentName}-${String(i)}`}
-                  citation={s}
-                  confidenceLevel={message.confidenceLevel}
-                />
-              ))}
-            </div>
-          )}
+        {message.status === 'complete' && message.sources && message.sources.length > 0 && (
+          <div className={styles.sourcesSection}>
+            <p className={styles.sourcesLabel}>参考来源：</p>
+            {message.sources.map((s, i) => (
+              <CitationCard
+                key={`${s.documentName}-${String(i)}`}
+                citation={s}
+                confidenceLevel={message.confidenceLevel}
+              />
+            ))}
+          </div>
+        )}
         {message.status === 'complete' && message.followUps && message.followUps.length > 0 && (
           <div className={styles.followUpsSection}>
             <p className={styles.followUpsLabel}>猜你想问：</p>
