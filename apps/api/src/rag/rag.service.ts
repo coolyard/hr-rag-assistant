@@ -7,6 +7,7 @@ import { LLMService } from '@/llm/llm.service';
 import { HR_KEYWORDS, KeywordSearchService } from '@/rag/keyword-search.service';
 import type {
   MergedResult,
+  RetrievalDetail,
   RAGSearchResult,
   SourceCitation,
   StreamChunk,
@@ -101,8 +102,10 @@ export class RAGService {
     }
 
     let merged: MergedResult[];
+    let vectorResults: RAGSearchResult[] = [];
+    let keywordResults: RAGSearchResult[] = [];
     try {
-      const vectorResults = await this.vectorSearch(query, VECTOR_TOP_K);
+      vectorResults = await this.vectorSearch(query, VECTOR_TOP_K);
       yield { token: '', done: false, status: '正在检索相关文档...' };
       yield {
         token: '',
@@ -111,7 +114,7 @@ export class RAGService {
       };
       const allChunks = this.vectorStore.getAll();
       yield { token: '', done: false, reasoning: '正在进行关键词精确匹配，补充制度规则类文档...' };
-      const keywordResults = this.keywordSearch.search(query, allChunks, KEYWORD_TOP_K);
+      keywordResults = this.keywordSearch.search(query, allChunks, KEYWORD_TOP_K);
       merged = this.mergeResults(vectorResults, keywordResults, MERGE_TOP_K);
       yield {
         token: '',
@@ -159,6 +162,23 @@ export class RAGService {
 
     const sources = this.buildSources(merged);
 
+    // 构建检索可视化数据
+    const retrievalDetail: RetrievalDetail = {
+      vectorCount: vectorResults.length,
+      keywordCount: keywordResults.length,
+      mergedCount: merged.length,
+      vectorSources: vectorResults.slice(0, 3).map((r) => ({
+        documentTitle: r.documentTitle,
+        similarity: r.normalizedScore,
+        source: 'vector' as const,
+      })),
+      keywordSources: keywordResults.slice(0, 3).map((r) => ({
+        documentTitle: r.documentTitle,
+        similarity: r.normalizedScore,
+        source: 'keyword' as const,
+      })),
+    };
+
     yield { token: '', done: false, status: '正在生成回答...' };
     yield {
       token: '',
@@ -176,7 +196,13 @@ export class RAGService {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.error(`LLM generation failed: ${message}`);
       if (fullAnswer.length > 0) {
-        await this.chatService.addAssistantMessage(conv.id, fullAnswer);
+        await this.chatService.addAssistantMessage(
+          conv.id,
+          fullAnswer,
+          undefined,
+          undefined,
+          undefined,
+        );
       }
       yield { token: '', done: true, error: message, confidenceLevel: 'low' };
       return;
@@ -195,7 +221,13 @@ export class RAGService {
     const validation = validateAnswer(fullAnswer, merged);
     const confidenceLevel = this.getConfidenceLevel(merged[0]?.hybridScore ?? 0);
 
-    await this.chatService.addAssistantMessage(conv.id, fullAnswer, sources);
+    await this.chatService.addAssistantMessage(
+      conv.id,
+      fullAnswer,
+      sources,
+      undefined,
+      retrievalDetail,
+    );
     this.logger.log(
       `RAG orchestration complete for query "${query}": ${String(merged.length)} sources, confidence=${confidenceLevel}`,
     );
@@ -207,6 +239,7 @@ export class RAGService {
       hallucinationWarning: validation.passed ? undefined : '回答包含未在文档中验证的数据，请核实',
       promptTokens: Math.ceil(prompt.length / 2),
       completionTokens: Math.ceil(fullAnswer.length / 2),
+      retrievalDetail,
     };
   }
 

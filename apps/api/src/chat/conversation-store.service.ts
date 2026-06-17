@@ -66,6 +66,9 @@ export class ConversationStoreService {
         content: message.content,
         reasoning: (message as { reasoning?: string }).reasoning ?? '',
         sources: message.sources ? JSON.stringify(message.sources) : null,
+        retrievalDetail: (message as { retrievalDetail?: unknown }).retrievalDetail
+          ? JSON.stringify((message as { retrievalDetail?: unknown }).retrievalDetail)
+          : null,
         status: message.status ?? 'complete',
         error: message.error ?? null,
         timestamp: new Date(message.timestamp),
@@ -105,6 +108,10 @@ export class ConversationStoreService {
       content: m.content,
       timestamp: m.timestamp.getTime(),
       sources: m.sources ? (JSON.parse(m.sources) as Message['sources']) : undefined,
+      reasoning: m.reasoning ?? undefined,
+      retrievalDetail: m.retrievalDetail
+        ? (JSON.parse(m.retrievalDetail) as Message['retrievalDetail'])
+        : undefined,
       status: m.status as Message['status'],
       error: m.error ?? undefined,
     }));

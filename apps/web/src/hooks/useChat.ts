@@ -18,6 +18,7 @@ export interface Message {
   reasoning?: string;
   promptTokens?: number;
   completionTokens?: number;
+  retrievalDetail?: import('@/api/sse').AskStreamChunk['retrievalDetail'];
   toolCall?: {
     id: string;
     name: string;
@@ -182,6 +183,7 @@ export function useChat() {
                       sources: chunk.sources,
                       confidenceLevel: chunk.confidenceLevel,
                       hallucinationWarning: chunk.hallucinationWarning,
+                      retrievalDetail: chunk.retrievalDetail,
                       status: finalStatus,
                       error: chunk.error,
                       promptTokens: chunk.promptTokens,

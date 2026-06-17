@@ -8,6 +8,7 @@ import {
   MOCK_SSE_CHUNKS,
   MOCK_SSE_SOURCES,
   MOCK_SSE_FOLLOWUPS,
+  MOCK_RETRIEVAL_DETAIL,
 } from '../fixtures/test-data';
 import { MOCK_TOKENS } from '../utils/jwt';
 
@@ -47,6 +48,7 @@ function buildSSEResponse(): string {
     followUps: MOCK_SSE_FOLLOWUPS,
     promptTokens: 120,
     completionTokens: 45,
+    retrievalDetail: MOCK_RETRIEVAL_DETAIL,
   })}\n\n`;
   return sseData;
 }

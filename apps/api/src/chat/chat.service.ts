@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 import type { Conversation, Message } from '@/chat/chat.interface';
 import { ConversationStoreService } from '@/chat/conversation-store.service';
-import type { SourceCitation } from '@/rag/rag.interface';
+import type { RetrievalDetail, SourceCitation } from '@/rag/rag.interface';
 
 function generateId(prefix: string): string {
   const ts = Date.now();
@@ -53,6 +53,8 @@ export class ChatService {
     convId: string,
     content: string,
     sources?: SourceCitation[],
+    reasoning?: string,
+    retrievalDetail?: RetrievalDetail,
   ): Promise<Message> {
     const message: Message = {
       id: generateId('msg'),
@@ -60,6 +62,8 @@ export class ChatService {
       content,
       timestamp: Date.now(),
       sources,
+      reasoning,
+      retrievalDetail,
       status: 'complete',
     };
     await this.store.addMessage(convId, message);

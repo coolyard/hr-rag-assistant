@@ -25,6 +25,7 @@ export interface AskStreamChunk {
   error?: string;
   promptTokens?: number;
   completionTokens?: number;
+  retrievalDetail?: import('@/rag/rag.interface').RetrievalDetail;
   toolCallStart?: {
     id: string;
     name: string;
