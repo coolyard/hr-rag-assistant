@@ -16,7 +16,7 @@ export class ToolRegistryService {
     {
       name: 'apply_leave',
       title: '申请年假',
-      triggers: ['申请年假', '请假', '想休假', '年假'],
+      triggers: ['申请年假', '我要请假', '帮我请假', '帮我申请', '想休假'],
       buildArgs: (_query: string) => ({
         days: 3,
         startDate: '2026-06-20',
