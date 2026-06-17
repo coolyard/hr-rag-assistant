@@ -34,6 +34,8 @@ export const RetrievalPanel: FC<RetrievalPanelProps> = ({ message, onClose }) =>
 
   const chartData = sources.map((s) => ({
     name: `《${s.documentTitle}》${s.chunk.slice(0, 20)}...`,
+    fullName: `《${s.documentTitle}》
+${s.chunk}`,
     similarity: Number((s.similarity * 100).toFixed(0)),
   }));
 
@@ -53,7 +55,9 @@ export const RetrievalPanel: FC<RetrievalPanelProps> = ({ message, onClose }) =>
               <p className={styles.sectionTitle}>文档相似度</p>
               {chartData.map((item) => (
                 <div key={item.name} className={styles.chartRow}>
-                  <span className={styles.chartLabel}>{item.name}</span>
+                  <span className={styles.chartLabel} title={item.fullName}>
+                    {item.name}
+                  </span>
                   <div className={styles.chartBarTrack}>
                     <div
                       className={styles.chartBar}
