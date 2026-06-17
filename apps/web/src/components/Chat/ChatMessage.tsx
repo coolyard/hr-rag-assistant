@@ -223,6 +223,17 @@ export const ChatMessage: FC<ChatMessageProps> = ({
             {message.promptTokens != null && message.completionTokens != null && (
               <span className={styles.tokenInfo}>~{message.completionTokens} tokens</span>
             )}
+            {message.sources && message.sources.length > 0 && (
+              <button
+                className={styles.actionButton}
+                onClick={() => {
+                  setShowRetrieval(true);
+                }}
+                type="button"
+              >
+                查看检索详情
+              </button>
+            )}
             <button
               className={styles.actionButton}
               onClick={() => {
