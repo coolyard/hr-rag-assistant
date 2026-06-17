@@ -54,7 +54,7 @@ export class ChatService {
     content: string,
     sources?: SourceCitation[],
     reasoning?: string,
-    retrievalDetail?: RetrievalDetail
+    retrievalDetail?: RetrievalDetail,
   ): Promise<Message> {
     const message: Message = {
       id: generateId('msg'),

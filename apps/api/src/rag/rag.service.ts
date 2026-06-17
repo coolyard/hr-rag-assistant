@@ -196,7 +196,13 @@ export class RAGService {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.error(`LLM generation failed: ${message}`);
       if (fullAnswer.length > 0) {
-        await this.chatService.addAssistantMessage(conv.id, fullAnswer, undefined, undefined, undefined);
+        await this.chatService.addAssistantMessage(
+          conv.id,
+          fullAnswer,
+          undefined,
+          undefined,
+          undefined,
+        );
       }
       yield { token: '', done: true, error: message, confidenceLevel: 'low' };
       return;
@@ -215,7 +221,13 @@ export class RAGService {
     const validation = validateAnswer(fullAnswer, merged);
     const confidenceLevel = this.getConfidenceLevel(merged[0]?.hybridScore ?? 0);
 
-    await this.chatService.addAssistantMessage(conv.id, fullAnswer, sources, undefined, retrievalDetail);
+    await this.chatService.addAssistantMessage(
+      conv.id,
+      fullAnswer,
+      sources,
+      undefined,
+      retrievalDetail,
+    );
     this.logger.log(
       `RAG orchestration complete for query "${query}": ${String(merged.length)} sources, confidence=${confidenceLevel}`,
     );
