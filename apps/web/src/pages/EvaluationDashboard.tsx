@@ -81,7 +81,7 @@ const RadarChart: FC<{ results: EvalResult[] }> = ({ results }) => {
   return (
     <div className={styles.chartCard}>
       <p className={styles.chartTitle}>按类别评分（雷达图）</p>
-      <svg viewBox="0 0 300 300" width="100%" height="300" className={styles.svg}>
+      <svg viewBox="0 0 340 300" width="100%" height="300" className={styles.svg}>
         {[0.25, 0.5, 0.75, 1.0].map((lvl) => (
           <polygon
             key={lvl}
