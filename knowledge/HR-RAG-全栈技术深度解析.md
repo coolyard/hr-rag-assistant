@@ -1564,6 +1564,229 @@ clearConversation = () => {
 
 ---
 
+---
+
+## 十、新增 Feature 技术深度解析
+
+> 以下章节涵盖 develop 分支相比 main 分支新增的全部功能，每个 Feature 包含技术实现细节和面试追问。
+
+### 10.1 对话持久化与列表管理
+
+**技术栈**：Prisma 5 + SQLite + React Query（前端状态管理）
+
+**架构变化**：
+
+- 后端新增 `ConversationStoreService`，从内存 Map 替换为 Prisma 调用
+- Prisma Schema 新增 `Conversation` 和 `Message` 两张表
+- 前端新增 `useConversations` hook（封装 CRUD + 缓存）
+- 左侧新增 `Sidebar` 组件（260px 宽，可折叠）
+
+**关键实现**：
+
+```typescript
+// 对话持久化核心：getMessages 从 Prisma 读取并还原 JSON 字段
+async getMessages(convId: string): Promise<Message[]> {
+  const msgs = await this.prisma.message.findMany({
+    where: { conversationId: convId },
+    orderBy: { timestamp: 'asc' },
+  });
+  return msgs.map((m) => ({
+    ...m,
+    sources: m.sources ? JSON.parse(m.sources) : undefined,       // JSON → 对象
+    retrievalDetail: m.retrievalDetail ? JSON.parse(m.retrievalDetail) : undefined,
+  }));
+}
+```
+
+**面试可能追问**：
+
+1. "为什么选择 SQLite 而不是 PostgreSQL？"
+2. "Prisma 的 JSON 字段序列化有什么坑？"
+3. "消息列表如何做乐观更新？"
+4. "如果对话量很大（10 万+），如何优化查询性能？"
+
+### 10.2 高级流式 UX（停止/重新生成/Token 计数）
+
+**实现位置**：`useChat.ts` + `ChatPage.tsx` + `ChatMessage.tsx`
+
+**核心机制**：
+
+- **停止生成**：已有 `AbortController`，新增 `stopGeneration()` 方法暴露给 UI
+- **重新生成**：`retryMessage()` 支持非 error 状态，移除当前 assistant 消息后重新 `sendMessage()`
+- **Token 计数**：后端 done chunk 增加 `promptTokens` / `completionTokens` 字段，前端按 `length / 2` 估算
+
+**面试可能追问**：
+
+1. "AbortController 的中止在 SSE 场景下如何工作？"
+2. "重新生成时如何保证对话上下文正确？"
+3. "中文 Token 估算为什么用 length / 2？"
+
+### 10.3 思考过程展示
+
+**技术实现**：`ChatMessage.tsx` 中新增 `ThinkingSection` 组件
+
+**关键设计**：
+
+- 后端 `rag.service.ts` 在 6 个检索阶段 yield `reasoning` 文本
+- 前端 `useChat.ts` 累加 `chunk.reasoning` → `message.reasoning`
+- `ThinkingSection` 用 `useState` + `useEffect` 管理折叠状态
+- 思考中默认展开，完成后 3 秒自动折叠
+- 纯 Unicode 字符 ▸/▾ 做 chevron，无额外图标依赖
+
+**面试可能追问**：
+
+1. "为什么不在后端统一收集 reasoning 再一次性发送？"
+2. "自动折叠的 3 秒延迟有什么优劣？"
+3. "如果 reasoning 内容很长（1000+ 字），如何优化渲染？"
+
+### 10.4 Agent 工具调用（Function Calling 可视化）
+
+**架构**：
+
+```
+用户请求 → 触发词检测(ToolRegistry) → SSE 发送 toolCallStart chunk
+→ 前端渲染 ToolCallCard → 用户确认/取消 →
+POST /api/tool/execute → toolResult + LLM 生成
+```
+
+**核心文件**：
+
+- `apps/api/src/tool/tool-registry.service.ts` — 工具注册 + 触发词匹配
+- `apps/web/src/components/Chat/ToolCallCard.tsx` — 状态机组件（idle→executing→completed/cancelled）
+
+**3 个预定义工具**：
+| 工具 | 触发词 | confirmRequired |
+|------|--------|-----------------|
+| apply_leave | 申请年假、我要请假 | true |
+| query_reimbursement | 报销、报销记录 | false |
+| query_overtime | 加班、调休 | false |
+
+**触发词优化**：修复 `\'年假\'` 被包含在 `apply_leave` 触发词中导致"我有几天年假"误触发，改为 `['我要请假', '帮我请假', '帮我申请']`
+
+**面试可能追问**：
+
+1. "为什么不用 Ollama 原生的 function calling？"
+2. "如何让 LLM 理解工具调用而不是靠关键词匹配？"
+3. "工具调用的状态机如何设计才健壮？"
+
+### 10.5 React 生产级模式（Error Boundary + Lazy Loading）
+
+**Error Boundary**：
+
+- 使用 class component（React 不支持 hook 版 `componentDidCatch`）
+- 包裹在 `<Routes>` 外层，全局捕获渲染异常
+- ErrorFallback 组件显示⚠ + 错误消息 + "重试"按钮
+
+**Lazy Loading**：
+
+- `ChatPage/DocumentPage/ProfilePage/EvaluationDashboard` 全部改为 `React.lazy`
+- `Suspense` 包裹 `<Routes>`，fallback 显示 `PageSkeleton`
+- LoginPage 保持同步加载（入口页面）
+
+**面试可能追问**：
+
+1. "Error Boundary 能捕获哪些类型的错误？不能捕获哪些？"
+2. "\`React.lazy\` 的底层原理是什么？和动态 \`import()\` 的关系？"
+3. "首屏加载如何进一步优化？"
+
+### 10.6 RAG 检索可视化面板
+
+**组件**：`RetrievalPanel.tsx`（抽屉式，`createPortal` 到 `document.body`）
+
+**展示内容**：
+
+1. **文档相似度条形图**：纯 CSS 实现，不依赖 Recharts（CI 依赖问题）
+2. **检索来源贡献**：向量检索 vs 关键词检索命中数对比
+3. **检索过程/思考文本**：reasoning 文本 `<pre>` 预览
+
+**数据来源**：
+
+- 后端 done chunk 新增 `retrievalDetail` 字段（含 vectorCount/keywordCount/vectorSources/keywordSources）
+- 前端 `useChat.ts` 在 done chunk handler 中复制到 `message.retrievalDetail`
+- 刷新后从 Prisma 加载时，`retrievalDetail` 不可用 → 按钮隐藏（仅 SSE 实时消息可查看）
+
+**面试可能追问**：
+
+1. "为什么检索可视化数据不持久化到数据库？"
+2. "Recharts 在 CI 中的问题具体是什么？如何排查的？"
+3. "\`createPortal\` 的使用场景和注意事项？"
+
+### 10.7 RAG 评估闭环（Evaluation Loop）
+
+**总体架构**：
+
+```
+50 条测试问题 → ragService.orchestrate() → 收集 answer + sources
+→ Judge LLM（复用 qwen2.5）评分 → Prisma 持久化
+→ 前端 Dashboard（纯 SVG 雷达图 + 进度条）
+```
+
+**Judge LLM 设计**：
+
+- 复用现有 `qwen2.5:7b-instruct`，不引入新模型
+- 三维度评分：accuracy（准确性）/ completeness（完整性）/ relevance（相关性）
+- Judge prompt 要求 LLM 返回 `{"accuracy": 0.85, "completeness": 0.72, "relevance": 0.91}` JSON
+- JSON 解析用正则 `/\\{[^}]+\\}/` 提取，容错处理空值
+
+**进度条设计**：
+
+- POST 创建 run 后立即返回 runId，后台异步处理（`void this.processRun(runId)`）
+- 前端每 2 秒轮询 `/api/eval/status`（轻量端点，仅返回 completedCount/totalQuestions）
+- 避免每次拉取全部 50 条结果数据（性能优化）
+
+**面试可能追问**：
+
+1. "为什么不用 SSE 推送评估进度而用轮询？"
+2. "Judge LLM 的评分可靠性如何保证？"
+3. "后台异步处理的 NestJS 生命周期问题怎么解决？"
+4. "如果评估中途服务重启，如何恢复？"
+
+### 10.8 Playwright E2E 测试体系
+
+**覆盖情况**：13 个 spec 文件，45 个测试用例
+
+| 模块           | 文件                        | 用例数         |
+| -------------- | --------------------------- | -------------- |
+| 登录认证       | auth.spec.ts                | 6              |
+| 聊天对话       | chat.spec.ts                | 5              |
+| 对话管理       | conversations.spec.ts       | 3              |
+| 文档浏览       | documents.spec.ts           | 5              |
+| 页面导航       | navigation.spec.ts          | 2              |
+| 个人中心       | profile.spec.ts             | 3              |
+| 检索可视化     | retrieval.spec.ts           | 1 (验证后简化) |
+| 流式 UX        | streaming-ux.spec.ts        | 3              |
+| 主题切换       | theme.spec.ts               | 3              |
+| 思考过程       | thinking.spec.ts            | 5              |
+| 工具调用       | tool-use.spec.ts            | 3              |
+| 生产级模式     | production-patterns.spec.ts | 3              |
+| 评估 Dashboard | evaluation.spec.ts          | 1              |
+
+**Mock 策略**：全部使用 `page.route()` 拦截 API，零后端依赖。
+
+**CI 集成**：e2e job 与 quality job 并行，安装 Playwright Chromium，失败时上传 `playwright-report/`。
+
+**面试可能追问**：
+
+1. "Playwright vs Cypress 的选型理由？"
+2. "为什么用 page.route 而不是真实后端？"
+3. "E2E 测试的 Mock 数据和真实数据如何保持同步？"
+
+### 10.9 CI/CD 自动化
+
+**三 Workflow 架构**：
+| Workflow | 触发 | 功能 |
+|----------|------|------|
+| `ci.yml` | PR → develop/main, push → develop | quality（lint+format+test+build）+ e2e（Playwright）并行 |
+| `release-pr.yml` | Cron 每周一 / 手动 dispatch | 自动创建 develop→main PR，feat→minor / fix→patch |
+| `release.yml` | push → main | Release Please 自动发版 + 生成 Release Notes |
+
+**面试可能追问**：
+
+1. "为什么 quality 和 e2e 要分成两个 Job？"
+2. "版本号自动递增的逻辑是怎么实现的？"
+
+---
+
 ## 九、学习路径建议
 
 ### Phase 1：理解全貌（1-2 天）
