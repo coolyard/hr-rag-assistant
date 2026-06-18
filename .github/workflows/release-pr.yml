@@ -33,7 +33,7 @@ jobs:
           ref: develop
 
       - name: Fetch main branch
-        run: git fetch origin main:refs/remotes/origin/main
+        run: git fetch origin main:main
 
       - name: Check if PR already exists
         id: check-existing
