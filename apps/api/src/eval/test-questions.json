@@ -1,0 +1,202 @@
+[
+  {
+    "question": "我今年还有几天年假？怎么申请？",
+    "category": "年假"
+  },
+  {
+    "question": "年假可以累积到明年吗？",
+    "category": "年假"
+  },
+  {
+    "question": "病假会影响年假天数吗？",
+    "category": "年假"
+  },
+  {
+    "question": "如果离职时年假没用完怎么办？",
+    "category": "年假"
+  },
+  {
+    "question": "试用期期间可以请年假吗？",
+    "category": "年假"
+  },
+  {
+    "question": "年假被拒怎么办？可以重新申请吗？",
+    "category": "年假"
+  },
+  {
+    "question": "可以分多次申请年假吗？最少几天？",
+    "category": "年假"
+  },
+  {
+    "question": "报销流程怎么走？多久能到账？",
+    "category": "报销"
+  },
+  {
+    "question": "出差住宿标准是多少？超出部分自付吗？",
+    "category": "报销"
+  },
+  {
+    "question": "加班餐补怎么报销？需要发票吗？",
+    "category": "报销"
+  },
+  {
+    "question": "差旅费包括哪些？机票报销需要行程单吗？",
+    "category": "报销"
+  },
+  {
+    "question": "报销被退回怎么办？可以重新提交吗？",
+    "category": "报销"
+  },
+  {
+    "question": "办公用品采购有额度限制吗？",
+    "category": "报销"
+  },
+  {
+    "question": "交通补贴和打车报销能同时申请吗？",
+    "category": "报销"
+  },
+  {
+    "question": "迟到几次开始扣钱？一次扣多少？",
+    "category": "考勤"
+  },
+  {
+    "question": "弹性打卡怎么算？最晚几点到？",
+    "category": "考勤"
+  },
+  {
+    "question": "忘记打卡怎么办？可以补卡吗？",
+    "category": "考勤"
+  },
+  {
+    "question": "加班调休怎么算？有加班费吗？",
+    "category": "考勤"
+  },
+  {
+    "question": "外勤和出差考勤怎么记录？",
+    "category": "考勤"
+  },
+  {
+    "question": "全勤奖有什么要求？病假影响全勤吗？",
+    "category": "考勤"
+  },
+  {
+    "question": "一个月迟到几次会影响绩效？",
+    "category": "考勤"
+  },
+  {
+    "question": "公司有哪些员工福利？怎么查询？",
+    "category": "福利"
+  },
+  {
+    "question": "生日福利怎么领取？有时效吗？",
+    "category": "福利"
+  },
+  {
+    "question": "通讯补贴和交通补贴怎么申请？",
+    "category": "福利"
+  },
+  {
+    "question": "高温补贴什么时候发？多少钱？",
+    "category": "福利"
+  },
+  {
+    "question": "公司有健身房或者运动补贴吗？",
+    "category": "福利"
+  },
+  {
+    "question": "员工体检安排在哪个月？可以自选医院吗？",
+    "category": "福利"
+  },
+  {
+    "question": "节日福利一般在什么时候发放？",
+    "category": "福利"
+  },
+  {
+    "question": "晋升标准是什么？需要什么条件？",
+    "category": "晋升"
+  },
+  {
+    "question": "每年什么时候可以申请晋升？",
+    "category": "晋升"
+  },
+  {
+    "question": "晋升考核包括哪些内容？",
+    "category": "晋升"
+  },
+  {
+    "question": "评级 P5 到 P6 需要多长时间？",
+    "category": "晋升"
+  },
+  {
+    "question": "晋升失败后多久可以再次申请？",
+    "category": "晋升"
+  },
+  {
+    "question": "绩效评级对晋升有多大影响？",
+    "category": "晋升"
+  },
+  {
+    "question": "跨部门转岗会影响晋升吗？",
+    "category": "晋升"
+  },
+  {
+    "question": "薪资保密吗？可以打听同事工资吗？",
+    "category": "薪资"
+  },
+  {
+    "question": "工资什么时候发？遇到节假日提前还是延后？",
+    "category": "薪资"
+  },
+  {
+    "question": "涨薪机制是怎样的？多久调一次薪？",
+    "category": "薪资"
+  },
+  {
+    "question": "年终奖什么时候发？金额怎么算？",
+    "category": "薪资"
+  },
+  {
+    "question": "社保公积金缴纳比例是多少？",
+    "category": "薪资"
+  },
+  {
+    "question": "公司内部培训有哪些？需要自己报名吗？",
+    "category": "培训"
+  },
+  {
+    "question": "外部培训可以报销吗？有额度限制吗？",
+    "category": "培训"
+  },
+  {
+    "question": "新人入职培训包括哪些内容？多长时间？",
+    "category": "培训"
+  },
+  {
+    "question": "线上课程可以算培训学分吗？",
+    "category": "培训"
+  },
+  {
+    "question": "培训请假会影响绩效考核吗？",
+    "category": "培训"
+  },
+  {
+    "question": "试用期多久？可以提前转正吗？",
+    "category": "其他"
+  },
+  {
+    "question": "离职流程怎么走？需要提前多久申请？",
+    "category": "其他"
+  },
+  {
+    "question": "劳动合同什么时候签？电子版有效吗？",
+    "category": "其他"
+  },
+  {
+    "question": "公司有内推奖励吗？怎么操作？",
+    "category": "其他"
+  },
+  {
+    "question": "员工折扣和合作商家在哪里查看？",
+    "category": "其他"
+  }
+]

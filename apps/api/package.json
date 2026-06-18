@@ -7,7 +7,8 @@
     "start:prod": "node dist/main",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "eval": "npx ts-node -r tsconfig-paths/register src/eval/run-eval.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.18",
