@@ -242,6 +242,15 @@ export async function setupApiMocks(page: Page): Promise<void> {
     });
   });
 
+  // ── 评估状态（轻量轮询） ──
+  await page.route('**/api/eval/status', async (route: Route) => {
+    return route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ status: 'idle' }),
+    });
+  });
+
   // ── 评估 API ──
   await page.route('**/api/eval/runs', async (route: Route) => {
     return route.fulfill({

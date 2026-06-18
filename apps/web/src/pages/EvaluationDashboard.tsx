@@ -253,7 +253,7 @@ export const EvaluationDashboard: FC = () => {
     void poll();
   }, [fetchRuns]);
 
-  const latest = runs[0];
+  const latest = runs.find((r) => r.status === 'running') ?? runs[0];
 
   if (loading) return <div className={styles.loading}>加载中...</div>;
 
