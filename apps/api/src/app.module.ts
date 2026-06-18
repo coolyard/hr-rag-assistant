@@ -8,6 +8,7 @@ import { ChatModule } from '@/chat/chat.module';
 import { ConversationModule } from '@/conversation/conversation.module';
 import { DocumentModule } from '@/document/document.module';
 import { EmbeddingModule } from '@/embed/embed.module';
+import { EvalModule } from '@/eval/eval.module';
 import { HealthModule } from '@/health/health.module';
 import { LLMModule } from '@/llm/llm.module';
 import { PrismaModule } from '@/prisma/prisma.module';
@@ -31,6 +32,7 @@ import { VectorModule } from '@/vector/vector.module';
     ToolModule,
     UserProfileModule,
     VectorModule,
+    EvalModule,
   ],
   controllers: [AppController],
   providers: [AppService],

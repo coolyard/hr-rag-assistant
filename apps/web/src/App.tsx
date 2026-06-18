@@ -17,6 +17,9 @@ import { LoginPage } from '@/pages/LoginPage';
 const ProfilePage = lazy(() =>
   import('@/pages/ProfilePage').then((m) => ({ default: m.ProfilePage })),
 );
+const EvaluationDashboard = lazy(() =>
+  import('@/pages/EvaluationDashboard').then((m) => ({ default: m.EvaluationDashboard })),
+);
 
 const ProtectedRoute: FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -85,7 +88,7 @@ const AuthenticatedLayout: FC = () => {
     }
   };
 
-  const sidebarVisible = location.pathname !== '/login';
+  const sidebarVisible = location.pathname === '/chat';
 
   return (
     <div className={styles.appLayout}>
@@ -136,6 +139,7 @@ const AuthenticatedLayout: FC = () => {
             />
             <Route path="/documents" element={<DocumentPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/evaluation" element={<EvaluationDashboard />} />
           </Routes>
         </Suspense>
       </main>

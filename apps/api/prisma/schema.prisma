@@ -30,3 +30,33 @@ model Message {
   error          String?
   timestamp      DateTime     @default(now())
 }
+
+model EvalRun {
+  id                  String       @id
+  createdAt           DateTime     @default(now())
+  model               String
+  totalQuestions      Int
+  status             String     @default("running")
+  completedCount     Int        @default(0)
+  averageAccuracy     Float
+  averageCompleteness Float
+  averageRelevance    Float
+  rejectionRate       Float
+  totalSources        Int
+  results             EvalResult[]
+}
+
+model EvalResult {
+  id           String   @id
+  runId        String
+  run          EvalRun  @relation(fields: [runId], references: [id], onDelete: Cascade)
+  question     String
+  category     String
+  answer       String
+  accuracy     Float?
+  completeness Float?
+  relevance    Float?
+  sources      String?
+  rejected     Boolean  @default(false)
+  timestamp    DateTime @default(now())
+}

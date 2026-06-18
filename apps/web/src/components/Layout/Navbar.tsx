@@ -32,6 +32,11 @@ export const Navbar: FC = () => {
         <Link to="/profile" className={isActive('/profile')}>
           👤 <span className={styles.navLabel}>我的</span>
         </Link>
+        {user?.role === 'hr' && (
+          <Link to="/evaluation" className={isActive('/evaluation')}>
+            📊 <span className={styles.navLabel}>评估</span>
+          </Link>
+        )}
       </div>
       <div className={styles.right}>
         <ThemeToggle />
