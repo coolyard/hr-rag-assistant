@@ -94,12 +94,14 @@ jobs:
           CURRENT_VERSION="${{ steps.current-version.outputs.current }}"
           BUMP_TYPE="${{ steps.calc-bump.outputs.bump }}"
 
-          # Get categorized commits
-          FEAT_COMMITS=$(git log main..develop --oneline --no-merges | grep -iE 'feat[:(]' || echo "")
-          FIX_COMMITS=$(git log main..develop --oneline --no-merges | grep -iE 'fix[:(]' || echo "")
-          ALL_COMMITS=$(git log main..develop --oneline --no-merges || echo "")
-          if [ -z "${ALL_COMMITS}" ]; then
-            ALL_COMMITS="（develop 与 main 已同步，无新增提交）"
+          # Extract merged PRs from merge commits
+          MERGE_COMMITS=$(git log main..develop --oneline --merges 2>/dev/null || echo "")
+          if [ -z "${MERGE_COMMITS}" ]; then
+            PR_LIST="（develop 与 main 已同步，无新增合并）"
+          else
+            PR_LIST=$(echo "${MERGE_COMMITS}" | grep -oP 'Merge pull request #\K\d+' | sort -n | while read pr; do
+              echo "- #${pr}"
+            done)
           fi
 
           cat > /tmp/pr-body.md << 'BODYEOF'
@@ -110,38 +112,12 @@ jobs:
           cat >> /tmp/pr-body.md << 'BODYEOF'
           `。
 
-          ## 新增功能
+          ## 包含的 PR
 
           BODYEOF
-          if [ -n "${FEAT_COMMITS}" ]; then
-            echo '```' >> /tmp/pr-body.md
-            echo "${FEAT_COMMITS}" >> /tmp/pr-body.md
-            echo '```' >> /tmp/pr-body.md
-          else
-            echo '（无新增功能）' >> /tmp/pr-body.md
-          fi
-          echo '' >> /tmp/pr-body.md
+          echo "${PR_LIST}" >> /tmp/pr-body.md
 
           cat >> /tmp/pr-body.md << 'BODYEOF'
-          ## 修复
-
-          BODYEOF
-          if [ -n "${FIX_COMMITS}" ]; then
-            echo '```' >> /tmp/pr-body.md
-            echo "${FIX_COMMITS}" >> /tmp/pr-body.md
-            echo '```' >> /tmp/pr-body.md
-          else
-            echo '（无修复）' >> /tmp/pr-body.md
-          fi
-          echo '' >> /tmp/pr-body.md
-
-          cat >> /tmp/pr-body.md << 'BODYEOF'
-          ## 完整提交列表
-
-          ```BODYEOF
-          echo "${ALL_COMMITS}" >> /tmp/pr-body.md
-          cat >> /tmp/pr-body.md << 'BODYEOF'
-          ```
 
           ## 版本变更
 
@@ -168,7 +144,6 @@ jobs:
           echo "body<<EOF" >> $GITHUB_OUTPUT
           echo "$BODY" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-
       - name: Create PR
         if: steps.check-existing.outputs.existing == '' && steps.calc-bump.outputs.skip != 'true'
         env:
