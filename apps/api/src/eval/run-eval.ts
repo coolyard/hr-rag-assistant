@@ -9,15 +9,34 @@ async function bootstrap(): Promise<void> {
   const evalService = app.get(EvalService);
 
   console.log('Starting evaluation...\n');
-  const run = await evalService.runEval();
-  console.log(`Evaluation complete: ${run.id}`);
-  console.log(`  Questions: ${String(run.totalQuestions)}`);
-  console.log(`  Avg Accuracy: ${run.averageAccuracy.toFixed(2)}`);
-  console.log(`  Avg Completeness: ${run.averageCompleteness.toFixed(2)}`);
-  console.log(`  Avg Relevance: ${run.averageRelevance.toFixed(2)}`);
-  console.log(`  Rejection Rate: ${(run.rejectionRate * 100).toFixed(1)}%`);
+  const runId = await evalService.createRun();
+  console.log(`Started: ${runId}`);
 
-  await app.close();
+  // Poll until complete
+  const poll = async (): Promise<void> => {
+    const runs = await evalService.getRuns();
+    const run = runs.find((r) => r.id === runId);
+    if (!run) {
+      console.log('Run not found');
+      await app.close();
+      return;
+    }
+    if (run.status === 'completed') {
+      console.log(`\nEvaluation complete!`);
+      console.log(`  Avg Accuracy: ${run.averageAccuracy.toFixed(2)}`);
+      console.log(`  Avg Completeness: ${run.averageCompleteness.toFixed(2)}`);
+      console.log(`  Avg Relevance: ${run.averageRelevance.toFixed(2)}`);
+      console.log(`  Rejection Rate: ${(run.rejectionRate * 100).toFixed(1)}%`);
+      await app.close();
+    } else {
+      console.log(`Progress: ${String(run.completedCount)}/${String(run.totalQuestions)}`);
+      setTimeout(() => {
+        void poll();
+      }, 2000);
+    }
+  };
+
+  void poll();
 }
 
 void bootstrap();

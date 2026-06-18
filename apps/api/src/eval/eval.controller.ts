@@ -13,11 +13,7 @@ export class EvalController {
 
   @Post('run')
   async runEval() {
-    try {
-      return await this.evalService.runEval();
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      throw new Error(`评估运行失败: ${message}`);
-    }
+    const runId = await this.evalService.createRun();
+    return { runId };
   }
 }

@@ -32,14 +32,7 @@ export class EvalService {
     return JSON.parse(raw) as TestQuestion[];
   }
 
-  async runEval(judgeModel?: string): Promise<{
-    id: string;
-    totalQuestions: number;
-    averageAccuracy: number;
-    averageCompleteness: number;
-    averageRelevance: number;
-    rejectionRate: number;
-  }> {
+  async createRun(judgeModel?: string): Promise<string> {
     const questions = this.loadQuestions();
     const model = judgeModel ?? 'qwen2.5:7b-instruct';
 
@@ -48,6 +41,8 @@ export class EvalService {
         id: generateId('eval'),
         model,
         totalQuestions: questions.length,
+        status: 'running',
+        completedCount: 0,
         averageAccuracy: 0,
         averageCompleteness: 0,
         averageRelevance: 0,
@@ -56,6 +51,14 @@ export class EvalService {
       },
     });
 
+    // Start background processing
+    void this.processRun(run.id);
+
+    return run.id;
+  }
+
+  async processRun(runId: string): Promise<void> {
+    const questions = this.loadQuestions();
     let totalSources = 0;
 
     for (const q of questions) {
@@ -105,14 +108,14 @@ export class EvalService {
           completeness = scores.completeness;
           relevance = scores.relevance;
         } catch {
-          // judge failed, leave scores as null
+          // judge failed
         }
       }
 
       await this.prisma.evalResult.create({
         data: {
           id: generateId('er'),
-          runId: run.id,
+          runId,
           question: q.question,
           category: q.category,
           answer,
@@ -126,23 +129,33 @@ export class EvalService {
 
       totalSources += sources.length;
 
+      // Update progress
+      const currentResults = await this.prisma.evalResult.findMany({
+        where: { runId },
+      });
+      await this.prisma.evalRun.update({
+        where: { id: runId },
+        data: { completedCount: currentResults.length },
+      });
+
       this.logger.log(
-        `[${run.id}] ${q.question.slice(0, 30)}... → ${rejected ? 'REJECTED' : `acc=${accuracy?.toFixed(2) ?? 'N/A'}`}`,
+        `[${runId}] ${q.question.slice(0, 30)}... → ${rejected ? 'REJECTED' : `acc=${accuracy?.toFixed(2) ?? 'N/A'}`}`,
       );
     }
 
-    // 计算汇总
+    // Final summary
     const results = await this.prisma.evalResult.findMany({
-      where: { runId: run.id },
+      where: { runId },
     });
     const scored = results.filter((r) => !r.rejected && r.accuracy != null);
-
     const avg = (arr: number[]): number =>
       arr.length > 0 ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
 
-    const updated = await this.prisma.evalRun.update({
-      where: { id: run.id },
+    await this.prisma.evalRun.update({
+      where: { id: runId },
       data: {
+        status: 'completed',
+        completedCount: results.length,
         averageAccuracy: avg(scored.map((r) => r.accuracy as number)),
         averageCompleteness: avg(scored.map((r) => r.completeness as number)),
         averageRelevance: avg(scored.map((r) => r.relevance as number)),
@@ -152,14 +165,7 @@ export class EvalService {
       },
     });
 
-    return {
-      id: updated.id,
-      totalQuestions: updated.totalQuestions,
-      averageAccuracy: updated.averageAccuracy,
-      averageCompleteness: updated.averageCompleteness,
-      averageRelevance: updated.averageRelevance,
-      rejectionRate: updated.rejectionRate,
-    };
+    this.logger.log(`Evaluation ${runId} completed`);
   }
 
   async getRuns() {

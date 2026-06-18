@@ -36,6 +36,8 @@ model EvalRun {
   createdAt           DateTime     @default(now())
   model               String
   totalQuestions      Int
+  status             String     @default("running")
+  completedCount     Int        @default(0)
   averageAccuracy     Float
   averageCompleteness Float
   averageRelevance    Float

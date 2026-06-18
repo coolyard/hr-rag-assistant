@@ -21,6 +21,8 @@ interface EvalRun {
   createdAt: string;
   model: string;
   totalQuestions: number;
+  status: string;
+  completedCount: number;
   averageAccuracy: number;
   averageCompleteness: number;
   averageRelevance: number;
@@ -211,10 +213,11 @@ export const EvaluationDashboard: FC = () => {
 
   const fetchRuns = useCallback(async () => {
     const token = localStorage.getItem('hr_rag_token');
-    const res = await fetch('/api/eval/runs', {
+    const res: Response = await fetch('/api/eval/runs', {
       headers: { Authorization: `Bearer ${token ?? ''}` },
     });
-    const data = (await res.json()) as EvalRun[];
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const data: EvalRun[] = (await res.json()) as EvalRun[];
     setRuns(data);
     setLoading(false);
   }, []);
@@ -230,8 +233,24 @@ export const EvaluationDashboard: FC = () => {
       method: 'POST',
       headers: { Authorization: `Bearer ${token ?? ''}` },
     });
-    await fetchRuns();
-    setRunning(false);
+    const poll = async () => {
+      await fetchRuns();
+      const checkRes: Response = await fetch('/api/eval/runs', {
+        headers: { Authorization: `Bearer ${token ?? ''}` },
+      });
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const checkData: EvalRun[] = (await checkRes.json()) as EvalRun[];
+      const runningRun = checkData.find((r) => r.status === 'running');
+      if (runningRun) {
+        setTimeout(() => {
+          void poll();
+        }, 2000);
+      } else {
+        await fetchRuns();
+        setRunning(false);
+      }
+    };
+    void poll();
   }, [fetchRuns]);
 
   const latest = runs[0];
