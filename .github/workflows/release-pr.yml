@@ -30,6 +30,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: develop
+
+      - name: Fetch main branch
+        run: git fetch origin main:refs/remotes/origin/main
 
       - name: Check if PR already exists
         id: check-existing
@@ -43,7 +47,7 @@ jobs:
         if: steps.check-existing.outputs.existing == ''
         id: calc-bump
         run: |
-          COMMITS=$(git log main..origin/develop --oneline --no-merges 2>/dev/null || git log main..develop --oneline --no-merges)
+          COMMITS=$(git log main..develop --oneline --no-merges)
           FEAT_COUNT=$(echo "$COMMITS" | grep -ciE '^[a-f0-9]+ feat[:\(]' || echo 0)
           FIX_COUNT=$(echo "$COMMITS" | grep -ciE '^[a-f0-9]+ fix[:\(]' || echo 0)
 
@@ -65,7 +69,7 @@ jobs:
           echo "current=$CURRENT" >> $GITHUB_OUTPUT
 
       - name: Calculate new version
-        if: steps.check-existing.outputs.existing == ''
+        if: steps.check-existing.outputs.existing == '' && steps.calc-bump.outputs.skip != 'true'
         id: calc-version
         run: |
           IFS='.' read -r MAJOR MINOR PATCH <<< "${{ steps.current-version.outputs.current }}"
@@ -83,10 +87,10 @@ jobs:
           echo "new=$NEW" >> $GITHUB_OUTPUT
 
       - name: Generate PR body
-        if: steps.check-existing.outputs.existing == ''
+        if: steps.check-existing.outputs.existing == '' && steps.calc-bump.outputs.skip != 'true'
         id: pr-body
         run: |
-          COMMITS=$(git log main..origin/develop --oneline --no-merges 2>/dev/null || git log main..develop --oneline --no-merges)
+          COMMITS=$(git log main..develop --oneline --no-merges)
 
           cat > /tmp/pr-body.md << BODYEOF
           ## 变更描述
@@ -117,7 +121,7 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create PR
-        if: steps.check-existing.outputs.existing == ''
+        if: steps.check-existing.outputs.existing == '' && steps.calc-bump.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
