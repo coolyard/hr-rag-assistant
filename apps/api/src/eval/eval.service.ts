@@ -1,5 +1,6 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { cwd } from 'process';
 
 import { Injectable, Logger } from '@nestjs/common';
 
@@ -26,7 +27,7 @@ export class EvalService {
   ) {}
 
   loadQuestions(): TestQuestion[] {
-    const path = join(__dirname, 'test-questions.json');
+    const path = join(cwd(), 'src', 'eval', 'test-questions.json');
     const raw = readFileSync(path, 'utf-8');
     return JSON.parse(raw) as TestQuestion[];
   }
