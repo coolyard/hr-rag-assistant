@@ -90,24 +90,73 @@ jobs:
         if: steps.check-existing.outputs.existing == '' && steps.calc-bump.outputs.skip != 'true'
         id: pr-body
         run: |
-          COMMITS=$(git log main..develop --oneline --no-merges)
+          NEW_VERSION="${{ steps.calc-version.outputs.new }}"
+          CURRENT_VERSION="${{ steps.current-version.outputs.current }}"
+          BUMP_TYPE="${{ steps.calc-bump.outputs.bump }}"
 
-          cat > /tmp/pr-body.md << BODYEOF
+          # Get categorized commits
+          FEAT_COMMITS=$(git log main..develop --oneline --no-merges | grep -iE 'feat[:(]' || echo "")
+          FIX_COMMITS=$(git log main..develop --oneline --no-merges | grep -iE 'fix[:(]' || echo "")
+          ALL_COMMITS=$(git log main..develop --oneline --no-merges || echo "")
+          if [ -z "${ALL_COMMITS}" ]; then
+            ALL_COMMITS="（develop 与 main 已同步，无新增提交）"
+          fi
+
+          cat > /tmp/pr-body.md << 'BODYEOF'
           ## 变更描述
 
-          从 \`develop\` 合并到 \`main\`，发布版本 \`${{ steps.calc-version.outputs.new }}\`。
+          从 `develop` 合并到 `main`，发布版本 `BODYEOF
+          echo "${NEW_VERSION}" >> /tmp/pr-body.md
+          cat >> /tmp/pr-body.md << 'BODYEOF'
+          `。
 
-          ## 包含的变更
+          ## 新增功能
 
-          \`\`\`
-          $COMMITS
-          \`\`\`
+          BODYEOF
+          if [ -n "${FEAT_COMMITS}" ]; then
+            echo '```' >> /tmp/pr-body.md
+            echo "${FEAT_COMMITS}" >> /tmp/pr-body.md
+            echo '```' >> /tmp/pr-body.md
+          else
+            echo '（无新增功能）' >> /tmp/pr-body.md
+          fi
+          echo '' >> /tmp/pr-body.md
+
+          cat >> /tmp/pr-body.md << 'BODYEOF'
+          ## 修复
+
+          BODYEOF
+          if [ -n "${FIX_COMMITS}" ]; then
+            echo '```' >> /tmp/pr-body.md
+            echo "${FIX_COMMITS}" >> /tmp/pr-body.md
+            echo '```' >> /tmp/pr-body.md
+          else
+            echo '（无修复）' >> /tmp/pr-body.md
+          fi
+          echo '' >> /tmp/pr-body.md
+
+          cat >> /tmp/pr-body.md << 'BODYEOF'
+          ## 完整提交列表
+
+          ```BODYEOF
+          echo "${ALL_COMMITS}" >> /tmp/pr-body.md
+          cat >> /tmp/pr-body.md << 'BODYEOF'
+          ```
 
           ## 版本变更
 
-          - 当前: \`${{ steps.current-version.outputs.current }}\`
-          - 新版本: \`${{ steps.calc-version.outputs.new }}\`
-          - 变更类型: \`${{ steps.calc-bump.outputs.bump }}\`
+          - 当前版本: `BODYEOF
+          echo "${CURRENT_VERSION}" >> /tmp/pr-body.md
+          cat >> /tmp/pr-body.md << 'BODYEOF'
+          `
+          - 新版本: `BODYEOF
+          echo "${NEW_VERSION}" >> /tmp/pr-body.md
+          cat >> /tmp/pr-body.md << 'BODYEOF'
+          `
+          - 变更类型: `BODYEOF
+          echo "${BUMP_TYPE}" >> /tmp/pr-body.md
+          cat >> /tmp/pr-body.md << 'BODYEOF'
+          `
 
           ## Checklist
 
@@ -125,8 +174,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          NEW_VERSION="${{ steps.calc-version.outputs.new }}"
           gh pr create \
             --base main \
             --head develop \
-            --title "chore(main): release ${{ steps.calc-version.outputs.new }}" \
-            --body "${{ steps.pr-body.outputs.body }}"
+            --title "chore(main): release ${NEW_VERSION}" \
+            --body-file /tmp/pr-body.md
