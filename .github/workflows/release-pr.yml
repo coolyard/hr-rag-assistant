@@ -1,0 +1,128 @@
+name: Create Release PR
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: 'Version bump type'
+        required: false
+        default: 'auto'
+        type: choice
+        options:
+          - auto
+          - minor
+          - patch
+  schedule:
+    - cron: '0 8 * * 1'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  create-release-pr:
+    name: Create develop → main PR
+    runs-on: ubuntu-latest
+    outputs:
+      bump: ${{ steps.calc-bump.outputs.bump }}
+      new_version: ${{ steps.calc-version.outputs.new }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check if PR already exists
+        id: check-existing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          EXISTING=$(gh pr list --base main --head develop --state open --json number --jq '.[0].number' 2>/dev/null || echo "")
+          echo "existing=$EXISTING" >> $GITHUB_OUTPUT
+
+      - name: Calculate bump type
+        if: steps.check-existing.outputs.existing == ''
+        id: calc-bump
+        run: |
+          COMMITS=$(git log main..origin/develop --oneline --no-merges 2>/dev/null || git log main..develop --oneline --no-merges)
+          FEAT_COUNT=$(echo "$COMMITS" | grep -ciE '^[a-f0-9]+ feat[:\(]' || echo 0)
+          FIX_COUNT=$(echo "$COMMITS" | grep -ciE '^[a-f0-9]+ fix[:\(]' || echo 0)
+
+          if [ "${{ inputs.bump_type }}" != "auto" ] && [ -n "${{ inputs.bump_type }}" ]; then
+            BUMP="${{ inputs.bump_type }}"
+          elif [ "$FEAT_COUNT" -gt 0 ]; then
+            BUMP="minor"
+          else
+            BUMP="patch"
+          fi
+          echo "bump=$BUMP" >> $GITHUB_OUTPUT
+
+      - name: Get current version
+        if: steps.check-existing.outputs.existing == ''
+        id: current-version
+        run: |
+          LATEST_TAG=$(git describe --tags --abbrev=0 main 2>/dev/null || echo "v1.0.0")
+          CURRENT="${LATEST_TAG#v}"
+          echo "current=$CURRENT" >> $GITHUB_OUTPUT
+
+      - name: Calculate new version
+        if: steps.check-existing.outputs.existing == ''
+        id: calc-version
+        run: |
+          IFS='.' read -r MAJOR MINOR PATCH <<< "${{ steps.current-version.outputs.current }}"
+          MINOR=${MINOR:-0}
+          PATCH=${PATCH:-0}
+
+          if [ "${{ steps.calc-bump.outputs.bump }}" = "minor" ]; then
+            MINOR=$((MINOR + 1))
+            PATCH=0
+          else
+            PATCH=$((PATCH + 1))
+          fi
+
+          NEW="v${MAJOR}.${MINOR}.${PATCH}"
+          echo "new=$NEW" >> $GITHUB_OUTPUT
+
+      - name: Generate PR body
+        if: steps.check-existing.outputs.existing == ''
+        id: pr-body
+        run: |
+          COMMITS=$(git log main..origin/develop --oneline --no-merges 2>/dev/null || git log main..develop --oneline --no-merges)
+
+          cat > /tmp/pr-body.md << BODYEOF
+          ## 变更描述
+
+          从 \`develop\` 合并到 \`main\`，发布版本 \`${{ steps.calc-version.outputs.new }}\`。
+
+          ## 包含的变更
+
+          \`\`\`
+          $COMMITS
+          \`\`\`
+
+          ## 版本变更
+
+          - 当前: \`${{ steps.current-version.outputs.current }}\`
+          - 新版本: \`${{ steps.calc-version.outputs.new }}\`
+          - 变更类型: \`${{ steps.calc-bump.outputs.bump }}\`
+
+          ## Checklist
+
+          - [ ] CI 全部通过
+          - [ ] CHANGELOG 已更新
+          BODYEOF
+
+          BODY=$(cat /tmp/pr-body.md)
+          echo "body<<EOF" >> $GITHUB_OUTPUT
+          echo "$BODY" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create PR
+        if: steps.check-existing.outputs.existing == ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr create \
+            --base main \
+            --head develop \
+            --title "chore(main): release ${{ steps.calc-version.outputs.new }}" \
+            --body "${{ steps.pr-body.outputs.body }}"
