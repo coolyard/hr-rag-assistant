@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       bump_type:
-        description: 'Version bump type'
+        description: 'Version bump type (auto: feat→minor, fix→patch)'
         required: false
         default: 'auto'
         type: choice
@@ -12,8 +12,6 @@ on:
           - auto
           - minor
           - patch
-  schedule:
-    - cron: '0 8 * * 1'
 
 permissions:
   contents: write
@@ -104,46 +102,27 @@ jobs:
             done)
           fi
 
-          cat > /tmp/pr-body.md << 'BODYEOF'
+          cat > /tmp/pr-body.md << PRBODY
           ## 变更描述
 
-          从 `develop` 合并到 `main`，发布版本 `BODYEOF
-          echo "${NEW_VERSION}" >> /tmp/pr-body.md
-          cat >> /tmp/pr-body.md << 'BODYEOF'
-          `。
+          从 \`develop\` 合并到 \`main\`，发布版本 \`${NEW_VERSION}\`。
 
           ## 包含的 PR
 
-          BODYEOF
-          echo "${PR_LIST}" >> /tmp/pr-body.md
+          ${PR_LIST}
 
-          cat >> /tmp/pr-body.md << 'BODYEOF'
+          ## 版本信息
 
-          ## 版本变更
-
-          - 当前版本: `BODYEOF
-          echo "${CURRENT_VERSION}" >> /tmp/pr-body.md
-          cat >> /tmp/pr-body.md << 'BODYEOF'
-          `
-          - 新版本: `BODYEOF
-          echo "${NEW_VERSION}" >> /tmp/pr-body.md
-          cat >> /tmp/pr-body.md << 'BODYEOF'
-          `
-          - 变更类型: `BODYEOF
-          echo "${BUMP_TYPE}" >> /tmp/pr-body.md
-          cat >> /tmp/pr-body.md << 'BODYEOF'
-          `
-
-          ## Checklist
-
-          - [ ] CI 全部通过
-          - [ ] CHANGELOG 已更新
-          BODYEOF
+          - 当前版本：\`${CURRENT_VERSION}\`
+          - 新版本：\`${NEW_VERSION}\`
+          - 变更类型：\`${BUMP_TYPE}\`
+          PRBODY
 
           BODY=$(cat /tmp/pr-body.md)
           echo "body<<EOF" >> $GITHUB_OUTPUT
           echo "$BODY" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Create PR
         if: steps.check-existing.outputs.existing == '' && steps.calc-bump.outputs.skip != 'true'
         env:
