@@ -88,7 +88,7 @@ const AuthenticatedLayout: FC = () => {
     }
   };
 
-  const sidebarVisible = location.pathname !== '/login';
+  const sidebarVisible = location.pathname === '/chat';
 
   return (
     <div className={styles.appLayout}>
