@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url = "file:/Users/work/learn/hr-rag-assistant/apps/api/prisma/dev.db"
+}
+
+model Conversation {
+  id        String    @id
+  title     String    @default("新对话")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  userId    String
+  messages  Message[]
+}
+
+model Message {
+  id             String       @id
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String
+  content        String       @default("")
+  reasoning      String?
+  retrievalDetail String?
+  sources        String?
+  followUps      String?
+  status         String       @default("complete")
+  error          String?
+  timestamp      DateTime     @default(now())
+}
+
+model EvalRun {
+  id                  String       @id
+  createdAt           DateTime     @default(now())
+  model               String
+  totalQuestions      Int
+  status             String     @default("running")
+  completedCount     Int        @default(0)
+  averageAccuracy     Float
+  averageCompleteness Float
+  averageRelevance    Float
+  rejectionRate       Float
+  totalSources        Int
+  results             EvalResult[]
+}
+
+model EvalResult {
+  id           String   @id
+  runId        String
+  run          EvalRun  @relation(fields: [runId], references: [id], onDelete: Cascade)
+  question     String
+  category     String
+  answer       String
+  accuracy     Float?
+  completeness Float?
+  relevance    Float?
+  sources      String?
+  rejected     Boolean  @default(false)
+  timestamp    DateTime @default(now())
+}

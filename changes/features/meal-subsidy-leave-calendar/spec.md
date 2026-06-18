@@ -184,9 +184,7 @@ function calculateMonthlyMealSubsidies(
       .filter((r) => r.duration >= 1)
       .reduce((sum, r) => sum + r.duration, 0);
 
-    const halfDayLeaveCount = monthLeaves
-      .filter((r) => r.duration === 0.5)
-      .length;
+    const halfDayLeaveCount = monthLeaves.filter((r) => r.duration === 0.5).length;
 
     const totalAmount = DEFAULT_WORKDAYS * DAILY_AMOUNT;
     const deductedAmount = Math.round(fullDayLeaveCount * DAILY_AMOUNT);
@@ -215,11 +213,11 @@ function calculateMonthlyMealSubsidies(
 
 **关键规则强调**：
 
-| 请假类型 | 时长 | 餐补扣除 | 说明 |
-|---------|------|---------|------|
-| 年假/病假/事假/婚假/产假 | 1 天 | 扣 30 元 | 全天请假扣除 |
-| 年假/病假/事假/婚假/产假 | 0.5 天 | 不扣 | 半天请假不扣除餐补 |
-| 无请假 | — | 不扣 | 全额发放 660 元 |
+| 请假类型                 | 时长   | 餐补扣除 | 说明               |
+| ------------------------ | ------ | -------- | ------------------ |
+| 年假/病假/事假/婚假/产假 | 1 天   | 扣 30 元 | 全天请假扣除       |
+| 年假/病假/事假/婚假/产假 | 0.5 天 | 不扣     | 半天请假不扣除餐补 |
+| 无请假                   | —      | 不扣     | 全额发放 660 元    |
 
 ---
 
@@ -289,11 +287,11 @@ function calculateMonthlyMealSubsidies(
 
 ### 4.2 新增 API：GET /api/me/leave-records
 
-| 属性 | 值 |
-|------|-----|
-| 路径 | `/api/me/leave-records` |
-| 方法 | GET |
-| 认证 | Bearer JWT |
+| 属性 | 值                                         |
+| ---- | ------------------------------------------ |
+| 路径 | `/api/me/leave-records`                    |
+| 方法 | GET                                        |
+| 认证 | Bearer JWT                                 |
 | 参数 | `?year=2025&month=6`（可选，默认当年当月） |
 
 **响应 200**：
@@ -302,9 +300,7 @@ function calculateMonthlyMealSubsidies(
 {
   "year": 2025,
   "month": 6,
-  "records": [
-    { "date": "2025-06-03", "type": "sick", "duration": 1 }
-  ],
+  "records": [{ "date": "2025-06-03", "type": "sick", "duration": 1 }],
   "summary": {
     "fullDayCount": 1,
     "halfDayCount": 0,
@@ -315,11 +311,11 @@ function calculateMonthlyMealSubsidies(
 
 ### 4.3 新增 API：GET /api/me/meal-subsidy
 
-| 属性 | 值 |
-|------|-----|
-| 路径 | `/api/me/meal-subsidy` |
-| 方法 | GET |
-| 认证 | Bearer JWT |
+| 属性 | 值                                         |
+| ---- | ------------------------------------------ |
+| 路径 | `/api/me/meal-subsidy`                     |
+| 方法 | GET                                        |
+| 认证 | Bearer JWT                                 |
 | 参数 | `?year=2025&month=6`（可选，默认当年当月） |
 
 **响应 200**：
@@ -367,7 +363,8 @@ function isPersonalQuery(query: string): boolean {
   }
 
   // 新增：具体月份 + 餐补/请假
-  const specificMonthPattern = /(?:我|我的).*?(?:1月|2月|3月|4月|5月|6月|7月|8月|9月|10月|11月|12月).*?(?:餐补|食补|饭贴|请假|休假)/;
+  const specificMonthPattern =
+    /(?:我|我的).*?(?:1月|2月|3月|4月|5月|6月|7月|8月|9月|10月|11月|12月).*?(?:餐补|食补|饭贴|请假|休假)/;
   if (specificMonthPattern.test(lower)) {
     return true;
   }
@@ -418,7 +415,8 @@ function formatMealSubsidies(subsidies: MonthlyMealSubsidy[]): string {
 
   const lines = subsidies.map((s) => {
     const status = s.isClaimed ? '已申报' : '未申报';
-    const halfDayNote = s.halfDayLeaveCount > 0 ? `（含${s.halfDayLeaveCount}个半天假，不扣餐补）` : '';
+    const halfDayNote =
+      s.halfDayLeaveCount > 0 ? `（含${s.halfDayLeaveCount}个半天假，不扣餐补）` : '';
     return `- ${s.month}月：工作日${s.totalWorkdays}天，请假${s.fullDayLeaveCount}天${halfDayNote}，应发${s.totalAmount}元，扣除${s.deductedAmount}元，实发${s.payableAmount}元【${status}】`;
   });
 
@@ -524,14 +522,14 @@ function formatMealSubsidies(subsidies: MonthlyMealSubsidy[]): string {
   - 当天：加粗 + 边框高亮
 - **请假类型颜色映射**：
 
-| 请假类型 | 颜色 | 色值（浅色模式） | 色值（深色模式） |
-|---------|------|----------------|----------------|
-| 年假 | 黄色 | `#FFF9C4` | `#F9A825` |
-| 病假 | 蓝色 | `#BBDEFB` | `#1976D2` |
-| 事假 | 橙色 | `#FFE0B2` | `#EF6C00` |
-| 婚假 | 粉色 | `#F8BBD0` | `#C2185B` |
-| 产假 | 紫色 | `#E1BEE7` | `#7B1FA2` |
-| 半天假 | 在颜色基础上加半圆/虚线边框标识 | — | — |
+| 请假类型 | 颜色                            | 色值（浅色模式） | 色值（深色模式） |
+| -------- | ------------------------------- | ---------------- | ---------------- |
+| 年假     | 黄色                            | `#FFF9C4`        | `#F9A825`        |
+| 病假     | 蓝色                            | `#BBDEFB`        | `#1976D2`        |
+| 事假     | 橙色                            | `#FFE0B2`        | `#EF6C00`        |
+| 婚假     | 粉色                            | `#F8BBD0`        | `#C2185B`        |
+| 产假     | 紫色                            | `#E1BEE7`        | `#7B1FA2`        |
+| 半天假   | 在颜色基础上加半圆/虚线边框标识 | —                | —                |
 
 - **Hover 交互**：鼠标悬停在有请假的日期上，显示 Tooltip：
   - 日期 + 请假类型 + 时长（"全天"或"半天"）
@@ -600,11 +598,11 @@ interface IUserProfileService {
 
 实施本 Feature 时，需同步更新以下模块级 Spec：
 
-| Spec 文件 | 更新内容 |
-|-----------|---------|
+| Spec 文件                            | 更新内容                                                                                                                                                                                                                           |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `specs/modules/user-profile-spec.md` | 扩展 `UserProfile` 接口（增加 `leaveRecords`、`monthlyMealSubsidies`）；扩展 `isPersonalQuery()` 规则（增加餐补/同义词/月度请假）；扩展 `formatForPrompt()`（增加请假明细和月度餐补板块）；更新预置数据；更新前端 Profile 页面规范 |
-| `specs/modules/rag-spec.md` | 扩展 `HR_KEYWORDS` 数组（增加"餐补""食补""饭贴""午餐补贴"等）；扩展 `isPersonalQuery` 相关描述 |
-| `specs/modules/api-spec.md` | 新增 `GET /api/me/leave-records` 和 `GET /api/me/meal-subsidy` 接口定义；更新 `GET /api/me` 响应示例 |
+| `specs/modules/rag-spec.md`          | 扩展 `HR_KEYWORDS` 数组（增加"餐补""食补""饭贴""午餐补贴"等）；扩展 `isPersonalQuery` 相关描述                                                                                                                                     |
+| `specs/modules/api-spec.md`          | 新增 `GET /api/me/leave-records` 和 `GET /api/me/meal-subsidy` 接口定义；更新 `GET /api/me` 响应示例                                                                                                                               |
 
 ---
 
@@ -682,17 +680,20 @@ interface IUserProfileService {
 **输入**：Feature Spec Section 2（数据模型）、Section 3（预置数据）
 
 **输出**：
+
 - `apps/api/src/auth/auth.interface.ts` — 扩展 `UserProfile` 接口（`leaveRecords`、`monthlyMealSubsidies`）和预置数据
 - `apps/api/src/user-profile/user-profile.interface.ts` — 扩展 `IUserProfileService`
 - `apps/api/src/user-profile/user-profile.service.ts` — 实现 `calculateMonthlyMealSubsidies()` 动态计算
 
 **核心逻辑**：
+
 - 每月默认 22 个工作日，每日 30 元
 - 全天请假（duration ≥ 1）扣除 30 元
 - 半天请假（duration = 0.5）**不扣除**
 - 申报状态：1 月至上月 = 已申报，当月及以后 = 未申报
 
 **验收标准**：
+
 - `UserProfile` 包含 `leaveRecords` 和 `monthlyMealSubsidies`
 - 员工预置 7 条请假记录，HR 预置 7 条
 - 至少 2 条 `duration: 0.5` 的半天假
@@ -707,21 +708,24 @@ interface IUserProfileService {
 **输入**：Feature Spec Section 4（后端接口变更）
 
 **输出**：
+
 - `apps/api/src/auth/auth.controller.ts` — 新增两个端点
 
 **新增端点**：
 
-| 端点 | 说明 |
-|------|------|
-| `GET /api/me/leave-records?year=&month=` | 返回当月请假列表和汇总（fullDayCount/halfDayCount/totalDeduction） |
-| `GET /api/me/meal-subsidy?year=&month=` | 返回当月餐补统计（totalAmount/deductedAmount/payableAmount/isClaimed） |
+| 端点                                     | 说明                                                                   |
+| ---------------------------------------- | ---------------------------------------------------------------------- |
+| `GET /api/me/leave-records?year=&month=` | 返回当月请假列表和汇总（fullDayCount/halfDayCount/totalDeduction）     |
+| `GET /api/me/meal-subsidy?year=&month=`  | 返回当月餐补统计（totalAmount/deductedAmount/payableAmount/isClaimed） |
 
 **约束**：
+
 - year/month 参数可选，默认当前年月
 - month 范围校验 1-12
 - 从 JWT payload 获取 userId
 
 **验收标准**：
+
 - `GET /api/me` 的 `profile` 包含完整 `leaveRecords` 和 `monthlyMealSubsidies`
 - 两个新端点返回格式与 Spec 一致
 
@@ -734,10 +738,12 @@ interface IUserProfileService {
 **输入**：Feature Spec Section 5（RAG Prompt 注入扩展）
 
 **输出**：
+
 - `apps/api/src/user-profile/user-profile.service.ts` — 扩展 `isPersonalQuery()` 和 `formatForPrompt()`
 - `apps/api/src/rag/keyword-search.service.ts` — 扩展 `HR_KEYWORDS`
 
 **核心变更**：
+
 - `isPersonalQuery()` 新增规则：
   - 餐补同义词：`/餐补|食补|饭贴|午餐补贴|餐饮补贴/`
   - 月度请假查询：`/这个月|上个月|本月|上月/ + /请了几天假|休了几天/`
@@ -748,6 +754,7 @@ interface IUserProfileService {
 - `HR_KEYWORDS` 新增：`餐补`、`食补`、`饭贴`、`午餐补贴`、`餐饮补贴`
 
 **验收标准**：
+
 - "我这个月的餐补是多少？" → 识别为个人查询
 - "我这个月的饭贴是多少？" → 识别同义词
 - "我上个月请了几天假？" → 识别为个人查询
@@ -763,6 +770,7 @@ interface IUserProfileService {
 **输入**：Feature Spec Section 6（前端 Profile 页面扩展）
 
 **输出**：
+
 - `apps/web/src/pages/ProfilePage.tsx` — 新增请假日历、月度餐补统计、年度汇总条
 - `apps/web/src/pages/ProfilePage.module.css` — 新增样式
 - （可选）新增子组件文件
@@ -789,11 +797,13 @@ interface IUserProfileService {
    - 底部显示已申报总额 / 未申报总额
 
 **响应式**：
+
 - 桌面端：日历 60% + 月度统计 40% 并排
 - 平板端：日历在上，统计在下
 - 移动端：全宽堆叠，年度汇总横向滚动
 
 **验收标准**：
+
 - 日历正确渲染，月份切换同步更新
 - 半天假有区别于全天假的视觉标识
 - 月度统计金额和申报状态正确
@@ -811,6 +821,7 @@ interface IUserProfileService {
 ### 10.2 关于"当前日期"
 
 系统使用 `new Date()` 获取当前日期判断申报状态。为确保演示一致性，建议：
+
 - 预置请假数据的年份与系统当前年份一致
 - 如系统当前日期为 2025 年 6 月，则 1-5 月显示"已申报"，6-12 月显示"未申报"
 
@@ -820,21 +831,21 @@ interface IUserProfileService {
 
 ### 10.4 代码变更范围预估
 
-| 文件 | 变更类型 | 说明 |
-|------|---------|------|
-| `apps/api/src/auth/auth.interface.ts` | 修改 | 扩展 `UserProfile` 接口和预置数据 |
-| `apps/api/src/user-profile/user-profile.interface.ts` | 修改 | 扩展 `IUserProfileService` 接口 |
-| `apps/api/src/user-profile/user-profile.service.ts` | 修改 | 实现请假记录查询、餐补计算、Prompt 格式化扩展 |
-| `apps/api/src/auth/auth.controller.ts` | 修改 | 新增 `GET /api/me/leave-records` 和 `GET /api/me/meal-subsidy` 端点 |
-| `apps/api/src/rag/rag.service.ts` | 修改 | 确认 `orchestrate()` 中个人数据注入包含新字段 |
-| `apps/web/src/pages/ProfilePage.tsx` | 修改 | 增加请假日历、月度餐补统计、年度汇总条 |
-| `apps/web/src/pages/ProfilePage.module.css` | 修改 | 增加日历和餐补统计样式 |
-| 新增组件文件 | 新增 | `LeaveCalendar.tsx`、 `MealSubsidyCard.tsx`、 `YearlyMealSummary.tsx`（或内联在 ProfilePage） |
+| 文件                                                  | 变更类型 | 说明                                                                                          |
+| ----------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------- |
+| `apps/api/src/auth/auth.interface.ts`                 | 修改     | 扩展 `UserProfile` 接口和预置数据                                                             |
+| `apps/api/src/user-profile/user-profile.interface.ts` | 修改     | 扩展 `IUserProfileService` 接口                                                               |
+| `apps/api/src/user-profile/user-profile.service.ts`   | 修改     | 实现请假记录查询、餐补计算、Prompt 格式化扩展                                                 |
+| `apps/api/src/auth/auth.controller.ts`                | 修改     | 新增 `GET /api/me/leave-records` 和 `GET /api/me/meal-subsidy` 端点                           |
+| `apps/api/src/rag/rag.service.ts`                     | 修改     | 确认 `orchestrate()` 中个人数据注入包含新字段                                                 |
+| `apps/web/src/pages/ProfilePage.tsx`                  | 修改     | 增加请假日历、月度餐补统计、年度汇总条                                                        |
+| `apps/web/src/pages/ProfilePage.module.css`           | 修改     | 增加日历和餐补统计样式                                                                        |
+| 新增组件文件                                          | 新增     | `LeaveCalendar.tsx`、 `MealSubsidyCard.tsx`、 `YearlyMealSummary.tsx`（或内联在 ProfilePage） |
 
 ---
 
 ## 12. Spec 演进记录
 
-| 日期 | 版本 | 变更内容 |
-|------|------|---------|
+| 日期       | 版本 | 变更内容                                                           |
+| ---------- | ---- | ------------------------------------------------------------------ |
 | 2026-05-18 | v1.0 | 初始版本，新增餐补福利计算、请假日历展示、月度统计、RAG 同义词识别 |

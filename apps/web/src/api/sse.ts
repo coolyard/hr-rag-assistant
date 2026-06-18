@@ -1,18 +1,60 @@
 export interface AskRequest {
   question: string;
   conversationId?: string;
+  toolCallStart?: {
+    id: string;
+    name: string;
+    title: string;
+    args: Record<string, unknown>;
+    confirmRequired: boolean;
+  };
+  toolResult?: {
+    id: string;
+    result: string | Record<string, unknown>;
+    error?: string;
+  };
 }
 
 export interface AskStreamChunk {
   chunk: string;
   done: boolean;
   status?: string;
+  reasoning?: string;
   followUps?: string[];
   sources?: SourceCitation[];
   confidenceLevel?: 'high' | 'medium' | 'low';
   hallucinationWarning?: string;
   error?: string;
+  promptTokens?: number;
+  completionTokens?: number;
+  retrievalDetail?: {
+    vectorCount: number;
+    keywordCount: number;
+    mergedCount: number;
+    vectorSources: Array<{
+      documentTitle: string;
+      similarity: number;
+      source: 'vector' | 'keyword';
+    }>;
+    keywordSources: Array<{
+      documentTitle: string;
+      similarity: number;
+      source: 'vector' | 'keyword';
+    }>;
+  };
   conversationId?: string;
+  toolCallStart?: {
+    id: string;
+    name: string;
+    title: string;
+    args: Record<string, unknown>;
+    confirmRequired: boolean;
+  };
+  toolResult?: {
+    id: string;
+    result: string | Record<string, unknown>;
+    error?: string;
+  };
 }
 
 export interface SourceCitation {

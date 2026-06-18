@@ -58,12 +58,15 @@ export const DocumentPage: FC = () => {
     return result;
   }, [documents, activeCategory, searchQuery]);
 
-  const handleCardClick = useCallback((id: string) => {
-    const doc = documents.find((d) => d.id === id);
-    if (doc) {
-      setSelectedDoc(doc);
-    }
-  }, [documents]);
+  const handleCardClick = useCallback(
+    (id: string) => {
+      const doc = documents.find((d) => d.id === id);
+      if (doc) {
+        setSelectedDoc(doc);
+      }
+    },
+    [documents],
+  );
 
   const handleCloseViewer = useCallback(() => {
     setSelectedDoc(null);
@@ -79,9 +82,7 @@ export const DocumentPage: FC = () => {
 
       <div className={styles.header}>
         <div className={styles.stats}>
-          <span className={styles.statItem}>
-            📚 {String(documents.length)} 个文档
-          </span>
+          <span className={styles.statItem}>📚 {String(documents.length)} 个文档</span>
         </div>
         {user?.role === 'hr' && <DocumentUploader onSuccess={handleUploadSuccess} />}
       </div>
@@ -126,11 +127,7 @@ export const DocumentPage: FC = () => {
         {filteredDocuments.length > 0 && (
           <div className={styles.grid}>
             {filteredDocuments.map((doc) => (
-              <DocumentCard
-                key={doc.id}
-                document={doc}
-                onClick={handleCardClick}
-              />
+              <DocumentCard key={doc.id} document={doc} onClick={handleCardClick} />
             ))}
           </div>
         )}

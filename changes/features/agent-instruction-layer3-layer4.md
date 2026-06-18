@@ -141,18 +141,20 @@ interface Message {
 
 ```typescript
 // 解析到 done: true 时
-setMessages((prev) => prev.map((m) =>
-  m.id === assistantMsg.id
-    ? {
-        ...m,
-        content: accumulated,
-        status: 'complete',
-        sources: data.sources,
-        confidenceLevel: data.confidenceLevel,
-        hallucinationWarning: data.hallucinationWarning,
-      }
-    : m,
-));
+setMessages((prev) =>
+  prev.map((m) =>
+    m.id === assistantMsg.id
+      ? {
+          ...m,
+          content: accumulated,
+          status: 'complete',
+          sources: data.sources,
+          confidenceLevel: data.confidenceLevel,
+          hallucinationWarning: data.hallucinationWarning,
+        }
+      : m,
+  ),
+);
 ```
 
 ### 7. 新增 ConfidenceBadge 组件

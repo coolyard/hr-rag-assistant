@@ -1,19 +1,36 @@
 import { useCallback, useRef, useState } from 'react';
 
+import { client } from '@/api/client';
 import { streamAsk } from '@/api/sse';
 import type { SourceCitation } from '@/api/sse';
 
 export interface Message {
   id: string;
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'toolCall' | 'toolResult';
   content: string;
   timestamp: number;
   sources?: SourceCitation[];
   followUps?: string[];
   confidenceLevel?: 'high' | 'medium' | 'low';
   hallucinationWarning?: string;
-  status?: 'sending' | 'streaming' | 'complete' | 'error';
+  status?: 'sending' | 'streaming' | 'complete' | 'error' | 'stopped';
   error?: string;
+  reasoning?: string;
+  promptTokens?: number;
+  completionTokens?: number;
+  retrievalDetail?: import('@/api/sse').AskStreamChunk['retrievalDetail'];
+  toolCall?: {
+    id: string;
+    name: string;
+    title: string;
+    args: Record<string, unknown>;
+    confirmRequired: boolean;
+  };
+  toolResult?: {
+    id: string;
+    result: string | Record<string, unknown>;
+    error?: string;
+  };
 }
 
 function generateId(prefix: string): string {
@@ -107,6 +124,42 @@ export function useChat() {
             );
           }
 
+          if (chunk.toolCallStart) {
+            const toolMsg: Message = {
+              id: generateId('tc'),
+              role: 'toolCall',
+              content: '',
+              timestamp: Date.now(),
+              toolCall: chunk.toolCallStart,
+              status: 'complete',
+            };
+            // 移除初始的 loading assistant 消息，用 toolCall 消息替代
+            setMessages((prev) => {
+              const withoutLoading = prev.filter(
+                (m) => !(m.role === 'assistant' && m.id === assistantMsg.id && m.content === ''),
+              );
+              return [...withoutLoading, toolMsg];
+            });
+            setIsLoading(false);
+            setStatusText('');
+            loadingRef.current = false;
+            if (rafId !== null) {
+              cancelAnimationFrame(rafId);
+            }
+            return;
+          }
+
+          if (chunk.reasoning) {
+            const reasoningText: string = chunk.reasoning;
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === assistantMsg.id
+                  ? { ...m, reasoning: (m.reasoning ?? '') + reasoningText }
+                  : m,
+              ),
+            );
+          }
+
           if (chunk.chunk) {
             pendingTokens.push(chunk.chunk);
             if (rafId === null) {
@@ -130,8 +183,11 @@ export function useChat() {
                       sources: chunk.sources,
                       confidenceLevel: chunk.confidenceLevel,
                       hallucinationWarning: chunk.hallucinationWarning,
+                      retrievalDetail: chunk.retrievalDetail,
                       status: finalStatus,
                       error: chunk.error,
+                      promptTokens: chunk.promptTokens,
+                      completionTokens: chunk.completionTokens,
                     }
                   : m,
               ),
@@ -140,7 +196,16 @@ export function useChat() {
           }
         }
       } catch (error) {
-        if (!(error instanceof DOMException && error.name === 'AbortError')) {
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          // 用户主动停止：刷新已缓冲的 token，标记为 stopped
+          if (rafId !== null) {
+            cancelAnimationFrame(rafId);
+            flushTokens();
+          }
+          setMessages((prev) =>
+            prev.map((m) => (m.id === assistantMsg.id ? { ...m, status: 'stopped' as const } : m)),
+          );
+        } else {
           if (rafId !== null) {
             cancelAnimationFrame(rafId);
             flushTokens();
@@ -165,6 +230,32 @@ export function useChat() {
       }
     },
     [conversationId],
+  );
+
+  const confirmToolCall = useCallback(
+    async (toolCallId: string, toolName: string, args: Record<string, unknown>) => {
+      const token = localStorage.getItem('hr_rag_token');
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+      const res = await fetch('/api/ask/tool/execute', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ toolCallId, toolName, args }),
+      });
+      const result = (await res.json()) as { result: string; error?: string };
+      const resultMsg: Message = {
+        id: generateId('tr'),
+        role: 'toolResult',
+        content: result.error != null ? `执行失败: ${result.error}` : result.result,
+        timestamp: Date.now(),
+        toolResult: { id: toolCallId, result: result.result },
+        status: 'complete',
+      };
+      setMessages((prev) => [...prev, resultMsg]);
+    },
+    [],
   );
 
   const retryMessage = useCallback(
@@ -194,6 +285,48 @@ export function useChat() {
     clearConversation();
   }, [clearConversation]);
 
+  const loadConversation = useCallback(async (convId: string) => {
+    try {
+      const res = await client.get(`/conversations/${convId}/messages`);
+      const msgs = Array.isArray(res.data) ? (res.data as Message[]) : [];
+      setMessages(
+        msgs.map((m) => ({
+          ...m,
+          timestamp:
+            typeof m.timestamp === 'string' ? new Date(m.timestamp).getTime() : m.timestamp,
+        })),
+      );
+      setConversationId(convId);
+    } catch {
+      setMessages([]);
+    }
+  }, []);
+
+  const stopGeneration = useCallback(() => {
+    if (abortRef.current) {
+      abortRef.current.abort();
+    }
+  }, []);
+
+  const regenerate = useCallback(
+    (assistantMsgId: string) => {
+      const idx = messages.findIndex((m) => m.id === assistantMsgId);
+      if (idx <= 0) {
+        return;
+      }
+      const userMsg = [...messages.slice(0, idx)].reverse().find((m: Message) => m.role === 'user');
+      if (!userMsg) {
+        return;
+      }
+      // Remove the current assistant message
+      setMessages((prev) => prev.filter((m) => m.id !== assistantMsgId));
+      loadingRef.current = false;
+      setIsLoading(false);
+      void sendMessage(userMsg.content);
+    },
+    [messages, sendMessage],
+  );
+
   return {
     messages,
     inputValue,
@@ -201,9 +334,13 @@ export function useChat() {
     isLoading,
     statusText,
     sendMessage,
+    stopGeneration,
     retryMessage,
+    regenerate,
     clearConversation,
     conversationId,
+    confirmToolCall,
     newConversation,
+    loadConversation,
   };
 }

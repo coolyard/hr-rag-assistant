@@ -1,9 +1,12 @@
-import { type FC, useCallback, useState } from 'react';
+import { type FC, useCallback, useEffect, useState } from 'react';
 
 import type { SourceCitation } from '@/api/sse';
 import styles from '@/components/Chat/ChatMessage.module.css';
 import { ConfidenceBadge } from '@/components/Chat/ConfidenceBadge';
 import { HallucinationWarning } from '@/components/Chat/HallucinationWarning';
+import { RetrievalPanel } from '@/components/Chat/RetrievalPanel';
+import { showToast } from '@/components/Chat/Toast';
+import { ToolCallCard } from '@/components/Chat/ToolCallCard';
 import type { Message } from '@/hooks/useChat';
 import { renderMarkdown } from '@/utils/markdown';
 
@@ -43,15 +46,107 @@ const CitationCard: FC<CitationCardProps> = ({ citation, confidenceLevel }) => {
   );
 };
 
+interface ThinkingSectionProps {
+  reasoning: string;
+  isStreaming: boolean;
+}
+
+const ThinkingSection: FC<ThinkingSectionProps> = ({ reasoning, isStreaming }) => {
+  const [expanded, setExpanded] = useState(isStreaming);
+
+  useEffect(() => {
+    if (isStreaming) {
+      setExpanded(true);
+    }
+  }, [isStreaming]);
+
+  useEffect(() => {
+    if (!isStreaming && expanded) {
+      const timer = setTimeout(() => {
+        setExpanded(false);
+      }, 3000);
+      return () => {
+        clearTimeout(timer);
+      };
+    }
+  }, [isStreaming, expanded]);
+
+  const toggle = useCallback(() => {
+    setExpanded((prev) => !prev);
+  }, []);
+
+  if (reasoning.length === 0) {
+    return null;
+  }
+
+  const chevron = expanded ? '▾' : '▸';
+
+  return (
+    <div className={styles.thinkingSection}>
+      <div
+        className={styles.thinkingHeader}
+        onClick={toggle}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') toggle();
+        }}
+      >
+        <span className={styles.thinkingChevron}>{chevron}</span>
+        <span className={styles.thinkingLabel}>{isStreaming ? '思考中...' : '思考过程'}</span>
+      </div>
+      <div className={expanded ? styles.thinkingContentExpanded : styles.thinkingContent}>
+        <p className={styles.thinkingText}>{reasoning}</p>
+      </div>
+    </div>
+  );
+};
+
 interface ChatMessageProps {
   message: Message;
   onFollowUp?: (question: string) => void;
+  onRegenerate?: (id: string) => void;
+  onToolConfirm?: (toolCallId: string, toolName: string, args: Record<string, unknown>) => void;
+  onToolCancel?: () => void;
 }
 
-export const ChatMessage: FC<ChatMessageProps> = ({ message, onFollowUp }) => {
+export const ChatMessage: FC<ChatMessageProps> = ({
+  message,
+  onFollowUp,
+  onRegenerate,
+  onToolConfirm,
+  onToolCancel,
+}) => {
+  const [showRetrieval, setShowRetrieval] = useState(false);
   const isUser = message.role === 'user';
   const isLoading = message.status === 'sending' || message.status === 'streaming';
+  const isStopped = message.status === 'stopped';
   const hasContent = message.content.length > 0;
+
+  if (message.role === 'toolCall' && message.toolCall) {
+    const tc = message.toolCall;
+    return (
+      <div className={styles.assistantRow}>
+        <ToolCallCard
+          toolCall={tc}
+          onConfirm={() => {
+            onToolConfirm?.(tc.id, tc.name, tc.args);
+          }}
+          onCancel={() => {
+            onToolCancel?.();
+          }}
+        />
+      </div>
+    );
+  }
+
+  if (message.role === 'toolResult') {
+    return (
+      <div className={styles.assistantRow}>
+        <div className={styles.toolResultBanner}>{message.content}</div>
+      </div>
+    );
+  }
 
   if (isUser) {
     return (
@@ -66,12 +161,22 @@ export const ChatMessage: FC<ChatMessageProps> = ({ message, onFollowUp }) => {
   return (
     <div className={styles.assistantRow}>
       <div className={styles.assistantBubble}>
+        {message.reasoning && (
+          <ThinkingSection
+            reasoning={message.reasoning}
+            isStreaming={message.status === 'sending' || message.status === 'streaming'}
+          />
+        )}
         {isLoading && !hasContent && (
           <div className={styles.loadingDots}>
             <span className={styles.dot}>●</span>
             <span className={styles.dot}>●</span>
             <span className={styles.dot}>●</span>
           </div>
+        )}
+        {isStopped && !hasContent && <p className={styles.stoppedHint}>用户已停止生成</p>}
+        {isStopped && hasContent && (
+          <p className={styles.stoppedHint}>用户已停止生成 · 以下为已生成内容</p>
         )}
         {hasContent && (
           <div
@@ -83,9 +188,7 @@ export const ChatMessage: FC<ChatMessageProps> = ({ message, onFollowUp }) => {
         {message.status === 'error' && message.error && (
           <p className={styles.errorText}>{message.error}</p>
         )}
-        {message.status === 'complete' && message.hallucinationWarning && (
-          <HallucinationWarning />
-        )}
+        {message.status === 'complete' && message.hallucinationWarning && <HallucinationWarning />}
         {message.status === 'complete' && message.sources && message.sources.length > 0 && (
           <div className={styles.sourcesSection}>
             <p className={styles.sourcesLabel}>参考来源：</p>
@@ -114,6 +217,56 @@ export const ChatMessage: FC<ChatMessageProps> = ({ message, onFollowUp }) => {
               </button>
             ))}
           </div>
+        )}
+        {message.status === 'complete' && (
+          <div className={styles.messageActions}>
+            {message.promptTokens != null && message.completionTokens != null && (
+              <span className={styles.tokenInfo}>~{message.completionTokens} tokens</span>
+            )}
+            {message.sources && message.sources.length > 0 && message.retrievalDetail && (
+              <button
+                className={styles.actionButton}
+                onClick={() => {
+                  setShowRetrieval(true);
+                }}
+                type="button"
+              >
+                查看检索详情
+              </button>
+            )}
+            <button
+              className={styles.actionButton}
+              onClick={() => {
+                const text = message.content.replace(/<[^>]*>/g, '');
+                showToast('✓ 已复制到剪贴板');
+                navigator.clipboard.writeText(text).catch(() => {
+                  // clipboard not available (non-HTTPS), toast already shown
+                });
+              }}
+              type="button"
+            >
+              复制
+            </button>
+            {message.role === 'assistant' && onRegenerate && (
+              <button
+                className={styles.actionButton}
+                onClick={() => {
+                  onRegenerate(message.id);
+                }}
+                type="button"
+              >
+                重新生成
+              </button>
+            )}
+          </div>
+        )}
+        {showRetrieval && (
+          <RetrievalPanel
+            message={message}
+            onClose={() => {
+              setShowRetrieval(false);
+            }}
+          />
         )}
       </div>
     </div>

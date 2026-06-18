@@ -10,7 +10,11 @@
     "preview": "pnpm build && pnpm start",
     "lint": "eslint .",
     "format": "prettier --write \"**/*.{ts,tsx,js,mjs,cjs,json,css,html,md}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,js,mjs,cjs,json,css,html,md}\""
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,mjs,cjs,json,css,html,md}\"",
+    "test": "pnpm --recursive test",
+    "test:coverage": "pnpm --recursive test:coverage",
+    "test:e2e": "pnpm --filter web test:e2e",
+    "eval": "pnpm --filter api eval"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
@@ -22,6 +26,13 @@
     "prettier": "^3.0.0",
     "typescript": "^5.5.0",
     "typescript-eslint": "^8.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/client",
+      "prisma",
+      "@prisma/engines"
+    ]
   },
   "version": "1.2.0"
 }

@@ -15,7 +15,12 @@ const QUICK_QUESTIONS = [
   '我什么时候可以申请晋升？薪资能涨多少？',
 ];
 
-export const ChatPage: FC = () => {
+interface ChatPageProps {
+  activeConvId: string | null;
+  onConversationUpdated?: () => void;
+}
+
+export const ChatPage: FC<ChatPageProps> = ({ activeConvId, onConversationUpdated }) => {
   const {
     messages,
     inputValue,
@@ -23,9 +28,13 @@ export const ChatPage: FC = () => {
     isLoading,
     statusText,
     sendMessage,
+    stopGeneration,
     retryMessage,
+    regenerate,
     clearConversation,
+    confirmToolCall,
     newConversation,
+    loadConversation,
   } = useChat();
 
   const listRef = useRef<HTMLDivElement>(null);
@@ -45,8 +54,10 @@ export const ChatPage: FC = () => {
     if (inputValue.trim().length === 0 || isLoading) {
       return;
     }
-    void sendMessage(inputValue);
-  }, [inputValue, isLoading, sendMessage]);
+    void sendMessage(inputValue).then(() => {
+      onConversationUpdated?.();
+    });
+  }, [inputValue, isLoading, sendMessage, onConversationUpdated]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -67,6 +78,23 @@ export const ChatPage: FC = () => {
     },
     [setInputValue],
   );
+
+  const convRef = useRef(activeConvId);
+
+  useEffect(() => {
+    if (activeConvId && activeConvId !== convRef.current) {
+      convRef.current = activeConvId;
+      void loadConversation(activeConvId);
+    }
+    if (activeConvId === null && convRef.current !== null) {
+      convRef.current = null;
+      clearConversation();
+    }
+  }, [activeConvId, loadConversation, clearConversation]);
+
+  const handleToolCancel = useCallback(() => {
+    // 用户取消工具调用，不做任何操作
+  }, []);
 
   const handleRetry = useCallback(
     (messageId: string) => {
@@ -113,7 +141,9 @@ export const ChatPage: FC = () => {
                   key={q}
                   className={styles.quickQuestion}
                   onClick={() => {
-                    void sendMessage(q);
+                    void sendMessage(q).then(() => {
+                      onConversationUpdated?.();
+                    });
                   }}
                   disabled={isLoading}
                   type="button"
@@ -130,8 +160,17 @@ export const ChatPage: FC = () => {
             <ChatMessage
               message={msg}
               onFollowUp={(q) => {
-                void sendMessage(q);
+                void sendMessage(q).then(() => {
+                  onConversationUpdated?.();
+                });
               }}
+              onRegenerate={(id) => {
+                regenerate(id);
+              }}
+              onToolConfirm={(toolCallId, toolName, args) => {
+                void confirmToolCall(toolCallId, toolName, args);
+              }}
+              onToolCancel={handleToolCancel}
             />
             {msg.status === 'error' && msg.role === 'assistant' && (
               <div className={styles.retryRow}>
@@ -158,6 +197,20 @@ export const ChatPage: FC = () => {
             <span>{statusText}</span>
           </div>
         )}
+
+        {(() => {
+          const totalPrompt = messages.reduce((sum, m) => sum + (m.promptTokens ?? 0), 0);
+          const totalCompletion = messages.reduce((sum, m) => sum + (m.completionTokens ?? 0), 0);
+          if (totalCompletion > 0) {
+            return (
+              <div className={styles.tokenTotal}>
+                本轮 · Prompt ~{totalPrompt} | Completion ~{totalCompletion} | 总计 ~
+                {totalPrompt + totalCompletion} tokens
+              </div>
+            );
+          }
+          return null;
+        })()}
       </div>
 
       <div className={styles.inputArea}>
@@ -176,14 +229,20 @@ export const ChatPage: FC = () => {
           <span className={styles.charCount}>
             {String(charCount)}/{String(MAX_CHARS)}
           </span>
-          <button
-            className={styles.sendButton}
-            onClick={handleSend}
-            disabled={isLoading || inputValue.trim().length === 0}
-            type="button"
-          >
-            {isLoading ? '生成中...' : '发送'}
-          </button>
+          {isLoading ? (
+            <button className={styles.stopButton} onClick={stopGeneration} type="button">
+              停止生成
+            </button>
+          ) : (
+            <button
+              className={styles.sendButton}
+              onClick={handleSend}
+              disabled={inputValue.trim().length === 0}
+              type="button"
+            >
+              发送
+            </button>
+          )}
         </div>
       </div>
     </div>

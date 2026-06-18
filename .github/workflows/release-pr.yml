@@ -1,0 +1,136 @@
+name: Create Release PR
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: 'Version bump type (auto: feat→minor, fix→patch)'
+        required: false
+        default: 'auto'
+        type: choice
+        options:
+          - auto
+          - minor
+          - patch
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  create-release-pr:
+    name: Create develop → main PR
+    runs-on: ubuntu-latest
+    outputs:
+      bump: ${{ steps.calc-bump.outputs.bump }}
+      new_version: ${{ steps.calc-version.outputs.new }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: develop
+
+      - name: Fetch main branch
+        run: git fetch origin main:main
+
+      - name: Check if PR already exists
+        id: check-existing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          EXISTING=$(gh pr list --base main --head develop --state open --json number --jq '.[0].number' 2>/dev/null || echo "")
+          echo "existing=$EXISTING" >> $GITHUB_OUTPUT
+
+      - name: Calculate bump type
+        if: steps.check-existing.outputs.existing == ''
+        id: calc-bump
+        run: |
+          COMMITS=$(git log main..develop --oneline --no-merges)
+          FEAT_COUNT=$(echo "$COMMITS" | grep -ciE '^[a-f0-9]+ feat[:\(]' || echo 0)
+          FIX_COUNT=$(echo "$COMMITS" | grep -ciE '^[a-f0-9]+ fix[:\(]' || echo 0)
+
+          if [ "${{ inputs.bump_type }}" != "auto" ] && [ -n "${{ inputs.bump_type }}" ]; then
+            BUMP="${{ inputs.bump_type }}"
+          elif [ "$FEAT_COUNT" -gt 0 ]; then
+            BUMP="minor"
+          else
+            BUMP="patch"
+          fi
+          echo "bump=$BUMP" >> $GITHUB_OUTPUT
+
+      - name: Get current version
+        if: steps.check-existing.outputs.existing == ''
+        id: current-version
+        run: |
+          LATEST_TAG=$(git describe --tags --abbrev=0 main 2>/dev/null || echo "v1.0.0")
+          CURRENT="${LATEST_TAG#v}"
+          echo "current=$CURRENT" >> $GITHUB_OUTPUT
+
+      - name: Calculate new version
+        if: steps.check-existing.outputs.existing == '' && steps.calc-bump.outputs.skip != 'true'
+        id: calc-version
+        run: |
+          IFS='.' read -r MAJOR MINOR PATCH <<< "${{ steps.current-version.outputs.current }}"
+          MINOR=${MINOR:-0}
+          PATCH=${PATCH:-0}
+
+          if [ "${{ steps.calc-bump.outputs.bump }}" = "minor" ]; then
+            MINOR=$((MINOR + 1))
+            PATCH=0
+          else
+            PATCH=$((PATCH + 1))
+          fi
+
+          NEW="v${MAJOR}.${MINOR}.${PATCH}"
+          echo "new=$NEW" >> $GITHUB_OUTPUT
+
+      - name: Generate PR body
+        if: steps.check-existing.outputs.existing == '' && steps.calc-bump.outputs.skip != 'true'
+        id: pr-body
+        run: |
+          NEW_VERSION="${{ steps.calc-version.outputs.new }}"
+          CURRENT_VERSION="${{ steps.current-version.outputs.current }}"
+          BUMP_TYPE="${{ steps.calc-bump.outputs.bump }}"
+
+          # Extract merged PRs from merge commits
+          MERGE_COMMITS=$(git log main..develop --oneline --merges 2>/dev/null || echo "")
+          if [ -z "${MERGE_COMMITS}" ]; then
+            PR_LIST="（develop 与 main 已同步，无新增合并）"
+          else
+            PR_LIST=$(echo "${MERGE_COMMITS}" | grep -oP 'Merge pull request #\K\d+' | sort -n | while read pr; do
+              echo "- #${pr}"
+            done)
+          fi
+
+          cat > /tmp/pr-body.md << PRBODY
+          ## 变更描述
+
+          从 \`develop\` 合并到 \`main\`，发布版本 \`${NEW_VERSION}\`。
+
+          ## 包含的 PR
+
+          ${PR_LIST}
+
+          ## 版本信息
+
+          - 当前版本：\`${CURRENT_VERSION}\`
+          - 新版本：\`${NEW_VERSION}\`
+          - 变更类型：\`${BUMP_TYPE}\`
+          PRBODY
+
+          BODY=$(cat /tmp/pr-body.md)
+          echo "body<<EOF" >> $GITHUB_OUTPUT
+          echo "$BODY" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create PR
+        if: steps.check-existing.outputs.existing == '' && steps.calc-bump.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          NEW_VERSION="${{ steps.calc-version.outputs.new }}"
+          gh pr create \
+            --base main \
+            --head develop \
+            --title "chore(main): release ${NEW_VERSION}" \
+            --body-file /tmp/pr-body.md

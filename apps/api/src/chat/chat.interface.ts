@@ -1,4 +1,4 @@
-import type { SourceCitation } from '@/rag/rag.interface';
+import type { RetrievalDetail, SourceCitation } from '@/rag/rag.interface';
 
 export interface Message {
   id: string;
@@ -6,6 +6,8 @@ export interface Message {
   content: string;
   timestamp: number;
   sources?: SourceCitation[];
+  reasoning?: string;
+  retrievalDetail?: RetrievalDetail;
   status?: 'sending' | 'streaming' | 'complete' | 'error';
   error?: string;
 }

@@ -7,11 +7,13 @@ import { LLMService } from '@/llm/llm.service';
 import { HR_KEYWORDS, KeywordSearchService } from '@/rag/keyword-search.service';
 import type {
   MergedResult,
+  RetrievalDetail,
   RAGSearchResult,
   SourceCitation,
   StreamChunk,
 } from '@/rag/rag.interface';
 import { validateAnswer } from '@/rag/rag.validator';
+import { ToolRegistryService } from '@/tool/tool-registry.service';
 import { UserProfileService } from '@/user-profile/user-profile.service';
 import { VectorStoreService } from '@/vector/vector-store.service';
 
@@ -49,6 +51,12 @@ const SYSTEM_PROMPT_TEMPLATE = `你是企业 HR 助手，专门回答员工关�
 
 const MAX_TOKENS_ESTIMATE = 28000;
 
+function generateToolCallId(): string {
+  const ts = Date.now();
+  const rand = Math.random().toString(36).slice(2, 8);
+  return `tc-${String(ts)}-${rand}`;
+}
+
 export const REJECTION_PHRASE =
   '根据现有 HR 文档，无法确认该问题的答案。建议联系 HR 部门获取准确信息。';
 
@@ -63,6 +71,7 @@ export class RAGService {
     private readonly chatService: ChatService,
     private readonly llmService: LLMService,
     private readonly userProfileService: UserProfileService,
+    private readonly toolRegistry: ToolRegistryService,
   ) {}
 
   async *orchestrate(
@@ -70,16 +79,48 @@ export class RAGService {
     conversationId?: string,
     userId?: string,
   ): AsyncIterable<StreamChunk> {
-    const conv = this.chatService.getOrCreateConversation(conversationId);
-    this.chatService.addUserMessage(conv.id, query);
+    const conv = await this.chatService.getOrCreateConversation(conversationId, userId);
+    await this.chatService.addUserMessage(conv.id, query);
+
+    // 检测是否需要工具调用
+    const tool = this.toolRegistry.detectTool(query);
+    if (tool) {
+      const args = tool.buildArgs(query);
+      yield { token: '', done: false, reasoning: `检测到操作意图：${tool.title}` };
+      yield {
+        token: '',
+        done: false,
+        toolCallStart: {
+          id: generateToolCallId(),
+          name: tool.name,
+          title: tool.title,
+          args,
+          confirmRequired: tool.confirmRequired,
+        },
+      };
+      return;
+    }
 
     let merged: MergedResult[];
+    let vectorResults: RAGSearchResult[] = [];
+    let keywordResults: RAGSearchResult[] = [];
     try {
-      const vectorResults = await this.vectorSearch(query, VECTOR_TOP_K);
+      vectorResults = await this.vectorSearch(query, VECTOR_TOP_K);
       yield { token: '', done: false, status: '正在检索相关文档...' };
+      yield {
+        token: '',
+        done: false,
+        reasoning: '正在启动向量语义检索，查找与问题最相关的文档片段...',
+      };
       const allChunks = this.vectorStore.getAll();
-      const keywordResults = this.keywordSearch.search(query, allChunks, KEYWORD_TOP_K);
+      yield { token: '', done: false, reasoning: '正在进行关键词精确匹配，补充制度规则类文档...' };
+      keywordResults = this.keywordSearch.search(query, allChunks, KEYWORD_TOP_K);
       merged = this.mergeResults(vectorResults, keywordResults, MERGE_TOP_K);
+      yield {
+        token: '',
+        done: false,
+        reasoning: `检索完成：向量检索返回 ${String(vectorResults.length)} 条，关键词检索返回 ${String(keywordResults.length)} 条，合并去重后得到 ${String(merged.length)} 条相关文档。`,
+      };
       yield { token: '', done: false, status: `找到 ${String(merged.length)} 条匹配，正在分析...` };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -98,24 +139,52 @@ export class RAGService {
           userProfileText = this.userProfileService.formatForPrompt(profile);
           hasPersonalData = true;
           this.logger.log(`Personal data injected for user ${userId}`);
+          yield {
+            token: '',
+            done: false,
+            reasoning: `已匹配到用户个人信息：${profile.realName}，${profile.department} ${profile.position}，年假剩余 ${String(profile.annualLeaveRemaining)} 天。`,
+          };
         }
       }
     }
 
     if (this.shouldReject(merged, query, hasPersonalData)) {
       this.logger.log(`Query rejected (below threshold or filtered): ${query}`);
-      this.chatService.addAssistantMessage(conv.id, REJECTION_PHRASE);
+      yield { token: '', done: false, reasoning: '检索到的文档相似度过低，无法提供可靠回答。' };
+      await this.chatService.addAssistantMessage(conv.id, REJECTION_PHRASE);
       yield { token: REJECTION_PHRASE, done: true, confidenceLevel: 'low' };
       return;
     }
 
-    const history = this.chatService.getHistory(conv.id);
+    const history = await this.chatService.getHistory(conv.id);
 
     const prompt = this.buildPrompt(query, merged, history, userProfileText);
 
     const sources = this.buildSources(merged);
 
+    // 构建检索可视化数据
+    const retrievalDetail: RetrievalDetail = {
+      vectorCount: vectorResults.length,
+      keywordCount: keywordResults.length,
+      mergedCount: merged.length,
+      vectorSources: vectorResults.slice(0, 3).map((r) => ({
+        documentTitle: r.documentTitle,
+        similarity: r.normalizedScore,
+        source: 'vector' as const,
+      })),
+      keywordSources: keywordResults.slice(0, 3).map((r) => ({
+        documentTitle: r.documentTitle,
+        similarity: r.normalizedScore,
+        source: 'keyword' as const,
+      })),
+    };
+
     yield { token: '', done: false, status: '正在生成回答...' };
+    yield {
+      token: '',
+      done: false,
+      reasoning: '已构建提示词（包含检索文档 + 用户个人信息 + 对话历史），正在调用 LLM 生成回答...',
+    };
 
     let fullAnswer = '';
     try {
@@ -127,7 +196,13 @@ export class RAGService {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.error(`LLM generation failed: ${message}`);
       if (fullAnswer.length > 0) {
-        this.chatService.addAssistantMessage(conv.id, fullAnswer);
+        await this.chatService.addAssistantMessage(
+          conv.id,
+          fullAnswer,
+          undefined,
+          undefined,
+          undefined,
+        );
       }
       yield { token: '', done: true, error: message, confidenceLevel: 'low' };
       return;
@@ -146,7 +221,13 @@ export class RAGService {
     const validation = validateAnswer(fullAnswer, merged);
     const confidenceLevel = this.getConfidenceLevel(merged[0]?.hybridScore ?? 0);
 
-    this.chatService.addAssistantMessage(conv.id, fullAnswer, sources);
+    await this.chatService.addAssistantMessage(
+      conv.id,
+      fullAnswer,
+      sources,
+      undefined,
+      retrievalDetail,
+    );
     this.logger.log(
       `RAG orchestration complete for query "${query}": ${String(merged.length)} sources, confidence=${confidenceLevel}`,
     );
@@ -156,6 +237,9 @@ export class RAGService {
       sources,
       confidenceLevel,
       hallucinationWarning: validation.passed ? undefined : '回答包含未在文档中验证的数据，请核实',
+      promptTokens: Math.ceil(prompt.length / 2),
+      completionTokens: Math.ceil(fullAnswer.length / 2),
+      retrievalDetail,
     };
   }
 
@@ -235,8 +319,6 @@ export class RAGService {
 
     const secretPatterns: RegExp[] = [/裁员/, /收购|并购/, /季度财报.*未公布/];
     return secretPatterns.some((p) => p.test(query));
-
-
   }
 
   private buildPrompt(
