@@ -15,7 +15,6 @@ export function useConversations() {
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchList = useCallback(async () => {
-    setIsLoading(true);
     try {
       const res = await client.get<ConversationItem[]>('/conversations');
       const data = Array.isArray(res.data) ? res.data : [];

@@ -45,6 +45,7 @@ const AuthenticatedLayout: FC = () => {
     renameConversation,
     deleteConversation,
     selectConversation,
+    setActiveConvId,
   } = useConversations();
   const navigate = useNavigate();
   const location = useLocation();
@@ -110,7 +111,11 @@ const AuthenticatedLayout: FC = () => {
             deleteConversation(id).catch(() => {});
           }}
           isOpen={sidebarOpen}
-          fetchList={() => { void fetchList(); }}
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+          setActiveConvId={(id: string | null) => { setActiveConvId(id); }}
+          fetchList={() => {
+            void fetchList();
+          }}
         />
       )}
       <div

@@ -20,6 +20,7 @@ interface SidebarProps {
   onSelect: (id: string) => void;
   onRename: (id: string, title: string) => void;
   onDelete: (id: string) => void;
+  setActiveConvId: (id: string | null) => void;
   fetchList: () => void;
   isOpen?: boolean;
 }
@@ -32,6 +33,7 @@ export const Sidebar: FC<SidebarProps> = ({
   onSelect,
   onRename,
   onDelete,
+  setActiveConvId,
   fetchList,
   isOpen,
 }) => {
@@ -40,8 +42,9 @@ export const Sidebar: FC<SidebarProps> = ({
 
   // 每次 Sidebar 重新挂载时（切回 /chat）拉取对话列表
   useEffect(() => {
+    setActiveConvId(null);
     fetchList();
-  }, [fetchList]);
+  }, [setActiveConvId, fetchList]);
   const [editTitle, setEditTitle] = useState('');
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const editRef = useRef<HTMLInputElement>(null);
