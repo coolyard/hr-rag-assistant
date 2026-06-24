@@ -58,7 +58,9 @@ export const Sidebar: FC<SidebarProps> = ({
       }
     };
     document.addEventListener('mousedown', handleClick);
-    return () => { document.removeEventListener('mousedown', handleClick); };
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+    };
   }, [menuOpenId]);
 
   const filtered = conversations.filter((c) =>
@@ -140,7 +142,7 @@ export const Sidebar: FC<SidebarProps> = ({
                 onSelect(conv.id);
               }
             }}
-            style={{ position: 'relative' }}
+            style={{ position: 'relative', zIndex: menuOpenId === conv.id ? 2 : 0 }}
           >
             {editingId === conv.id ? (
               <input
