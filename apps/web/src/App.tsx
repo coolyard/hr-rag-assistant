@@ -59,8 +59,10 @@ const AuthenticatedLayout: FC = () => {
   }, []);
 
   useEffect(() => {
-    void fetchList();
-  }, [fetchList]);
+    if (location.pathname === '/chat') {
+      void fetchList();
+    }
+  }, [fetchList, location.pathname]);
 
   // 列表加载完毕后，自动选中第一条对话
   useEffect(() => {
@@ -132,7 +134,9 @@ const AuthenticatedLayout: FC = () => {
                 <ChatPage
                   activeConvId={activeConvId}
                   onConversationUpdated={() => {
-                    void fetchList();
+                    if (location.pathname === '/chat') {
+                      void fetchList();
+                    }
                   }}
                 />
               }
