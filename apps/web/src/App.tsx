@@ -66,7 +66,11 @@ const AuthenticatedLayout: FC = () => {
 
   // 列表加载完毕后，自动选中第一条对话
   useEffect(() => {
-    if (!convsLoading && conversations.length > 0 && !activeConvId) {
+    if (
+      !convsLoading &&
+      conversations.length > 0 &&
+      (!activeConvId || !conversations.some((c) => c.id === activeConvId))
+    ) {
       selectConversation(conversations[0].id);
     }
   }, [convsLoading, conversations, activeConvId, selectConversation]);
@@ -108,8 +112,8 @@ const AuthenticatedLayout: FC = () => {
           }}
           onDelete={(id) => {
             deleteConversation(id).catch(() => {});
+            void fetchList();
           }}
-          isOpen={sidebarOpen}
         />
       )}
       <div

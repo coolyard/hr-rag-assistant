@@ -32,36 +32,36 @@ export class ToolRegistryService {
     {
       name: 'query_reimbursement',
       title: '查询报销记录',
-      triggers: ['报销', '报销记录'],
+      triggers: ['查询报销', '我的报销', '报销记录', '帮我查报销'],
       buildArgs: (_query: string) => ({
         statusFilter: 'all',
       }),
       execute: (_args: Record<string, unknown>): ToolResult => ({
         id: generateId('tc'),
-        result: {
+        result: JSON.stringify({
           total: 2,
           records: [
             { id: 'r-1', title: '差旅报销', amount: 1200, status: '已批准', date: '2026-06-10' },
             { id: 'r-2', title: '办公用品', amount: 350, status: '待审批', date: '2026-06-14' },
           ],
-        },
+        }),
       }),
       confirmRequired: false,
     },
     {
       name: 'query_overtime',
       title: '查询加班/调休',
-      triggers: ['加班', '调休'],
+      triggers: ['查询加班', '加班记录', '调休余额', '我的加班'],
       buildArgs: (_query: string) => ({
         dateRange: 'currentMonth',
       }),
       execute: (_args: Record<string, unknown>): ToolResult => ({
         id: generateId('tc'),
-        result: {
+        result: JSON.stringify({
           overtimeHours: 8,
           usedCompLeave: 3,
           remainingCompLeave: 5,
-        },
+        }),
       }),
       confirmRequired: false,
     },

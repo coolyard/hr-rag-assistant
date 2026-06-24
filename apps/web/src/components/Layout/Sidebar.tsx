@@ -35,6 +35,8 @@ export const Sidebar: FC<SidebarProps> = ({
 }) => {
   const [search, setSearch] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  // 每次 Sidebar 重新挂载时（切回 /chat）拉取对话列表
   const [editTitle, setEditTitle] = useState('');
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const editRef = useRef<HTMLInputElement>(null);
@@ -45,6 +47,21 @@ export const Sidebar: FC<SidebarProps> = ({
       editRef.current.select();
     }
   }, [editingId]);
+
+  // 点击菜单外部时关闭菜单
+  useEffect(() => {
+    if (!menuOpenId) return;
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('[data-menu]')) {
+        setMenuOpenId(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+    };
+  }, [menuOpenId]);
 
   const filtered = conversations.filter((c) =>
     c.title.toLowerCase().includes(search.toLowerCase()),
@@ -125,7 +142,7 @@ export const Sidebar: FC<SidebarProps> = ({
                 onSelect(conv.id);
               }
             }}
-            style={{ position: 'relative' }}
+            style={{ position: 'relative', zIndex: menuOpenId === conv.id ? 2 : 0 }}
           >
             {editingId === conv.id ? (
               <input
@@ -166,27 +183,29 @@ export const Sidebar: FC<SidebarProps> = ({
               ⋯
             </button>
             {menuOpenId === conv.id && (
-              <div className={styles.menu}>
-                <button
-                  className={styles.menuItem}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleStartRename(conv.id, conv.title);
-                  }}
-                  type="button"
-                >
-                  重命名
-                </button>
-                <button
-                  className={`${styles.menuItem} ${styles.menuItemDanger}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete(conv.id);
-                  }}
-                  type="button"
-                >
-                  删除
-                </button>
+              <div data-menu="true">
+                <div className={styles.menu}>
+                  <button
+                    className={styles.menuItem}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleStartRename(conv.id, conv.title);
+                    }}
+                    type="button"
+                  >
+                    重命名
+                  </button>
+                  <button
+                    className={`${styles.menuItem} ${styles.menuItemDanger}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(conv.id);
+                    }}
+                    type="button"
+                  >
+                    删除
+                  </button>
+                </div>
               </div>
             )}
           </div>
