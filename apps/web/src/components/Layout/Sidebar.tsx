@@ -48,6 +48,19 @@ export const Sidebar: FC<SidebarProps> = ({
     }
   }, [editingId]);
 
+  // 点击菜单外部时关闭菜单
+  useEffect(() => {
+    if (!menuOpenId) return;
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('[data-menu]')) {
+        setMenuOpenId(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => { document.removeEventListener('mousedown', handleClick); };
+  }, [menuOpenId]);
+
   const filtered = conversations.filter((c) =>
     c.title.toLowerCase().includes(search.toLowerCase()),
   );
@@ -168,27 +181,29 @@ export const Sidebar: FC<SidebarProps> = ({
               ⋯
             </button>
             {menuOpenId === conv.id && (
-              <div className={styles.menu}>
-                <button
-                  className={styles.menuItem}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleStartRename(conv.id, conv.title);
-                  }}
-                  type="button"
-                >
-                  重命名
-                </button>
-                <button
-                  className={`${styles.menuItem} ${styles.menuItemDanger}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete(conv.id);
-                  }}
-                  type="button"
-                >
-                  删除
-                </button>
+              <div data-menu="true">
+                <div className={styles.menu}>
+                  <button
+                    className={styles.menuItem}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleStartRename(conv.id, conv.title);
+                    }}
+                    type="button"
+                  >
+                    重命名
+                  </button>
+                  <button
+                    className={`${styles.menuItem} ${styles.menuItemDanger}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(conv.id);
+                    }}
+                    type="button"
+                  >
+                    删除
+                  </button>
+                </div>
               </div>
             )}
           </div>
