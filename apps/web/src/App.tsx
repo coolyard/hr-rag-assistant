@@ -110,6 +110,7 @@ const AuthenticatedLayout: FC = () => {
             deleteConversation(id).catch(() => {});
           }}
           isOpen={sidebarOpen}
+          fetchList={() => { void fetchList(); }}
         />
       )}
       <div
