@@ -217,7 +217,8 @@ export const EvaluationDashboard: FC = () => {
       headers: { Authorization: `Bearer ${token ?? ''}` },
     });
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const data: EvalRun[] = (await res.json()) as EvalRun[];
+    const rawData = (await res.json()) as unknown;
+    const data: EvalRun[] = Array.isArray(rawData) ? rawData as EvalRun[] : [];
     setRuns(data);
     setLoading(false);
   }, []);
