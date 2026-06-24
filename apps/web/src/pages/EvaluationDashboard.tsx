@@ -225,7 +225,6 @@ export const EvaluationDashboard: FC = () => {
     void fetchRuns();
   }, [fetchRuns]);
 
-
   const latest = runs.find((r) => r.status === 'running') ?? runs[0];
 
   if (loading) return <div className={styles.loading}>加载中...</div>;
