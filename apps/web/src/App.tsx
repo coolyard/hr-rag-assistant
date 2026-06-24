@@ -59,12 +59,18 @@ const AuthenticatedLayout: FC = () => {
   }, []);
 
   useEffect(() => {
-    void fetchList();
-  }, [fetchList]);
+    if (location.pathname === '/chat') {
+      void fetchList();
+    }
+  }, [fetchList, location.pathname]);
 
   // 列表加载完毕后，自动选中第一条对话
   useEffect(() => {
-    if (!convsLoading && conversations.length > 0 && !activeConvId) {
+    if (
+      !convsLoading &&
+      conversations.length > 0 &&
+      (!activeConvId || !conversations.some((c) => c.id === activeConvId))
+    ) {
       selectConversation(conversations[0].id);
     }
   }, [convsLoading, conversations, activeConvId, selectConversation]);
@@ -106,8 +112,8 @@ const AuthenticatedLayout: FC = () => {
           }}
           onDelete={(id) => {
             deleteConversation(id).catch(() => {});
+            void fetchList();
           }}
-          isOpen={sidebarOpen}
         />
       )}
       <div
@@ -132,7 +138,9 @@ const AuthenticatedLayout: FC = () => {
                 <ChatPage
                   activeConvId={activeConvId}
                   onConversationUpdated={() => {
-                    void fetchList();
+                    if (location.pathname === '/chat') {
+                      void fetchList();
+                    }
                   }}
                 />
               }

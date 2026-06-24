@@ -79,7 +79,7 @@ export const ChatPage: FC<ChatPageProps> = ({ activeConvId, onConversationUpdate
     [setInputValue],
   );
 
-  const convRef = useRef(activeConvId);
+  const convRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (activeConvId && activeConvId !== convRef.current) {
