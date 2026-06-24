@@ -209,8 +209,6 @@ const ResultList: FC<{ results: EvalResult[] }> = ({ results }) => (
 export const EvaluationDashboard: FC = () => {
   const [runs, setRuns] = useState<EvalRun[]>([]);
   const [loading, setLoading] = useState(true);
-  const [running, setRunning] = useState(false);
-
   const fetchRuns = useCallback(async () => {
     const token = localStorage.getItem('hr_rag_token');
     const res: Response = await fetch('/api/eval/runs', {
@@ -218,7 +216,7 @@ export const EvaluationDashboard: FC = () => {
     });
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const rawData = (await res.json()) as unknown;
-    const data: EvalRun[] = Array.isArray(rawData) ? rawData as EvalRun[] : [];
+    const data: EvalRun[] = Array.isArray(rawData) ? (rawData as EvalRun[]) : [];
     setRuns(data);
     setLoading(false);
   }, []);
@@ -227,32 +225,6 @@ export const EvaluationDashboard: FC = () => {
     void fetchRuns();
   }, [fetchRuns]);
 
-  const handleRunEval = useCallback(async () => {
-    setRunning(true);
-    const token = localStorage.getItem('hr_rag_token');
-    await fetch('/api/eval/run', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token ?? ''}` },
-    });
-    const poll = async () => {
-      await fetchRuns();
-      const checkRes: Response = await fetch('/api/eval/runs', {
-        headers: { Authorization: `Bearer ${token ?? ''}` },
-      });
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const checkData: EvalRun[] = (await checkRes.json()) as EvalRun[];
-      const runningRun = checkData.find((r) => r.status === 'running');
-      if (runningRun) {
-        setTimeout(() => {
-          void poll();
-        }, 2000);
-      } else {
-        await fetchRuns();
-        setRunning(false);
-      }
-    };
-    void poll();
-  }, [fetchRuns]);
 
   const latest = runs.find((r) => r.status === 'running') ?? runs[0];
 
@@ -264,20 +236,15 @@ export const EvaluationDashboard: FC = () => {
       <div className={styles.content}>
         <div className={styles.header}>
           <h1 className={styles.pageTitle}>评估概览</h1>
-          <button
-            className={styles.runButton}
-            onClick={() => {
-              void handleRunEval();
-            }}
-            disabled={running}
-            type="button"
-          >
-            {running ? '运行中...' : '运行评估'}
-          </button>
+          <span className={styles.note}>
+            运行评估：终端执行 <code>pnpm eval</code>
+          </span>
         </div>
 
         {runs.length === 0 ? (
-          <p className={styles.empty}>暂无评估数据，点击"运行评估"开始</p>
+          <p className={styles.empty}>
+            暂无评估数据，请在终端运行 <code>pnpm eval</code> 开始评估
+          </p>
         ) : (
           <>
             <MetricCards run={latest} />

@@ -271,3 +271,15 @@
   border-radius: 4px;
   transition: width 0.3s ease;
 }
+
+.note {
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+}
+
+.note code {
+  background: var(--bg-tertiary);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.8rem;
+}
