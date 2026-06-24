@@ -45,7 +45,6 @@ const AuthenticatedLayout: FC = () => {
     renameConversation,
     deleteConversation,
     selectConversation,
-    setActiveConvId,
   } = useConversations();
   const navigate = useNavigate();
   const location = useLocation();
@@ -67,7 +66,11 @@ const AuthenticatedLayout: FC = () => {
 
   // 列表加载完毕后，自动选中第一条对话
   useEffect(() => {
-    if (!convsLoading && conversations.length > 0 && !activeConvId) {
+    if (
+      !convsLoading &&
+      conversations.length > 0 &&
+      (!activeConvId || !conversations.some((c) => c.id === activeConvId))
+    ) {
       selectConversation(conversations[0].id);
     }
   }, [convsLoading, conversations, activeConvId, selectConversation]);
@@ -111,8 +114,6 @@ const AuthenticatedLayout: FC = () => {
             deleteConversation(id).catch(() => {});
           }}
           isOpen={sidebarOpen}
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-          setActiveConvId={(id: string | null) => { setActiveConvId(id); }}
           fetchList={() => {
             void fetchList();
           }}
