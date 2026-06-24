@@ -112,9 +112,6 @@ const AuthenticatedLayout: FC = () => {
           }}
           onDelete={(id) => {
             deleteConversation(id).catch(() => {});
-          }}
-          isOpen={sidebarOpen}
-          fetchList={() => {
             void fetchList();
           }}
         />
