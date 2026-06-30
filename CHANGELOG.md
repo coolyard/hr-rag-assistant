@@ -1,5 +1,30 @@
 # Changelog
 
+## [1.4.0](https://github.com/coolyard/hr-rag-assistant/compare/v1.3.0...v1.4.0) (2026-06-24)
+
+
+### Features
+
+* remove run eval button from dashboard, show CLI note instead ([d78ad15](https://github.com/coolyard/hr-rag-assistant/commit/d78ad150029b52ea4865c40ce1d1bf1e2528ffc0))
+
+
+### Bug Fixes
+
+* add position:relative to conversationItem so menu is positioned relative to its parent ([4c39128](https://github.com/coolyard/hr-rag-assistant/commit/4c391285a1c91e6b75af9448e5acace70161bfab))
+* auto-select conversation when activeConvId is stale, not just null ([5f12532](https://github.com/coolyard/hr-rag-assistant/commit/5f125327b4bd8695c0387c807e32b9b4c0d0eee2))
+* close menu dropdown when clicking outside ([1512c43](https://github.com/coolyard/hr-rag-assistant/commit/1512c43e1143b6da04f9050549b2dc86a1f8e55e))
+* eliminate loading flicker by resetting activeConvId on navigation back ([0353ff7](https://github.com/coolyard/hr-rag-assistant/commit/0353ff7a6484da5889a4f746a0100b3750e9ffd4))
+* **eval:** guard against non-array response from eval/runs API ([7e4b153](https://github.com/coolyard/hr-rag-assistant/commit/7e4b15370698700c5eb83a2fc9b7aa0a120d085a))
+* give open menu item higher z-index to prevent sibling hover overlap ([855bf1c](https://github.com/coolyard/hr-rag-assistant/commit/855bf1cbdd13a11f87a2217a0354ccd49857e5ca))
+* initialize convRef to null to load conversation on lazy re-mount ([edc0aab](https://github.com/coolyard/hr-rag-assistant/commit/edc0aabcec7faa09756ccf1be0cfa7b0bb867704))
+* load conversations via Sidebar mount instead of location watch ([9dde8dd](https://github.com/coolyard/hr-rag-assistant/commit/9dde8dd5648b7977244dbe3d01312535680b95a3))
+* refetch conversations when navigating back to /chat ([61c0b37](https://github.com/coolyard/hr-rag-assistant/commit/61c0b37c2af848fc698f577274c2d9c453d9a4aa))
+* remove all Sidebar/useConversations changes, keep only essential fixes ([982685c](https://github.com/coolyard/hr-rag-assistant/commit/982685c7adb966a2310ff14fd0e260d02b01bb63))
+* set isLoading=true at fetchList start to trigger auto-select effect ([b201e55](https://github.com/coolyard/hr-rag-assistant/commit/b201e559aa2e80c47a77b87475d62d7d64b9c4df))
+* **tool:** narrow triggers and stringify object results for safe rendering ([4aeec40](https://github.com/coolyard/hr-rag-assistant/commit/4aeec40920b42eaa7b8a4edf5469e90dfad5476d))
+* UI issues — navigation, conversation loading, tool triggers, sidebar menu ([c106c1e](https://github.com/coolyard/hr-rag-assistant/commit/c106c1ee11b5575f4348cbc8ad50d89525585ace))
+* use overflow:clip on conversation list so menu is not clipped ([ba5caf4](https://github.com/coolyard/hr-rag-assistant/commit/ba5caf42f06be33b48d1251220a95931658a8d73))
+
 ## [1.3.0](https://github.com/coolyard/hr-rag-assistant/compare/v1.2.0...v1.3.0) (2026-06-18)
 
 
