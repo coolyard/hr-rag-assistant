@@ -137,6 +137,7 @@ describe('RAGService', () => {
       const merged = (service as any).mergeResults(
         [makeVectorResult('c1', 0.9, '年假5天', '## 年假', '年假制度')],
         [makeKeywordResult('c2', 0.8, '报销')],
+        { category: 'mixed' as const, confidence: 0.8, vectorWeight: 0.4, keywordWeight: 0.6 },
         3,
       );
       expect(merged).toHaveLength(2);
@@ -147,6 +148,7 @@ describe('RAGService', () => {
       const merged = (service as any).mergeResults(
         [makeVectorResult('c1', 0.9, '年假5天', '## 年假', '年假制度')],
         [makeKeywordResult('c1', 0.8, '年假5天')],
+        { category: 'mixed' as const, confidence: 0.8, vectorWeight: 0.4, keywordWeight: 0.6 },
         3,
       );
       expect(merged).toHaveLength(1);
@@ -157,6 +159,7 @@ describe('RAGService', () => {
       const merged = (service as any).mergeResults(
         [makeVectorResult('c1', 0.9, 'a', '## a', 'a')],
         [makeKeywordResult('c2', 0.8, 'b'), makeKeywordResult('c3', 0.7, 'c')],
+        { category: 'mixed' as const, confidence: 0.8, vectorWeight: 0.4, keywordWeight: 0.6 },
         2,
       );
       expect(merged).toHaveLength(2);
