@@ -139,19 +139,18 @@ export class KeywordSearchService {
     if (top.length === 0) return [];
 
     // 映射为 RAGSearchResult（用 similarity 暂存 BM25 原始分数）
-    const results: RAGSearchResult[] = top
-      .map((r) => {
-        const id = String(r.id);
-        const chunk = this.indexedChunks.get(id);
-        if (!chunk) return null;
-        return {
-          ...chunk,
-          source: 'keyword' as const,
-          similarity: r.score,
-          normalizedScore: r.score,
-        };
-      })
-      .filter((r): r is RAGSearchResult => r !== null);
+    const rawResults = top.map((r) => {
+      const id = String(r.id);
+      const chunk = this.indexedChunks.get(id);
+      if (!chunk) return null;
+      return {
+        ...chunk,
+        source: 'keyword' as const,
+        similarity: r.score,
+        normalizedScore: r.score,
+      };
+    });
+    const results = rawResults.filter((r): r is NonNullable<typeof r> => r !== null);
 
     // Min-Max 归一化到 [0, 1]
     return this.normalizeScores(results);
