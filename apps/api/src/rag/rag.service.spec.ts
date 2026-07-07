@@ -5,6 +5,7 @@ import { RAGService } from '@/rag/rag.service';
 import { EmbeddingService } from '@/embed/embed.service';
 import { VectorStoreService } from '@/vector/vector-store.service';
 import { KeywordSearchService } from '@/rag/keyword-search.service';
+import { QueryClassifier } from '@/rag/query-classifier';
 import { ChatService } from '@/chat/chat.service';
 import { ConversationStoreService } from '@/chat/conversation-store.service';
 import { PrismaService } from '@/prisma/prisma.service';
@@ -39,6 +40,7 @@ describe('RAGService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ToolRegistryService,
+        QueryClassifier,
         RAGService,
         KeywordSearchService,
         ChatService,
