@@ -166,7 +166,7 @@ AuthGuard 验证 JWT
 RAGService.orchestrate(question)
     ├── EmbeddingService.embed(question) → 768 维向量
     ├── VectorStore.search(embedding) → 向量检索 Top-3
-    ├── KeywordSearch.search(question) → 关键词检索 Top-3
+    ├── KeywordSearch.search(question) → BM25 关键词检索 Top-3（含同义词扩展）
     ├── Merge & Deduplicate → 最终 Top-3
     │
     ▼

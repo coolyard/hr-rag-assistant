@@ -5,6 +5,7 @@ import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 
 import { DocumentLoader, DOCUMENTS_DIR } from '@/document/document-loader.service';
 import { EmbeddingService } from '@/embed/embed.service';
+import { KeywordSearchService } from '@/rag/keyword-search.service';
 import { VectorStoreService } from '@/vector/vector-store.service';
 import type { DocumentMeta } from '@/vector/vector.interface';
 
@@ -24,6 +25,7 @@ export class DocumentUploadService {
     private readonly documentLoader: DocumentLoader,
     private readonly embeddingService: EmbeddingService,
     private readonly vectorStore: VectorStoreService,
+    private readonly keywordSearch: KeywordSearchService,
   ) {}
 
   saveFile(file: MulterFile): string {
@@ -76,6 +78,11 @@ export class DocumentUploadService {
     }
 
     this.vectorStore.logIndexSummary();
+
+    // 构建 BM25 关键词索引
+    const allChunks = this.vectorStore.getAll();
+    this.keywordSearch.buildIndex(allChunks);
+
     this.logger.log(
       `[DocumentUpload] 索引重建完成: ${String(docCount)} 个文档, ${String(chunks.length)} 个片段`,
     );

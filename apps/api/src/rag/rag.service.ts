@@ -5,6 +5,7 @@ import { ChatService } from '@/chat/chat.service';
 import { EmbeddingService } from '@/embed/embed.service';
 import { LLMService } from '@/llm/llm.service';
 import { HR_KEYWORDS, KeywordSearchService } from '@/rag/keyword-search.service';
+import { QueryClassifier } from '@/rag/query-classifier';
 import type {
   MergedResult,
   RetrievalDetail,
@@ -21,8 +22,6 @@ const VECTOR_TOP_K = 3;
 const KEYWORD_TOP_K = 3;
 const MERGE_TOP_K = 3;
 const SIMILARITY_THRESHOLD = 0.5;
-const VECTOR_WEIGHT = 0.4;
-const KEYWORD_WEIGHT = 0.6;
 const HIGH_CONFIDENCE_THRESHOLD = 0.8;
 
 const SYSTEM_PROMPT_TEMPLATE = `你是企业 HR 助手，专门回答员工关于公司制度、政策和流程的问题。
@@ -72,6 +71,7 @@ export class RAGService {
     private readonly llmService: LLMService,
     private readonly userProfileService: UserProfileService,
     private readonly toolRegistry: ToolRegistryService,
+    private readonly queryClassifier: QueryClassifier,
   ) {}
 
   async *orchestrate(
@@ -112,10 +112,15 @@ export class RAGService {
         done: false,
         reasoning: '正在启动向量语义检索，查找与问题最相关的文档片段...',
       };
-      const allChunks = this.vectorStore.getAll();
-      yield { token: '', done: false, reasoning: '正在进行关键词精确匹配，补充制度规则类文档...' };
-      keywordResults = this.keywordSearch.search(query, allChunks, KEYWORD_TOP_K);
-      merged = this.mergeResults(vectorResults, keywordResults, MERGE_TOP_K);
+      yield {
+        token: '',
+        done: false,
+        reasoning: '正在进行 BM25 关键词精确匹配（含同义词扩展），补充制度规则类文档...',
+      };
+      keywordResults = this.keywordSearch.search(query, KEYWORD_TOP_K);
+      // 动态权重分类
+      const classification = this.queryClassifier.classify(query);
+      merged = this.mergeResults(vectorResults, keywordResults, classification, MERGE_TOP_K);
       yield {
         token: '',
         done: false,
@@ -257,14 +262,16 @@ export class RAGService {
   private mergeResults(
     vectorResults: RAGSearchResult[],
     keywordResults: RAGSearchResult[],
+    classification: { vectorWeight: number; keywordWeight: number },
     topK: number,
   ): MergedResult[] {
+    const { vectorWeight, keywordWeight } = classification;
     const merged = new Map<string, MergedResult>();
 
     for (const r of vectorResults) {
       merged.set(r.chunkId, {
         ...r,
-        hybridScore: r.normalizedScore * VECTOR_WEIGHT,
+        hybridScore: r.normalizedScore * vectorWeight,
         sources: ['vector'],
       });
     }
@@ -272,12 +279,12 @@ export class RAGService {
     for (const r of keywordResults) {
       const existing = merged.get(r.chunkId);
       if (existing) {
-        existing.hybridScore += r.normalizedScore * KEYWORD_WEIGHT;
+        existing.hybridScore += r.normalizedScore * keywordWeight;
         existing.sources.push('keyword');
       } else {
         merged.set(r.chunkId, {
           ...r,
-          hybridScore: r.normalizedScore * KEYWORD_WEIGHT,
+          hybridScore: r.normalizedScore * keywordWeight,
           sources: ['keyword'],
         });
       }

@@ -4,6 +4,7 @@ import { basename, resolve } from 'node:path';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 
 import { EmbeddingService } from '@/embed/embed.service';
+import { KeywordSearchService } from '@/rag/keyword-search.service';
 import { VectorStoreService } from '@/vector/vector-store.service';
 import type { DocumentMeta } from '@/vector/vector.interface';
 
@@ -56,6 +57,7 @@ export class DocumentLoader implements OnModuleInit {
   constructor(
     private readonly embeddingService: EmbeddingService,
     private readonly vectorStore: VectorStoreService,
+    private readonly keywordSearch: KeywordSearchService,
   ) {}
 
   async onModuleInit(): Promise<void> {
@@ -77,6 +79,11 @@ export class DocumentLoader implements OnModuleInit {
     }
 
     this.vectorStore.logIndexSummary();
+
+    // 构建 BM25 关键词索引
+    const allChunks = this.vectorStore.getAll();
+    this.keywordSearch.buildIndex(allChunks);
+
     this.logger.log(
       `已加载 ${String(docCount)} 个文档，共 ${String(chunks.length)} 个片段，已建立索引`,
     );
