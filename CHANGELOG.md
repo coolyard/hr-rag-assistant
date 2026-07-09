@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.5.0](https://github.com/coolyard/hr-rag-assistant/compare/v1.4.0...v1.5.0) (2026-07-09)
+
+
+### Features
+
+* **rag:** upgrade keyword search to BM25 + synonyms + dynamic weight query classifier ([b726107](https://github.com/coolyard/hr-rag-assistant/commit/b726107ec18fcb1ce1d8fb505e586c4235d11087))
+* **rag:** upgrade keyword search to BM25 + synonyms + dynamic weight query classifier ([bacda4c](https://github.com/coolyard/hr-rag-assistant/commit/bacda4c17dab3a40140c67fac2b84b22589569bc))
+
+
+### Bug Fixes
+
+* **rag:** add QueryClassifier to rag.service.spec.ts test module providers ([c35c714](https://github.com/coolyard/hr-rag-assistant/commit/c35c71441cf9f52cce5203cb25ce714c95ad004d))
+* **rag:** resolve TS2322/TS2677 type errors in keyword-search.service.ts ([16ff5e8](https://github.com/coolyard/hr-rag-assistant/commit/16ff5e861955b6fcface66aad1fc4e21bf5d89b7))
+
 ## [1.4.0](https://github.com/coolyard/hr-rag-assistant/compare/v1.3.0...v1.4.0) (2026-06-24)
 
 
