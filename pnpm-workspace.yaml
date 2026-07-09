@@ -2,5 +2,8 @@ packages:
   - 'apps/*'
 allowBuilds:
   '@nestjs/core': false
+  '@prisma/client': set this to true or false
+  '@prisma/engines': set this to true or false
   esbuild: false
+  prisma: set this to true or false
   unrs-resolver: false

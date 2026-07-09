@@ -11,7 +11,7 @@
 ## ✨ 核心特性
 
 - **真实本地模型**：基于 Ollama 本地运行 `qwen2.5:7b-instruct`（LLM）和 `nomic-embed-text`（Embedding），零费用、可离线演示
-- **完整 RAG 链路**：向量检索(权重0.4) + 关键词检索(权重0.6) 混合，真实 768 维 Embedding，余弦相似度计算
+- **完整 RAG 链路**：向量语义检索 + BM25 关键词检索 + 查询自适应动态权重（exact-keyword: 0.2/0.8, semantic: 0.7/0.3, mixed: 0.4/0.6），真实 768 维 Embedding，余弦相似度计算
 - **个人数据注入**：识别"我的年假"/"我还有多少报销额度"等个人查询，自动注入当前用户的真实人事数据
 - **多轮对话**：支持上下文关联的连续追问，流式 SSE 输出
 - **来源可追溯**：每个回答标注引用文档和相似度分数
@@ -63,7 +63,7 @@ hr-rag-assistant/
 │   │   │   ├── embed/             # Ollama Embedding 服务
 │   │   │   ├── health/            # 健康检查
 │   │   │   ├── llm/               # Ollama LLM 流式生成
-│   │   │   ├── rag/               # RAG 核心编排（混合检索 + 个人数据注入）
+│   │   │   ├── rag/               # RAG 核心编排（BM25 关键词检索 + 同义词扩展 + 动态权重 + 个人数据注入）
 │   │   │   ├── user-profile/      # 个人数据查询与 Prompt 格式化
 │   │   │   └── vector/            # 内存向量存储
 │   │   ├── package.json

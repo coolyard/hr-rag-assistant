@@ -8,13 +8,13 @@
 
 ### RAG Pipeline
 
-| 模块       | 路径                                         | 说明                       |
-| ---------- | -------------------------------------------- | -------------------------- |
-| 向量检索   | `apps/api/src/vector/`                       | 内存向量存储 + 余弦相似度  |
-| 关键词检索 | `apps/api/src/rag/keyword-search.service.ts` | HR 关键词精确匹配          |
-| 混合排序   | `apps/api/src/rag/rag.service.ts`            | 加权融合 + 阈值过滤        |
-| Embedding  | `apps/api/src/embed/`                        | Ollama nomic-embed-text    |
-| LLM        | `apps/api/src/llm/`                          | Ollama qwen2.5:7b-instruct |
+| 模块       | 路径                                         | 说明                         |
+| ---------- | -------------------------------------------- | ---------------------------- |
+| 向量检索   | `apps/api/src/vector/`                       | 内存向量存储 + 余弦相似度    |
+| 关键词检索 | `apps/api/src/rag/keyword-search.service.ts` | BM25 关键词检索 + 同义词扩展 |
+| 混合排序   | `apps/api/src/rag/rag.service.ts`            | 加权融合 + 阈值过滤          |
+| Embedding  | `apps/api/src/embed/`                        | Ollama nomic-embed-text      |
+| LLM        | `apps/api/src/llm/`                          | Ollama qwen2.5:7b-instruct   |
 
 ### 前端组件
 

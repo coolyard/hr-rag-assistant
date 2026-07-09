@@ -27,15 +27,15 @@
 
 ### 1.2 核心能力矩阵
 
-| 能力维度         | 具体实现                   | 技术亮点                                                |
-| ---------------- | -------------------------- | ------------------------------------------------------- |
-| **智能问答**     | 自然语言 → 检索 → LLM 生成 | 混合检索（向量 0.4 + 关键词 0.6）、四层幻觉防御         |
-| **个人数据查询** | "我还有多少天年假？"       | 正则识别个人查询 → 注入用户 Profile → 数据+制度双源回答 |
-| **多轮对话**     | 上下文关联的连续追问       | 内存对话历史（最近 5 轮）、SSE 流式输出                 |
-| **来源追溯**     | 每个回答标注引用文档       | SourceCitation 卡片（文档名 + 相似度）                  |
-| **文档管理**     | HR 可上传新制度文档        | 自动分块 → Embedding → 索引重建                         |
-| **角色权限**     | 员工 / HR 两种角色         | JWT + RolesGuard，上传功能仅限 HR                       |
-| **主题切换**     | 浅色 / 深色 / 跟随系统     | CSS Variables + localStorage 持久化                     |
+| 能力维度         | 具体实现                   | 技术亮点                                                          |
+| ---------------- | -------------------------- | ----------------------------------------------------------------- |
+| **智能问答**     | 自然语言 → 检索 → LLM 生成 | BM25 关键词检索 + 向量语义检索 + 查询自适应动态权重、四层幻觉防御 |
+| **个人数据查询** | "我还有多少天年假？"       | 正则识别个人查询 → 注入用户 Profile → 数据+制度双源回答           |
+| **多轮对话**     | 上下文关联的连续追问       | 内存对话历史（最近 5 轮）、SSE 流式输出                           |
+| **来源追溯**     | 每个回答标注引用文档       | SourceCitation 卡片（文档名 + 相似度）                            |
+| **文档管理**     | HR 可上传新制度文档        | 自动分块 → Embedding → 索引重建                                   |
+| **角色权限**     | 员工 / HR 两种角色         | JWT + RolesGuard，上传功能仅限 HR                                 |
+| **主题切换**     | 浅色 / 深色 / 跟随系统     | CSS Variables + localStorage 持久化                               |
 
 ### 1.3 技术栈总览
 
@@ -560,7 +560,7 @@ interface IVectorStore {
 
 #### ADR-005：为什么自研 RAG Pipeline 而非 LangChain？
 
-**背景**：需要精细控制检索阈值、Prompt 模板、混合检索权重；LangChain 抽象过高，调试困难。
+**背景**：需要精细控制检索阈值、Prompt 模板、查询自适应动态权重；LangChain 抽象过高，调试困难。
 
 **决策**：自研 Pipeline，模块化设计，接口可替换
 
@@ -744,7 +744,7 @@ async *orchestrate(
   const conv = this.chatService.getOrCreateConversation(conversationId);
   this.chatService.addUserMessage(conv.id, query);
 
-  // ========== Step 2: 混合检索 ==========
+  // ========== Step 2: BM25 关键词检索 + 向量检索 ==========
   const vectorResults = await this.vectorSearch(query, VECTOR_TOP_K);     // Top-3
   const allChunks = this.vectorStore.getAll();
   const keywordResults = this.keywordSearch.search(query, allChunks, KEYWORD_TOP_K);  // Top-3
@@ -782,7 +782,7 @@ async *orchestrate(
 }
 ```
 
-#### 混合检索算法详解
+#### 混合检索算法详解（BM25 + 动态权重）
 
 **向量检索（语义匹配）**：
 
@@ -792,7 +792,7 @@ async *orchestrate(
 - **优点**：理解语义，如"请假"和"休假"语义相近
 - **缺点**：对专有名词、编号等精确匹配能力弱
 
-**关键词检索（精确匹配）**：
+**关键词检索（MiniSearch BM25 引擎 + 同义词扩展）**：
 
 - 预定义 46 个 HR 关键词（年假、报销、晋升等）
 - 从问题中提取匹配的关键词
@@ -807,7 +807,8 @@ async *orchestrate(
 **加权线性合并**：
 
 ```typescript
-// 向量权重 0.4 + 关键词权重 0.6
+// 查询自适应动态权重（由 QueryClassifier 分类决定）
+// exact-keyword: 0.2/0.8, semantic: 0.7/0.3, mixed: 0.4/0.6
 const VECTOR_WEIGHT = 0.4;
 const KEYWORD_WEIGHT = 0.6;
 
@@ -836,9 +837,9 @@ function mergeResults(vectorResults, keywordResults, topK) {
 }
 ```
 
-> 🎯 **面试考点**："混合检索权重 0.4 + 0.6 是怎么确定的？"
+> 🎯 **面试考点**："混合检索权重是怎么确定的？"
 >
-> - **依据**：关键词检索在本场景（HR 制度文档）中更可靠，因为：
+> - **答案**：使用 QueryClassifier 查询分类器实现自适应动态权重。根据关键词密度 + 口语化标记，将查询分为三类：exact-keyword（0.2+0.8）、semantic（0.7+0.3）、mixed（0.4+0.6）。关键词检索在本场景（HR 制度文档）中更可靠，因为：
 >   1. 文档术语固定（"年假"、"报销"等关键词明确）
 >   2. 用户问题通常包含这些术语
 >   3. 向量检索可能因语义相近而引入噪声（如"假期"匹配到"请假"但制度不同）
@@ -1297,7 +1298,7 @@ clearConversation = () => {
     │       归一化后取 Top-3
     │
     ├── Step 5: mergeResults(vectorResults, keywordResults, 3)
-    │   └── 向量结果 × 0.4 + 关键词结果 × 0.6
+    │   └── 动态权重合并（exact-keyword: 0.2+0.8, semantic: 0.7+0.3, mixed: 0.4+0.6）
     │       结果: [
     │         { chunkId: "...", hybridScore: 0.89, sources: ['vector', 'keyword'] },
     │         ...
@@ -1343,14 +1344,14 @@ clearConversation = () => {
 
 ### 7.2 性能热点分析
 
-| 环节           | 耗时估算          | 优化空间                        |
-| -------------- | ----------------- | ------------------------------- |
-| Embedding 生成 | 200-500ms         | Ollama 首次加载慢， warmed 后快 |
-| 向量检索       | < 1ms（全量遍历） | 数据量大时换 ANN 索引           |
-| 关键词检索     | < 1ms             | 无（纯内存计算）                |
-| LLM 首 Token   | 3-8 秒            | 模型量化（INT4）、GPU 加速      |
-| LLM 完整生成   | 5-15 秒           | 调整 max_tokens、使用更快的模型 |
-| 端到端总耗时   | 10-25 秒          | 主要瓶颈在 LLM 推理             |
+| 环节            | 耗时估算          | 优化空间                         |
+| --------------- | ----------------- | -------------------------------- |
+| Embedding 生成  | 200-500ms         | Ollama 首次加载慢， warmed 后快  |
+| 向量检索        | < 1ms（全量遍历） | 数据量大时换 ANN 索引            |
+| BM25 关键词检索 | < 5ms             | MiniSearch 索引（前缀/模糊匹配） |
+| LLM 首 Token    | 3-8 秒            | 模型量化（INT4）、GPU 加速       |
+| LLM 完整生成    | 5-15 秒           | 调整 max_tokens、使用更快的模型  |
+| 端到端总耗时    | 10-25 秒          | 主要瓶颈在 LLM 推理              |
 
 ---
 
@@ -1371,7 +1372,12 @@ clearConversation = () => {
    - **层次化索引**：文档级 → 章节级 → chunk 级，先粗排再精排
    - **元数据增强**：为每个 chunk 添加更多元数据（关键词标签、摘要），提升检索精度
 
-#### Q2：混合检索的权重 0.4 + 0.6 是怎么确定的？如果换到电商商品检索场景，权重应该怎么调？
+#### Q2：混合检索的权重是怎么确定的？如果换到电商商品检索场景，权重应该怎么调？
+
+**回答**：
+
+1. **不是固定权重**：当前使用 QueryClassifier 查询分类器实现自适应动态权重。
+2. **分类逻辑**：基于关键词密度（keywordDensity）和口语化标记（colloquialMarkers 正则），将查询分为：
 
 **回答框架**：
 
@@ -1557,7 +1563,7 @@ clearConversation = () => {
    - 用户数据可扩展为连接真实 HR 系统的 API
 3. **技术深度**：
    - 自研 RAG Pipeline（而非调用 LangChain 一行代码）
-   - 混合检索算法的实现和调优
+   - BM25 关键词检索 + 查询自适应动态权重的实现和调优
    - 四层幻觉防御的设计
    - SSE 流式传输的完整实现
 4. **面试策略**：主动说明"当前是 MVP 状态，生产环境会做以下改进..."，展示你对生产环境的思考
@@ -1696,7 +1702,7 @@ POST /api/tool/execute → toolResult + LLM 生成
 **展示内容**：
 
 1. **文档相似度条形图**：纯 CSS 实现，不依赖 Recharts（CI 依赖问题）
-2. **检索来源贡献**：向量检索 vs 关键词检索命中数对比
+2. **检索来源贡献**：向量检索 vs BM25 关键词检索命中数对比
 3. **检索过程/思考文本**：reasoning 文本 `<pre>` 预览
 
 **数据来源**：
@@ -1800,7 +1806,7 @@ POST /api/tool/execute → toolResult + LLM 生成
 1. 从 `main.ts` 开始，跟踪后端启动流程
 2. 重点理解 `RAGService.orchestrate()` 的每一步
 3. 手写一次余弦相似度计算，理解向量检索原理
-4. 尝试调整混合检索权重，观察回答变化
+4. 尝试在 QueryClassifier 中调整分类阈值（keywordDensity / colloquialMarkers），观察不同查询的分类结果和回答变化
 
 ### Phase 3：深入前端（2-3 天）
 
